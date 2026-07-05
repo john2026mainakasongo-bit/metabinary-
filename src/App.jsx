@@ -53,16 +53,26 @@ export default function App() {
   }, [lastDigit]);
 
   const points = useMemo(() => {
-    return Array.from({ length: 95 }, (_, i) => {
-      const x = 40 + i * 10;
-      const y =
-        250 +
-        Math.sin(i * 0.18) * 95 +
-        Math.sin(i * 0.47) * 45 +
-        Math.random() * 18;
+    let y = 250;
+    const arr = [];
 
-      return `${x},${y}`;
-    }).join(" ");
+    for (let i = 0; i < 95; i++) {
+      y += (Math.random() - 0.48) * 30;
+
+      if (i > 8 && i < 25) y -= 3;
+      if (i > 25 && i < 45) y += 4;
+      if (i > 45 && i < 65) y -= 3;
+      if (i > 65 && i < 82) y += 5;
+      if (i > 82) y -= 4;
+
+      if (y < 115) y = 115;
+      if (y > 360) y = 360;
+
+      const x = 40 + i * 13;
+      arr.push(`${x},${y.toFixed(1)}`);
+    }
+
+    return arr.join(" ");
   }, [lastDigit]);
 
   function changeContract(type) {
@@ -430,25 +440,24 @@ export default function App() {
             </div>
 
             <div className="chart">
-              <svg viewBox="0 0 1000 450" preserveAspectRatio="none">
+              <svg viewBox="0 0 1300 450" preserveAspectRatio="none">
                 <defs>
                   <linearGradient id="areaFill" x1="0" y1="0" x2="0" y2="1">
-                    <stop offset="0%" stopColor="#333333" stopOpacity="0.14" />
+                    <stop offset="0%" stopColor="#333333" stopOpacity="0.16" />
                     <stop offset="100%" stopColor="#333333" stopOpacity="0" />
                   </linearGradient>
                 </defs>
 
-                <polyline
-                  points={`40,450 ${points} 970,450`}
+                <polygon
+                  points={`40,430 ${points} 1260,430`}
                   fill="url(#areaFill)"
-                  stroke="none"
                 />
 
                 <polyline
                   points={points}
                   fill="none"
-                  stroke="#333333"
-                  strokeWidth="2.2"
+                  stroke="#3a3a3a"
+                  strokeWidth="2.8"
                   strokeLinecap="round"
                   strokeLinejoin="round"
                 />
@@ -466,7 +475,7 @@ export default function App() {
                   className={`digit ${selectedDigit === d ? "selected" : ""}`}
                 >
                   <b>{d}</b>
-                  <span>{(8 + Math.random() * 5).toFixed(1)}%</span>
+                  <span>{(8 + Math.random() * 4).toFixed(1)}%</span>
                 </button>
               ))}
             </div>
