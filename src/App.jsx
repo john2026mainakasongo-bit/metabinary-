@@ -96,7 +96,7 @@ export default function App() {
       });
 
       setScreen("app");
-    } catch (error) {
+    } catch {
       alert("Backend is not connected. Start backend or set VITE_API_URL on Vercel.");
     }
   }
@@ -174,7 +174,7 @@ export default function App() {
         return;
       }
 
-      alert("STK Push sent. Enter your M-Pesa PIN.");
+      alert("Deposit added. Real balance updated.");
       refreshBalance();
     } catch {
       alert("Deposit failed. Backend is not connected.");
@@ -201,7 +201,7 @@ export default function App() {
             onChange={(e) => setPassword(e.target.value)}
           />
 
-          <button onClick={() => auth(screen)}>
+          <button type="button" onClick={() => auth(screen)}>
             {screen === "login" ? "Login" : "Register"}
           </button>
 
@@ -219,12 +219,12 @@ export default function App() {
         <div className="brand">MetaBinary</div>
 
         <nav className="nav">
-          <button>Trader&apos;s Hub</button>
-          <button onClick={() => setDepositOpen(true)}>Deposit</button>
-          <button>alert Withdraw coming soon</button>
-          <button>History</button>
-          <button>Chat</button>
-          <button onClick={logout}>Logout</button>
+          <button type="button">Trader&apos;s Hub</button>
+          <button type="button" onClick={() => setDepositOpen(true)}>Deposit</button>
+          <button type="button" onClick={() => alert("Withdraw coming soon")}>Withdraw</button>
+          <button type="button">History</button>
+          <button type="button">Chat</button>
+          <button type="button" onClick={logout}>Logout</button>
         </nav>
 
         <div className="accountBox">
@@ -235,7 +235,7 @@ export default function App() {
 
           <div className="balance">${currentBalance.toFixed(2)}</div>
 
-          <button className="depositBtn" onClick={() => setDepositOpen(true)}>
+          <button type="button" className="depositBtn" onClick={() => setDepositOpen(true)}>
             Deposit
           </button>
         </div>
@@ -317,6 +317,7 @@ export default function App() {
             <div className="digits">
               {[0, 1, 2, 3, 4, 5, 6, 7, 8, 9].map((d) => (
                 <button
+                  type="button"
                   key={d}
                   onClick={() => setSelectedDigit(d)}
                   className={`digit ${selectedDigit === d ? "selected" : ""}`}
@@ -336,7 +337,7 @@ export default function App() {
 
           <div className="contractTabs">
             {["Even/Odd", "Matches/Differs", "Over/Under", "Rise/Fall", "Touch/No Touch"].map((x) => (
-              <button className={x === "Even/Odd" ? "active" : ""} key={x}>
+              <button type="button" className={x === "Even/Odd" ? "active" : ""} key={x}>
                 {x}
               </button>
             ))}
@@ -348,11 +349,19 @@ export default function App() {
           </div>
 
           <div className="choice">
-            <button onClick={() => setChoice("Even")} className={choice === "Even" ? "green" : "white"}>
+            <button
+              type="button"
+              onClick={() => setChoice("Even")}
+              className={choice === "Even" ? "green activeChoice" : "white"}
+            >
               Even
             </button>
 
-            <button onClick={() => setChoice("Odd")} className={choice === "Odd" ? "green" : "white"}>
+            <button
+              type="button"
+              onClick={() => setChoice("Odd")}
+              className={choice === "Odd" ? "green activeChoice" : "white"}
+            >
               Odd
             </button>
           </div>
@@ -363,7 +372,7 @@ export default function App() {
           <label>Stake</label>
           <input value={stake} onChange={(e) => setStake(e.target.value)} />
 
-          <button className="buyEven" onClick={trade}>
+          <button type="button" className="buyEven" onClick={trade}>
             Buy {choice}
             <span>Payout {(Number(stake) * 1.9).toFixed(2)} USD</span>
           </button>
@@ -373,7 +382,7 @@ export default function App() {
       {depositOpen && (
         <div className="modal">
           <div className="modalBox">
-            <button className="x" onClick={() => setDepositOpen(false)}>×</button>
+            <button type="button" className="x" onClick={() => setDepositOpen(false)}>×</button>
 
             <h2>Deposit</h2>
             <p>Send M-Pesa STK Push</p>
@@ -390,7 +399,7 @@ export default function App() {
               onChange={(e) => setDepositAmount(e.target.value)}
             />
 
-            <button onClick={deposit}>Send STK Push</button>
+            <button type="button" onClick={deposit}>Send STK Push</button>
           </div>
         </div>
       )}
