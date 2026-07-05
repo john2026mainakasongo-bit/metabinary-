@@ -1,516 +1,82 @@
 *{margin:0;padding:0;box-sizing:border-box}
-
-html,body,#root{
-width:100%;
-height:100%;
-overflow:hidden;
-font-family:Arial,Helvetica,sans-serif;
-background:#07111d;
-color:white;
-}
-
+html,body,#root{width:100%;height:100%;overflow:hidden;font-family:Arial,Helvetica,sans-serif;background:#07111d;color:white;max-width:none!important}
 button,input,select{font-family:inherit}
 button{cursor:pointer}
 
-/* AUTH */
-.authPage{
-width:100vw;
-height:100vh;
-background:radial-gradient(circle at top,#173050,#07111d 60%);
-display:flex;
-align-items:center;
-justify-content:center;
-padding:20px;
-}
+.platform{width:100vw;height:100vh;background:#07111d;display:flex;flex-direction:column;overflow:hidden}
 
-.authCard{
-width:430px;
-background:#111c2d;
-border:1px solid #26364d;
-border-radius:22px;
-padding:35px;
-box-shadow:0 30px 90px rgba(0,0,0,.7);
-}
+.topbar{height:72px;background:#091321;border-bottom:1px solid rgba(255,255,255,.08);display:grid;grid-template-columns:260px 1fr 300px;align-items:center;padding:0 18px;gap:14px}
+.brand{font-size:36px;font-weight:900;color:white;white-space:nowrap}
+.nav{display:flex;justify-content:center;gap:8px;overflow:hidden}
+.nav button{background:#101b2d;border:1px solid #26364d;color:white;border-radius:8px;padding:10px 13px;font-weight:800;white-space:nowrap}
+.accountBox{display:flex;align-items:center;justify-content:flex-end;gap:10px}
+.accountBox select{height:42px;background:#101b2d;color:white;border:1px solid #26364d;border-radius:8px;padding:0 12px}
+.balance{font-size:22px;font-weight:900;white-space:nowrap}
+.depositBtn{background:#ff5d6c!important;border:none!important;color:white!important;border-radius:9px!important;padding:13px 18px!important;font-weight:900!important}
 
-.authCard h1{
-font-size:50px;
-font-weight:900;
-color:white;
-text-align:center;
-margin-bottom:10px;
-}
+.layout{flex:1;display:grid;grid-template-columns:230px minmax(0,1fr)330px;overflow:hidden}
 
-.authCard p{
-color:#aebbd0;
-text-align:center;
-margin-bottom:25px;
-}
+.leftPanel{background:#1a2538;border-right:1px solid rgba(255,255,255,.08);display:flex;flex-direction:column;overflow:hidden}
+.tabs{height:55px;display:flex;border-bottom:1px solid rgba(255,255,255,.08)}
+.tabs span{flex:1;display:flex;align-items:center;justify-content:center;color:#9badc6;font-size:15px}
+.tabs .active{color:#20d6cb;border-bottom:3px solid #20d6cb}
+.positions{flex:1;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:18px;text-align:center;padding:18px;overflow:auto}
+.avatar{width:82px;height:82px;border-radius:50%;background:#0d1929;display:flex;align-items:center;justify-content:center;font-size:34px;font-weight:900}
+.positions h2{font-size:23px;color:white}
+.positions p{font-size:16px;line-height:1.4;color:#d5dceb}
 
-.authCard input{
-width:100%;
-height:52px;
-margin-bottom:14px;
-background:#07111d;
-border:1px solid #26364d;
-border-radius:10px;
-color:white;
-padding:0 15px;
-font-size:16px;
-}
+.chartWrap{padding:14px;background:#07111d;overflow:hidden}
+.chartCard{height:100%;background:#141d2e;border-radius:12px;padding:14px;display:flex;flex-direction:column;overflow:hidden}
+.chartHeader{background:#202b3f;padding:22px;border-radius:12px;display:flex;justify-content:space-between;align-items:center}
+.chartHeader h1{font-size:36px;color:white}
+.chartHeader p{color:#d1d8e4;margin-top:8px}
+.lastDigit{width:60px;height:60px;border-radius:12px;background:#101b2d;display:flex;align-items:center;justify-content:center;font-size:34px;font-weight:900}
+.chart{flex:1;margin-top:16px;background:#121c2c;border-radius:10px;overflow:hidden;min-height:0}
+.chart svg{width:100%;height:100%}
+.digits{height:78px;display:flex;align-items:center;justify-content:space-between;gap:8px;margin-top:12px;overflow:hidden}
+.digit{width:60px;height:60px;min-width:60px;border-radius:50%;background:#1c283a;color:white;border:2px solid transparent;display:flex;flex-direction:column;align-items:center;justify-content:center}
+.digit b{font-size:19px}
+.digit span{font-size:10px;color:#c6cfdd}
+.selected{border-color:#29d8cf!important;box-shadow:0 0 20px rgba(41,216,207,.8)}
 
-.authCard button{
-width:100%;
-height:54px;
-background:#20c98b;
-color:white;
-border:none;
-border-radius:10px;
-font-size:18px;
-font-weight:900;
-}
-
-.authCard span{
-display:block;
-text-align:center;
-margin-top:20px;
-color:#22d7cf;
-}
-
-/* APP */
-.platform{
-width:100vw;
-height:100vh;
-display:flex;
-flex-direction:column;
-background:#07111d;
-overflow:hidden;
-}
-
-.topbar{
-height:72px;
-background:#091321;
-border-bottom:1px solid rgba(255,255,255,.08);
-display:flex;
-align-items:center;
-justify-content:space-between;
-padding:0 20px;
-}
-
-.brand{
-font-size:40px;
-font-weight:900;
-color:white;
-}
-
-.nav{
-display:flex;
-gap:8px;
-}
-
-.nav button{
-background:#101b2d;
-border:1px solid #26364d;
-color:white;
-padding:10px 14px;
-border-radius:8px;
-font-weight:700;
-}
-
-.accountBox{
-display:flex;
-align-items:center;
-gap:12px;
-}
-
-.accountBox select{
-height:42px;
-background:#101b2d;
-color:white;
-border:1px solid #26364d;
-border-radius:8px;
-padding:0 12px;
-}
-
-.balance{
-font-size:22px;
-font-weight:900;
-}
-
-.depositBtn{
-background:#ff5d6c!important;
-border:none!important;
-color:white!important;
-padding:13px 20px!important;
-border-radius:9px!important;
-font-weight:900!important;
-}
-
-.layout{
-flex:1;
-display:grid;
-grid-template-columns:250px minmax(0,1fr)350px;
-overflow:hidden;
-}
-
-.leftPanel{
-background:#1a2538;
-border-right:1px solid rgba(255,255,255,.08);
-display:flex;
-flex-direction:column;
-overflow:hidden;
-}
-
-.tabs{
-height:55px;
-display:flex;
-border-bottom:1px solid rgba(255,255,255,.08);
-}
-
-.tabs span{
-flex:1;
-display:flex;
-align-items:center;
-justify-content:center;
-color:#9badc6;
-font-size:15px;
-}
-
-.tabs .active{
-color:#20d6cb;
-border-bottom:3px solid #20d6cb;
-}
-
-.positions{
-flex:1;
-display:flex;
-flex-direction:column;
-align-items:center;
-justify-content:center;
-gap:20px;
-padding:20px;
-text-align:center;
-overflow:auto;
-}
-
-.avatar{
-width:82px;
-height:82px;
-border-radius:50%;
-background:#0d1929;
-display:flex;
-align-items:center;
-justify-content:center;
-font-size:34px;
-font-weight:900;
-}
-
-.positions h2{
-font-size:24px;
-color:white;
-}
-
-.positions p{
-color:#d5dceb;
-font-size:17px;
-line-height:1.4;
-}
-
-.tradeCard{
-width:100%;
-background:#101b2d;
-border:1px solid #26364d;
-border-radius:12px;
-padding:14px;
-text-align:left;
-display:flex;
-flex-direction:column;
-gap:5px;
-}
-
-.tradeCard.win{border-color:#20c98b}
-.tradeCard.loss{border-color:#ff4f6a}
-
-.chartWrap{
-padding:16px;
-overflow:hidden;
-background:#07111d;
-}
-
-.chartCard{
-height:100%;
-background:#141d2e;
-border-radius:12px;
-padding:16px;
-display:flex;
-flex-direction:column;
-overflow:hidden;
-}
-
-.chartHeader{
-background:#202b3f;
-padding:24px;
-border-radius:12px;
-display:flex;
-align-items:center;
-justify-content:space-between;
-}
-
-.chartHeader h1{
-font-size:40px;
-color:white;
-}
-
-.chartHeader p{
-color:#d1d8e4;
-margin-top:8px;
-}
-
-.lastDigit{
-width:62px;
-height:62px;
-border-radius:12px;
-background:#101b2d;
-display:flex;
-align-items:center;
-justify-content:center;
-font-size:34px;
-font-weight:900;
-}
-
-.chart{
-flex:1;
-margin-top:18px;
-background:#121c2c;
-border-radius:10px;
-overflow:hidden;
-min-height:420px;
-}
-
-.chart svg{
-width:100%;
-height:100%;
-}
-
-.digits{
-height:82px;
-display:flex;
-align-items:center;
-justify-content:space-between;
-gap:10px;
-margin-top:14px;
-}
-
-.digit{
-width:64px;
-height:64px;
-min-width:64px;
-border-radius:50%;
-background:#1c283a;
-color:white;
-border:2px solid transparent;
-display:flex;
-flex-direction:column;
-align-items:center;
-justify-content:center;
-}
-
-.digit b{font-size:20px}
-.digit span{font-size:11px;color:#c6cfdd}
-
-.selected{
-border-color:#29d8cf!important;
-box-shadow:0 0 20px rgba(41,216,207,.8);
-}
-
-.tradePanel{
-background:#1a2538;
-border-left:1px solid rgba(255,255,255,.08);
-padding:20px;
-overflow-y:auto;
-}
-
-.learn{
-color:#20d6cb;
-margin-bottom:25px;
-text-align:right;
-}
-
-.tradeTitle{
-font-size:52px;
-font-weight:900;
-text-align:right;
-margin-bottom:15px;
-color:white;
-}
-
-.contractTabs{
-display:flex;
-flex-wrap:wrap;
-gap:8px;
-margin-bottom:20px;
-}
-
-.contractTabs button{
-background:#101b2b;
-border:1px solid #26364d;
-color:white;
-border-radius:8px;
-padding:11px 13px;
-}
-
-.contractTabs .active{
-border-color:#24d9cf;
-color:#24d9cf;
-}
-
-.tradeMode{
-background:#101b2b;
-border:1px solid #24344d;
-padding:16px;
-border-radius:10px;
-display:flex;
-justify-content:space-between;
-margin-bottom:20px;
-font-size:18px;
-}
-
-.choice{
-display:grid;
-grid-template-columns:1fr 1fr;
-gap:10px;
-margin-bottom:20px;
-}
-
-.choice button{
-height:50px;
-border-radius:8px;
-border:none;
-font-weight:900;
-}
-
+.tradePanel{background:#1a2538;border-left:1px solid rgba(255,255,255,.08);padding:18px;overflow-y:auto;overflow-x:hidden}
+.learn{color:#20d6cb;margin-bottom:22px;text-align:right}
+.tradeTitle{font-size:48px;font-weight:900;text-align:right;margin-bottom:15px;color:white}
+.contractTabs{display:flex;flex-wrap:wrap;gap:8px;margin-bottom:20px}
+.contractTabs button{background:#101b2b;border:1px solid #26364d;color:white;border-radius:8px;padding:10px 12px}
+.contractTabs .active{border-color:#24d9cf;color:#24d9cf}
+.tradeMode{background:#101b2b;border:1px solid #24344d;padding:16px;border-radius:10px;display:flex;justify-content:space-between;margin-bottom:20px;font-size:17px}
+.choice{display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-bottom:18px}
+.choice button{height:50px;border-radius:8px;border:none;font-weight:900}
 .green{background:#1bc488!important;color:white!important}
 .white{background:white!important;color:black!important}
+.tradePanel label{display:block;margin:16px 0 8px;color:#aebbd0;text-align:center;font-size:17px}
+.tradePanel input{width:100%;height:48px;border-radius:8px;background:#08111f;border:1px solid #24344d;color:white;padding-left:15px;font-size:17px}
+.buyEven{width:100%;height:86px;border-radius:12px;margin-top:18px;border:none;background:#18be84;color:white;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:6px;font-size:27px;font-weight:900}
+.buyEven span{font-size:16px}
 
-.tradePanel label{
-display:block;
-margin:18px 0 8px;
-color:#aebbd0;
-text-align:center;
-font-size:18px;
-}
+.authPage{width:100vw;height:100vh;background:radial-gradient(circle at top,#173050,#07111d 60%);display:flex;align-items:center;justify-content:center;padding:20px}
+.authCard{width:430px;background:#111c2d;border:1px solid #26364d;border-radius:22px;padding:35px;box-shadow:0 30px 90px rgba(0,0,0,.7)}
+.authCard h1{font-size:50px;font-weight:900;color:white;text-align:center;margin-bottom:10px}
+.authCard p{color:#aebbd0;text-align:center;margin-bottom:25px}
+.authCard input{width:100%;height:52px;margin-bottom:14px;background:#07111d;border:1px solid #26364d;border-radius:10px;color:white;padding:0 15px;font-size:16px}
+.authCard button{width:100%;height:54px;background:#20c98b;color:white;border:none;border-radius:10px;font-size:18px;font-weight:900}
+.authCard span{display:block;text-align:center;margin-top:20px;color:#22d7cf}
 
-.tradePanel input{
-width:100%;
-height:50px;
-border-radius:8px;
-background:#08111f;
-border:1px solid #24344d;
-color:white;
-padding-left:15px;
-font-size:18px;
-}
+.modal{position:fixed;inset:0;background:rgba(0,0,0,.75);display:flex;align-items:center;justify-content:center;z-index:999}
+.modalBox{width:420px;background:#111c2d;border:1px solid #26364d;border-radius:20px;padding:30px;position:relative}
+.modalBox input{width:100%;height:52px;margin-bottom:14px;background:#07111d;border:1px solid #26364d;border-radius:10px;color:white;padding:0 15px}
+.x{position:absolute;right:15px;top:15px;background:#26364d;color:white;border:none;width:35px;height:35px;border-radius:50%;font-size:22px}
 
-.buyEven{
-width:100%;
-height:92px;
-border-radius:12px;
-margin-top:18px;
-border:none;
-background:#18be84;
-color:white;
-display:flex;
-flex-direction:column;
-align-items:center;
-justify-content:center;
-gap:6px;
-font-size:28px;
-font-weight:900;
-}
-
-.buyEven span{
-font-size:17px;
-}
-
-.modal{
-position:fixed;
-inset:0;
-background:rgba(0,0,0,.75);
-display:flex;
-align-items:center;
-justify-content:center;
-z-index:999;
-}
-
-.modalBox{
-width:420px;
-background:#111c2d;
-border:1px solid #26364d;
-border-radius:20px;
-padding:30px;
-position:relative;
-}
-
-.modalBox h2{
-font-size:36px;
-color:white;
-}
-
-.modalBox p{
-color:#aebbd0;
-margin:10px 0 20px;
-}
-
-.modalBox input{
-width:100%;
-height:52px;
-margin-bottom:14px;
-background:#07111d;
-border:1px solid #26364d;
-border-radius:10px;
-color:white;
-padding:0 15px;
-font-size:16px;
-}
-
-.modalBox button:not(.x){
-width:100%;
-height:54px;
-background:#20c98b;
-color:white;
-border:none;
-border-radius:10px;
-font-weight:900;
-}
-
-.x{
-position:absolute;
-right:15px;
-top:15px;
-background:#26364d;
-color:white;
-border:none;
-width:35px;
-height:35px;
-border-radius:50%;
-font-size:22px;
-}
-
-/* MOBILE */
 @media(max-width:900px){
 html,body,#root{overflow:auto}
 .platform{height:auto;min-height:100vh;overflow:auto}
-.topbar{height:auto;flex-direction:column;align-items:flex-start;gap:15px;padding:15px}
-.brand{font-size:32px}
-.nav{width:100%;overflow-x:auto}
+.topbar{height:auto;display:flex;flex-direction:column;align-items:flex-start;padding:15px}
+.nav{width:100%;overflow-x:auto;justify-content:flex-start}
 .accountBox{width:100%;justify-content:space-between}
 .layout{display:flex;flex-direction:column}
-.leftPanel{min-height:230px}
-.chartWrap{padding:10px}
+.leftPanel{min-height:220px}
 .chartCard{min-height:620px}
-.chartHeader{flex-direction:column;align-items:flex-start;gap:15px}
-.chartHeader h1{font-size:30px}
-.chart{min-height:330px}
-.digits{overflow-x:auto}
 .tradePanel{border-left:none}
 .tradeTitle{text-align:left;font-size:42px}
 .learn{text-align:left}
