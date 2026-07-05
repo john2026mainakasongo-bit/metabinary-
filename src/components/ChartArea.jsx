@@ -1,4 +1,40 @@
-export default function ChartArea(){
+export default function ChartArea() {
+
+const points = `
+40,300
+70,340
+100,280
+130,310
+160,250
+190,230
+220,260
+250,210
+280,170
+310,200
+340,270
+370,300
+400,280
+430,260
+460,350
+490,390
+520,380
+550,340
+580,260
+610,280
+640,260
+670,200
+700,150
+730,180
+760,260
+790,340
+820,330
+850,360
+880,390
+910,310
+940,230
+970,250
+1000,220
+`;
 
 return(
 
@@ -8,86 +44,94 @@ return(
 
 <div className="chartHeader">
 
-<div>
+<h1>
 
-<h1>Volatility 100 (1s)</h1>
+Volatility 100 (1s) Index
 
-<p>Live Synthetic Market</p>
+</h1>
 
-</div>
+<p>
 
-<div className="lastDigit">
+819.66 - 0.02 (0.00%)
 
-8
-
-</div>
+</p>
 
 </div>
 
 <div className="chart">
 
-<svg viewBox="0 0 1000 500">
+<svg
+viewBox="0 0 1100 500"
+preserveAspectRatio="none"
+>
 
-<path d="
-M0 300
-L20 350
-L40 220
-L60 310
-L80 240
-L100 320
-L120 250
-L140 230
-L160 310
-L180 260
-L200 280
-L220 240
-L240 300
-L260 210
-L280 320
-L300 260
-L320 280
-L340 250
-L360 300
-L380 230
-L400 270
-L420 260
-L440 220
-L460 290
-L480 240
-L500 270
-L520 220
-L540 310
-L560 260
-L580 230
-L600 300
-L620 250
-L640 280
-L660 210
-L680 320
-L700 240
-L720 260
-L740 220
-L760 310
-L780 260
-L800 230
-L820 300
-L840 260
-L860 210
-L880 290
-L900 240
-L920 270
-L940 220
-L960 310
-L980 260
-"/>
+<defs>
+
+<linearGradient
+id="fillArea"
+x1="0"
+y1="0"
+x2="0"
+y2="1"
+>
+
+<stop
+offset="0%"
+stopColor="#000"
+stopOpacity=".10"
+/>
+
+<stop
+offset="100%"
+stopColor="#000"
+stopOpacity="0"
+/>
+
+</linearGradient>
+
+</defs>
+
+<polygon
+
+points={`40,500 ${points} 1040,500`}
+
+fill="url(#fillArea)"
+
+/>
+
+<polyline
+
+points={points}
+
+fill="none"
+
+stroke="#3b3b3b"
+
+strokeWidth="3"
+
+strokeLinecap="round"
+
+strokeLinejoin="round"
+
+/>
 
 </svg>
+
+<div className="priceTag">
+
+819.66
+
+</div>
 
 </div>
 
 <div className="digits">
 
-{[0,1,2,3,4,5,6,7,8,9].map(n=>
+{
+
+[0,1,2,3,4,5,6,7,8,9]
+
+.map(n=>
 
 <div
 
@@ -95,7 +139,7 @@ key={n}
 
 className={
 
-n===4
+n===6
 
 ?
 
@@ -109,17 +153,37 @@ n===4
 
 >
 
-<div>{n}</div>
+<b>
 
-<div className="percent">
+{n}
 
-12.5%
+</b>
+
+<span>
+
+{
+
+(
+
+8+
+
+Math.random()*4
+
+)
+
+.toFixed(1)
+
+}
+
+%
+
+</span>
 
 </div>
 
-</div>
+)
 
-)}
+}
 
 </div>
 
