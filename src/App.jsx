@@ -1,630 +1,562 @@
-*{margin:0;padding:0;box-sizing:border-box}
-
-html,body,#root{
-width:100%;
-height:100%;
-overflow:hidden;
-font-family:Arial,Helvetica,sans-serif;
-background:#f5f6f7;
-color:#111;
-}
-
-button,input,select{font-family:inherit}
-button{cursor:pointer}
-
-.platform{
-width:100vw;
-height:100vh;
-background:#f5f6f7;
-display:flex;
-flex-direction:column;
-overflow:hidden;
-}
-
-.topbar{
-height:72px;
-background:#07111d;
-color:white;
-border-bottom:1px solid #dfe3e8;
-display:grid;
-grid-template-columns:260px 1fr 300px;
-align-items:center;
-padding:0 18px;
-gap:14px;
-}
-
-.brand{
-font-size:36px;
-font-weight:900;
-color:white;
-white-space:nowrap;
-}
-
-.nav{
-display:flex;
-justify-content:center;
-gap:8px;
-overflow:hidden;
-}
-
-.nav button{
-background:#101b2d;
-border:1px solid #26364d;
-color:white;
-border-radius:8px;
-padding:10px 13px;
-font-weight:800;
-white-space:nowrap;
-}
-
-.accountBox{
-display:flex;
-align-items:center;
-justify-content:flex-end;
-gap:10px;
-}
-
-.accountBox select{
-height:42px;
-background:#101b2d;
-color:white;
-border:1px solid #26364d;
-border-radius:8px;
-padding:0 12px;
-}
-
-.balance{
-font-size:22px;
-font-weight:900;
-color:white;
-white-space:nowrap;
-}
-
-.depositBtn{
-background:#ff5d6c!important;
-border:none!important;
-color:white!important;
-border-radius:9px!important;
-padding:13px 18px!important;
-font-weight:900!important;
-}
-
-.layout{
-flex:1;
-display:grid;
-grid-template-columns:230px minmax(0,1fr)330px;
-overflow:hidden;
-}
-
-.leftPanel{
-background:#f1f3f5;
-border-right:1px solid #dfe3e8;
-display:flex;
-flex-direction:column;
-overflow:hidden;
-color:#111;
-}
-
-.tabs{
-height:55px;
-display:flex;
-border-bottom:1px solid #dfe3e8;
-}
-
-.tabs span{
-flex:1;
-display:flex;
-align-items:center;
-justify-content:center;
-color:#596579;
-font-size:15px;
-}
-
-.tabs .active{
-color:#00a7a7;
-border-bottom:3px solid #00c7c7;
-}
-
-.positions{
-flex:1;
-display:flex;
-flex-direction:column;
-align-items:center;
-justify-content:center;
-gap:18px;
-text-align:center;
-padding:18px;
-overflow:auto;
-}
-
-.avatar{
-width:82px;
-height:82px;
-border-radius:50%;
-background:#e3e7ec;
-color:#111;
-display:flex;
-align-items:center;
-justify-content:center;
-font-size:34px;
-font-weight:900;
-}
-
-.positions h2{
-font-size:23px;
-color:#111;
-}
-
-.positions p{
-font-size:16px;
-line-height:1.4;
-color:#596579;
-}
-
-.tradeCard{
-background:white;
-color:#111;
-border-radius:8px;
-padding:10px;
-width:100%;
-text-align:left;
-border:1px solid #dfe3e8;
-}
-
-.tradeCard b{display:block}
-
-.tradeCard span,
-.tradeCard small{
-display:block;
-color:#555;
-margin-top:4px;
-}
-
-.tradeCard.win{border-left:5px solid #18be84}
-.tradeCard.loss{border-left:5px solid #ef3737}
-
-.chartWrap{
-padding:0;
-background:white;
-overflow:hidden;
-}
-
-.chartCard{
-height:100%;
-background:white;
-display:flex;
-flex-direction:column;
-position:relative;
-overflow:hidden;
-padding:0;
-border-radius:0;
-}
-
-.chartHeader{
-position:absolute;
-top:0;
-left:0;
-padding:20px;
-background:white;
-z-index:10;
-box-shadow:0 2px 12px rgba(0,0,0,.05);
-}
-
-.chartHeader h1{
-font-size:22px;
-color:#333;
-font-weight:900;
-}
-
-.chartHeader p{
-color:#777;
-margin-top:6px;
-font-size:14px;
-}
-
-.lastDigit{
-display:none;
-}
-
-.chart{
-flex:1;
-position:relative;
-background:
-linear-gradient(to right,rgba(0,0,0,.08) 1px,transparent 1px),
-linear-gradient(to bottom,rgba(0,0,0,.08) 1px,transparent 1px);
-background-size:
-100px 100%,
-100% 60px;
-overflow:hidden;
-}
-
-.chart svg{
-width:100%;
-height:100%;
-}
-
-.chart svg rect{
-opacity:.5;
-}
-
-.chart svg polyline{
-stroke:#2b2b2b!important;
-stroke-width:3!important;
-filter:none!important;
-}
-
-.priceTag{
-position:absolute;
-right:10px;
-top:50%;
-transform:translateY(-50%);
-background:black;
-color:white;
-padding:8px 12px;
-border-radius:4px;
-font-weight:700;
-font-size:14px;
-z-index:20;
-}
-
-.digits{
-position:absolute;
-bottom:15px;
-left:50%;
-transform:translateX(-50%);
-display:flex;
-gap:14px;
-z-index:20;
-}
-
-.digit{
-width:58px;
-height:58px;
-min-width:58px;
-border-radius:50%;
-background:white;
-color:#333;
-border:5px solid #e7e7e7;
-box-shadow:0 2px 8px rgba(0,0,0,.08);
-display:flex;
-flex-direction:column;
-justify-content:center;
-align-items:center;
-}
-
-.digit b{
-font-size:18px;
-color:#333;
-}
-
-.digit span{
-font-size:11px;
-color:#555;
-}
-
-.selected{
-border-color:#2cb8b8!important;
-box-shadow:0 0 0 4px rgba(44,184,184,.18)!important;
-}
-
-.tradePanel{
-background:#f0f1f3;
-border-left:1px solid #dfe3e8;
-padding:10px;
-overflow-y:auto;
-overflow-x:hidden;
-color:#111;
-}
-
-.learn{
-color:#111;
-margin-bottom:10px;
-text-align:left;
-font-size:13px;
-text-decoration:underline;
-}
-
-.tradeTitle{
-font-size:18px;
-font-weight:900;
-text-align:left;
-margin-bottom:10px;
-color:#111;
-background:white;
-border-radius:5px;
-padding:22px 15px;
-}
-
-.contractTabs{
-display:flex;
-flex-wrap:wrap;
-gap:8px;
-margin-bottom:14px;
-background:white;
-padding:10px;
-border-radius:5px;
-}
-
-.contractTabs button{
-background:#f8f9fa;
-border:1px solid #dfe3e8;
-color:#111;
-border-radius:6px;
-padding:10px 12px;
-font-weight:800;
-}
-
-.contractTabs .active{
-border-color:#00a7a7;
-color:#00a7a7;
-background:#e9ffff;
-}
-
-.tradeMode{
-background:white;
-border:1px solid #dfe3e8;
-padding:16px;
-border-radius:6px;
-display:flex;
-justify-content:space-between;
-margin-bottom:12px;
-font-size:17px;
-color:#111;
-}
-
-.choice{
-display:flex;
-flex-direction:column;
-gap:12px;
-margin-bottom:12px;
-}
-
-.choice button{
-height:66px;
-border-radius:5px;
-border:none;
-font-weight:900;
-font-size:17px;
-text-align:left;
-padding:0 18px;
-}
-
-.green{
-background:#49b8b7!important;
-color:white!important;
-}
-
-.white{
-background:#ef3737!important;
-color:white!important;
-}
-
-.tradePanel label{
-display:block;
-margin:12px 0 7px;
-color:#555;
-text-align:left;
-font-size:15px;
-}
-
-.tradePanel input{
-width:100%;
-height:48px;
-border-radius:6px;
-background:white;
-border:1px solid #dfe3e8;
-color:#111;
-padding-left:15px;
-font-size:17px;
-}
-
-.buyEven{
-width:100%;
-height:76px;
-border-radius:6px;
-margin-top:14px;
-border:none;
-background:#18be84;
-color:white;
-display:flex;
-flex-direction:column;
-align-items:center;
-justify-content:center;
-gap:6px;
-font-size:25px;
-font-weight:900;
-}
-
-.buyEven span{
-font-size:15px;
-}
-
-.authPage{
-width:100vw;
-height:100vh;
-background:radial-gradient(circle at top,#173050,#07111d 60%);
-display:flex;
-align-items:center;
-justify-content:center;
-padding:20px;
-}
-
-.authCard{
-width:430px;
-background:#111c2d;
-border:1px solid #26364d;
-border-radius:22px;
-padding:35px;
-box-shadow:0 30px 90px rgba(0,0,0,.7);
-}
-
-.authCard h1{
-font-size:50px;
-font-weight:900;
-color:white;
-text-align:center;
-margin-bottom:10px;
-}
-
-.authCard p{
-color:#aebbd0;
-text-align:center;
-margin-bottom:25px;
-}
-
-.authCard input{
-width:100%;
-height:52px;
-margin-bottom:14px;
-background:#07111d;
-border:1px solid #26364d;
-border-radius:10px;
-color:white;
-padding:0 15px;
-font-size:16px;
-}
-
-.authCard button{
-width:100%;
-height:54px;
-background:#20c98b;
-color:white;
-border:none;
-border-radius:10px;
-font-size:18px;
-font-weight:900;
-}
-
-.authCard span{
-display:block;
-text-align:center;
-margin-top:20px;
-color:#22d7cf;
-}
-
-.modal{
-position:fixed;
-inset:0;
-background:rgba(0,0,0,.75);
-display:flex;
-align-items:center;
-justify-content:center;
-z-index:999;
-}
-
-.modalBox{
-width:420px;
-background:#111c2d;
-border:1px solid #26364d;
-border-radius:20px;
-padding:30px;
-position:relative;
-color:white;
-}
-
-.modalBox h2{
-font-size:34px;
-margin-bottom:8px;
-}
-
-.modalBox p{
-color:#aebbd0;
-margin-bottom:18px;
-}
-
-.modalBox input{
-width:100%;
-height:52px;
-margin-bottom:14px;
-background:#07111d;
-border:1px solid #26364d;
-border-radius:10px;
-color:white;
-padding:0 15px;
-}
-
-.modalBox button:not(.x){
-width:100%;
-height:52px;
-background:#20c98b;
-color:white;
-border:none;
-border-radius:10px;
-font-weight:900;
-}
-
-.x{
-position:absolute;
-right:15px;
-top:15px;
-background:#26364d;
-color:white;
-border:none;
-width:35px;
-height:35px;
-border-radius:50%;
-font-size:22px;
-}
-
-@media(max-width:900px){
-html,body,#root{
-overflow:auto;
-}
-
-.platform{
-height:auto;
-min-height:100vh;
-overflow:auto;
-}
-
-.topbar{
-height:auto;
-display:flex;
-flex-direction:column;
-align-items:flex-start;
-padding:15px;
-}
-
-.nav{
-width:100%;
-overflow-x:auto;
-justify-content:flex-start;
-}
-
-.accountBox{
-width:100%;
-justify-content:space-between;
-}
-
-.layout{
-display:flex;
-flex-direction:column;
-}
-
-.leftPanel{
-min-height:220px;
-}
-
-.chartCard{
-min-height:620px;
-}
-
-.tradePanel{
-border-left:none;
-}
-
-.digits{
-left:0;
-right:0;
-bottom:15px;
-transform:none;
-overflow-x:auto;
-justify-content:flex-start;
-padding:0 12px;
-}
-
-.priceTag{
-right:20px;
-top:45%;
-}
+import { useEffect, useMemo, useState } from "react";
+import "./App.css";
+
+const API = import.meta.env.VITE_API_URL || "http://localhost:5000";
+
+const contracts = [
+  "Even/Odd",
+  "Matches/Differs",
+  "Over/Under",
+  "Rise/Fall",
+  "Touch/No Touch",
+];
+
+const choicesByContract = {
+  "Even/Odd": ["Even", "Odd"],
+  "Matches/Differs": ["Matches", "Differs"],
+  "Over/Under": ["Over", "Under"],
+  "Rise/Fall": ["Rise", "Fall"],
+  "Touch/No Touch": ["Touch", "No Touch"],
+};
+
+export default function App() {
+  const [screen, setScreen] = useState(
+    localStorage.getItem("token") ? "app" : "login"
+  );
+
+  const [mode, setMode] = useState(localStorage.getItem("mode") || "Demo");
+  const [email, setEmail] = useState(localStorage.getItem("email") || "");
+  const [password, setPassword] = useState("");
+  const [balance, setBalance] = useState({ demo: 10000, real: 0 });
+
+  const [stake, setStake] = useState(10);
+  const [duration, setDuration] = useState(1);
+
+  const [lastDigit, setLastDigit] = useState(8);
+  const [previousDigit, setPreviousDigit] = useState(8);
+  const [selectedDigit, setSelectedDigit] = useState(8);
+
+  const [contractType, setContractType] = useState("Even/Odd");
+  const [choice, setChoice] = useState("Even");
+
+  const [openTrades, setOpenTrades] = useState([]);
+  const [closedTrades, setClosedTrades] = useState([]);
+
+  const [depositOpen, setDepositOpen] = useState(false);
+  const [phone, setPhone] = useState("");
+  const [depositAmount, setDepositAmount] = useState(10);
+
+  const currentBalance = mode === "Demo" ? balance.demo : balance.real;
+
+  const price = useMemo(() => {
+    return (819 + lastDigit / 10 + Math.random() * 0.15).toFixed(2);
+  }, [lastDigit]);
+
+  const points = useMemo(() => {
+    return Array.from({ length: 95 }, (_, i) => {
+      const x = 40 + i * 10;
+      const y =
+        250 +
+        Math.sin(i * 0.18) * 95 +
+        Math.sin(i * 0.47) * 45 +
+        Math.random() * 18;
+
+      return `${x},${y}`;
+    }).join(" ");
+  }, [lastDigit]);
+
+  function changeContract(type) {
+    setContractType(type);
+    setChoice(choicesByContract[type][0]);
+  }
+
+  function checkWin(type, selectedChoice, targetDigit, startDigit, finalDigit) {
+    if (type === "Even/Odd") {
+      return selectedChoice === "Even"
+        ? finalDigit % 2 === 0
+        : finalDigit % 2 !== 0;
+    }
+
+    if (type === "Matches/Differs") {
+      return selectedChoice === "Matches"
+        ? finalDigit === targetDigit
+        : finalDigit !== targetDigit;
+    }
+
+    if (type === "Over/Under") {
+      return selectedChoice === "Over"
+        ? finalDigit > targetDigit
+        : finalDigit < targetDigit;
+    }
+
+    if (type === "Rise/Fall") {
+      return selectedChoice === "Rise"
+        ? finalDigit > startDigit
+        : finalDigit < startDigit;
+    }
+
+    if (type === "Touch/No Touch") {
+      return selectedChoice === "Touch"
+        ? finalDigit === targetDigit
+        : finalDigit !== targetDigit;
+    }
+
+    return false;
+  }
+
+  async function refreshBalance() {
+    if (!email) return;
+
+    try {
+      const res = await fetch(`${API}/api/user/${email}`);
+      const data = await res.json();
+
+      if (data.success) {
+        setBalance({
+          demo: Number(data.user.demoBalance || 10000),
+          real: Number(data.user.realBalance || 0),
+        });
+      }
+    } catch {
+      console.log("Backend not reachable");
+    }
+  }
+
+  useEffect(() => {
+    if (screen === "app") refreshBalance();
+
+    const timer = setInterval(() => {
+      const d = Math.floor(Math.random() * 10);
+      setPreviousDigit(lastDigit);
+      setLastDigit(d);
+      setSelectedDigit(d);
+    }, 1000);
+
+    return () => clearInterval(timer);
+  }, [screen, email, lastDigit]);
+
+  useEffect(() => {
+    if (screen !== "app") return;
+
+    const timer = setInterval(refreshBalance, 3000);
+    return () => clearInterval(timer);
+  }, [screen, email]);
+
+  async function auth(type) {
+    if (!email || !password) {
+      alert("Enter email and password");
+      return;
+    }
+
+    try {
+      const res = await fetch(`${API}/api/${type}`, {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ email, password }),
+      });
+
+      const data = await res.json();
+
+      if (!data.success) {
+        alert(data.message || "Auth failed");
+        return;
+      }
+
+      localStorage.setItem("token", data.token);
+      localStorage.setItem("email", data.user.email);
+      localStorage.setItem("mode", "Demo");
+
+      setEmail(data.user.email);
+      setMode("Demo");
+
+      setBalance({
+        demo: Number(data.user.demoBalance || 10000),
+        real: Number(data.user.realBalance || 0),
+      });
+
+      setScreen("app");
+    } catch {
+      alert("Backend is not connected. Start backend or set VITE_API_URL on Vercel.");
+    }
+  }
+
+  function logout() {
+    localStorage.clear();
+    setScreen("login");
+    setPassword("");
+  }
+
+  function changeMode(value) {
+    setMode(value);
+    localStorage.setItem("mode", value);
+  }
+
+  function trade() {
+    const amount = Number(stake);
+    const seconds = Number(duration);
+
+    if (amount <= 0) return alert("Enter stake");
+    if (seconds <= 0) return alert("Enter duration");
+    if (currentBalance < amount) return alert("Insufficient balance");
+
+    const tradeId = Date.now();
+    const targetDigit = selectedDigit;
+    const startDigit = previousDigit;
+
+    const tradeData = {
+      id: tradeId,
+      contractType,
+      choice,
+      stake: amount,
+      target: targetDigit,
+      startDigit,
+      duration: seconds,
+      mode,
+      status: "Running",
+    };
+
+    setOpenTrades((x) => [tradeData, ...x]);
+
+    setBalance((b) =>
+      mode === "Demo"
+        ? { ...b, demo: b.demo - amount }
+        : { ...b, real: b.real - amount }
+    );
+
+    setTimeout(() => {
+      const finalDigit = Math.floor(Math.random() * 10);
+
+      setPreviousDigit(lastDigit);
+      setLastDigit(finalDigit);
+      setSelectedDigit(finalDigit);
+
+      const win = checkWin(
+        contractType,
+        choice,
+        targetDigit,
+        startDigit,
+        finalDigit
+      );
+
+      const payout = win ? amount * 1.9 : 0;
+
+      setOpenTrades((x) => x.filter((t) => t.id !== tradeId));
+
+      setClosedTrades((x) => [
+        {
+          ...tradeData,
+          result: finalDigit,
+          win,
+          payout,
+        },
+        ...x,
+      ]);
+
+      if (win) {
+        setBalance((b) =>
+          mode === "Demo"
+            ? { ...b, demo: b.demo + payout }
+            : { ...b, real: b.real + payout }
+        );
+      }
+    }, seconds * 1000);
+  }
+
+  async function deposit() {
+    if (!phone || !depositAmount) {
+      alert("Enter phone and amount");
+      return;
+    }
+
+    try {
+      const res = await fetch(`${API}/api/deposit`, {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          email,
+          phone,
+          amount: Number(depositAmount),
+        }),
+      });
+
+      const data = await res.json();
+
+      if (!data.success) {
+        alert(data.message || "Deposit failed");
+        return;
+      }
+
+      alert("Deposit added. Real balance updated.");
+      refreshBalance();
+    } catch {
+      alert("Deposit failed. Backend is not connected.");
+    }
+  }
+
+  if (screen === "login" || screen === "register") {
+    return (
+      <div className="authPage">
+        <div className="authCard">
+          <h1>MetaBinary</h1>
+
+          <p>
+            {screen === "login"
+              ? "Login to continue trading"
+              : "Create your trading account"}
+          </p>
+
+          <input
+            placeholder="Email"
+            value={email}
+            onChange={(e) => setEmail(e.target.value)}
+          />
+
+          <input
+            placeholder="Password"
+            type="password"
+            value={password}
+            onChange={(e) => setPassword(e.target.value)}
+          />
+
+          <button type="button" onClick={() => auth(screen)}>
+            {screen === "login" ? "Login" : "Register"}
+          </button>
+
+          <span
+            onClick={() =>
+              setScreen(screen === "login" ? "register" : "login")
+            }
+          >
+            {screen === "login"
+              ? "Create account"
+              : "Already have account? Login"}
+          </span>
+        </div>
+      </div>
+    );
+  }
+
+  return (
+    <div className="platform">
+      <header className="topbar">
+        <div className="brand">MetaBinary</div>
+
+        <nav className="nav">
+          <button type="button">Trader&apos;s Hub</button>
+
+          <button type="button" onClick={() => setDepositOpen(true)}>
+            Deposit
+          </button>
+
+          <button type="button" onClick={() => alert("Withdraw coming soon")}>
+            Withdraw
+          </button>
+
+          <button type="button">History</button>
+          <button type="button">Chat</button>
+
+          <button type="button" onClick={logout}>
+            Logout
+          </button>
+        </nav>
+
+        <div className="accountBox">
+          <select value={mode} onChange={(e) => changeMode(e.target.value)}>
+            <option>Demo</option>
+            <option>Real</option>
+          </select>
+
+          <div className="balance">${currentBalance.toFixed(2)}</div>
+
+          <button
+            type="button"
+            className="depositBtn"
+            onClick={() => setDepositOpen(true)}
+          >
+            Deposit
+          </button>
+        </div>
+      </header>
+
+      <div className="layout">
+        <aside className="leftPanel">
+          <div className="tabs">
+            <span className="active">Open ({openTrades.length})</span>
+            <span>Closed ({closedTrades.length})</span>
+          </div>
+
+          <div className="positions">
+            {openTrades.length === 0 ? (
+              <>
+                <div className="avatar">MB</div>
+                <h2>No open positions</h2>
+                <p>Your MetaBinary trades will appear here</p>
+              </>
+            ) : (
+              openTrades.map((t) => (
+                <div className="tradeCard" key={t.id}>
+                  <b>{t.contractType}</b>
+                  <span>
+                    {t.choice} • {t.mode} • ${t.stake}
+                  </span>
+                  <small>Target digit {t.target}</small>
+                </div>
+              ))
+            )}
+
+            {closedTrades.slice(0, 5).map((t) => (
+              <div
+                className={`tradeCard ${t.win ? "win" : "loss"}`}
+                key={`closed-${t.id}`}
+              >
+                <b>
+                  {t.win ? "WIN" : "LOSS"} • {t.choice}
+                </b>
+
+                <span>Result digit: {t.result}</span>
+                <small>Payout ${t.payout.toFixed(2)}</small>
+              </div>
+            ))}
+          </div>
+        </aside>
+
+        <main className="chartWrap">
+          <section className="chartCard">
+            <div className="chartHeader">
+              <div>
+                <h1>Volatility 100 (1s) Index</h1>
+                <p>{price} - 0.02 (0.00%)</p>
+              </div>
+            </div>
+
+            <div className="chart">
+              <svg viewBox="0 0 1000 450" preserveAspectRatio="none">
+                <defs>
+                  <linearGradient id="areaFill" x1="0" y1="0" x2="0" y2="1">
+                    <stop offset="0%" stopColor="#333333" stopOpacity="0.14" />
+                    <stop offset="100%" stopColor="#333333" stopOpacity="0" />
+                  </linearGradient>
+                </defs>
+
+                <polyline
+                  points={`40,450 ${points} 970,450`}
+                  fill="url(#areaFill)"
+                  stroke="none"
+                />
+
+                <polyline
+                  points={points}
+                  fill="none"
+                  stroke="#333333"
+                  strokeWidth="2.2"
+                  strokeLinecap="round"
+                  strokeLinejoin="round"
+                />
+              </svg>
+
+              <div className="priceTag">{price}</div>
+            </div>
+
+            <div className="digits">
+              {[0, 1, 2, 3, 4, 5, 6, 7, 8, 9].map((d) => (
+                <button
+                  type="button"
+                  key={d}
+                  onClick={() => setSelectedDigit(d)}
+                  className={`digit ${selectedDigit === d ? "selected" : ""}`}
+                >
+                  <b>{d}</b>
+                  <span>{(8 + Math.random() * 5).toFixed(1)}%</span>
+                </button>
+              ))}
+            </div>
+          </section>
+        </main>
+
+        <aside className="tradePanel">
+          <p className="learn">ⓘ Learn about this trade type</p>
+
+          <h1 className="tradeTitle">{contractType}</h1>
+
+          <div className="contractTabs">
+            {contracts.map((item) => (
+              <button
+                type="button"
+                key={item}
+                onClick={() => changeContract(item)}
+                className={contractType === item ? "active" : ""}
+              >
+                {item}
+              </button>
+            ))}
+          </div>
+
+          <div className="tradeMode">
+            <span>Trade Mode</span>
+            <b>Manual</b>
+          </div>
+
+          <div className="choice">
+            {choicesByContract[contractType].map((item) => (
+              <button
+                key={item}
+                type="button"
+                onClick={() => setChoice(item)}
+                className={choice === item ? "green activeChoice" : "white"}
+              >
+                {item}
+              </button>
+            ))}
+          </div>
+
+          <label>Duration ticks</label>
+          <input
+            value={duration}
+            onChange={(e) => setDuration(e.target.value)}
+          />
+
+          <label>Stake</label>
+          <input value={stake} onChange={(e) => setStake(e.target.value)} />
+
+          <button type="button" className="buyEven" onClick={trade}>
+            Buy {choice}
+            <span>Payout {(Number(stake) * 1.9).toFixed(2)} USD</span>
+          </button>
+        </aside>
+      </div>
+
+      {depositOpen && (
+        <div className="modal">
+          <div className="modalBox">
+            <button
+              type="button"
+              className="x"
+              onClick={() => setDepositOpen(false)}
+            >
+              ×
+            </button>
+
+            <h2>Deposit</h2>
+            <p>Send M-Pesa STK Push</p>
+
+            <input
+              placeholder="2547XXXXXXXX"
+              value={phone}
+              onChange={(e) => setPhone(e.target.value)}
+            />
+
+            <input
+              placeholder="Amount"
+              value={depositAmount}
+              onChange={(e) => setDepositAmount(e.target.value)}
+            />
+
+            <button type="button" onClick={deposit}>
+              Send STK Push
+            </button>
+          </div>
+        </div>
+      )}
+    </div>
+  );
 }
