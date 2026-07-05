@@ -1,61 +1,43 @@
 import { useState } from "react";
-
-import Login from "./pages/Login";
-import Register from "./pages/Register";
-
-import Topbar from "./components/Topbar";
-import Sidebar from "./components/Sidebar";
-import ChartArea from "./components/ChartArea";
-import TradePanel from "./components/TradePanel";
-import AIAssistant from "./components/AIAssistant";
-
 import "./App.css";
 
 export default function App() {
-  const [screen, setScreen] = useState("login");
-  const [loggedIn, setLoggedIn] = useState(localStorage.getItem("token"));
-  const [account, setAccount] = useState("demo");
-  const [demoBalance, setDemoBalance] = useState(10000);
-  const [realBalance, setRealBalance] = useState(0);
-
-  const balance = account === "demo" ? demoBalance : realBalance;
-
-  if (!loggedIn) {
-    return screen === "login" ? (
-      <Login
-        goRegister={() => setScreen("register")}
-        onLogin={() => setLoggedIn(true)}
-      />
-    ) : (
-      <Register
-        goLogin={() => setScreen("login")}
-        onRegister={() => setLoggedIn(true)}
-      />
-    );
-  }
+  const [mode, setMode] = useState("login");
 
   return (
-    <div className="app">
-      <Topbar
-        balance={balance}
-        account={account}
-        setAccount={setAccount}
-        logout={() => {
-          localStorage.removeItem("token");
-          setLoggedIn(false);
-        }}
-      />
+    <div className="authPage">
+      <div className="authCard">
+        <div className="logo">MetaBinary</div>
+        <p className="subtitle">
+          {mode === "login"
+            ? "Welcome back. Sign in to continue trading."
+            : "Create your trading account."}
+        </p>
 
-      <div className="mainLayout">
-        <Sidebar />
-        <ChartArea />
-        <TradePanel
-          account={account}
-          balance={balance}
-          setDemoBalance={setDemoBalance}
-          setRealBalance={setRealBalance}
-        />
-        <AIAssistant />
+        {mode === "register" && <input placeholder="Full name" />}
+
+        <input placeholder="Email address" type="email" />
+        <input placeholder="Password" type="password" />
+
+        {mode === "login" && (
+          <div className="authRow">
+            <label>
+              <input type="checkbox" /> Remember me
+            </label>
+            <span>Forgot password?</span>
+          </div>
+        )}
+
+        <button className="primaryBtn">
+          {mode === "login" ? "Login" : "Create Account"}
+        </button>
+
+        <p className="switchText">
+          {mode === "login" ? "Don't have an account?" : "Already have an account?"}
+          <button onClick={() => setMode(mode === "login" ? "register" : "login")}>
+            {mode === "login" ? "Register" : "Login"}
+          </button>
+        </p>
       </div>
     </div>
   );
