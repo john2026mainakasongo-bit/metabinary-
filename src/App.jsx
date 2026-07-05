@@ -11,7 +11,7 @@ export default function App() {
   const points = useMemo(() => {
     return Array.from({ length: 90 }, (_, i) => {
       const x = i * 10;
-      const y = 170 + Math.sin(i * 1.7) * 35 + Math.random() * 45;
+      const y = 180 + Math.sin(i * 1.7) * 35 + Math.random() * 45;
       return `${x},${y}`;
     }).join(" ");
   }, []);
@@ -21,7 +21,7 @@ export default function App() {
       <header className="topbar">
         <div className="brand">MetaBinary</div>
 
-        <nav>
+        <nav className="nav">
           <button>Trader&apos;s Hub</button>
           <button>Deposit</button>
           <button>Withdraw</button>
@@ -35,7 +35,8 @@ export default function App() {
             <option>Real</option>
             <option>Demo</option>
           </select>
-          <strong>$1.00</strong>
+
+          <div className="balance">$1.00</div>
           <button className="deposit">Deposit</button>
         </div>
       </header>
@@ -47,33 +48,41 @@ export default function App() {
             <span>Closed (0)</span>
           </div>
 
-          <div className="empty">
+          <div className="positions">
             <div className="avatar">MB</div>
             <h2>No open positions</h2>
             <p>Your MetaBinary trades will appear here</p>
           </div>
 
-          <small>0 open positions</small>
+          <div className="bottomText">0 open positions</div>
         </aside>
 
         <main className="chartWrap">
           <section className="chartCard">
-            <div className="chartTitle">
+            <div className="chartHeader">
               <div>
                 <h1>Volatility 100 (1s)</h1>
                 <p>Live Synthetic Market</p>
               </div>
-              <div className="digitBox">{lastDigit}</div>
+
+              <div className="lastDigit">{lastDigit}</div>
             </div>
 
             <div className="chart">
               <svg viewBox="0 0 900 380" preserveAspectRatio="none">
                 <defs>
                   <pattern id="grid" width="90" height="55" patternUnits="userSpaceOnUse">
-                    <path d="M 90 0 L 0 0 0 55" fill="none" stroke="#263247" strokeWidth="1" />
+                    <path
+                      d="M 90 0 L 0 0 0 55"
+                      fill="none"
+                      stroke="#ffffff"
+                      strokeWidth="1.4"
+                    />
                   </pattern>
                 </defs>
+
                 <rect width="100%" height="100%" fill="url(#grid)" />
+
                 <polyline
                   points={points}
                   fill="none"
@@ -86,14 +95,14 @@ export default function App() {
             </div>
 
             <div className="digits">
-              {[0,1,2,3,4,5,6,7,8,9].map((d) => (
+              {[0, 1, 2, 3, 4, 5, 6, 7, 8, 9].map((d) => (
                 <button
                   key={d}
                   onClick={() => setLastDigit(d)}
-                  className={d === 4 ? "selected" : ""}
+                  className={`digit ${d === lastDigit ? "selected" : ""}`}
                 >
                   <b>{d}</b>
-                  <span>{(12.3 + Math.random()).toFixed(1)}%</span>
+                  <span className="percent">{(12.3 + Math.random()).toFixed(1)}%</span>
                 </button>
               ))}
             </div>
@@ -103,18 +112,20 @@ export default function App() {
         <aside className="tradePanel">
           <p className="learn">ⓘ Learn about this trade type</p>
 
-          <h1>{activeTab}</h1>
+          <h1 className="tradeTitle">{activeTab}</h1>
 
           <div className="contractTabs">
-            {["Even/Odd", "Matches/Differs", "Over/Under", "Rise/Fall", "Touch/No Touch"].map((tab) => (
-              <button
-                key={tab}
-                onClick={() => setActiveTab(tab)}
-                className={activeTab === tab ? "active" : ""}
-              >
-                {tab}
-              </button>
-            ))}
+            {["Even/Odd", "Matches/Differs", "Over/Under", "Rise/Fall", "Touch/No Touch"].map(
+              (tab) => (
+                <button
+                  key={tab}
+                  onClick={() => setActiveTab(tab)}
+                  className={activeTab === tab ? "active" : ""}
+                >
+                  {tab}
+                </button>
+              )
+            )}
           </div>
 
           <div className="tradeMode">
@@ -124,7 +135,7 @@ export default function App() {
 
           <div className="choice">
             <button className="green">Even</button>
-            <button>Odd</button>
+            <button className="dark">Odd</button>
           </div>
 
           <label>Duration ticks</label>
@@ -133,12 +144,12 @@ export default function App() {
           <label>Stake</label>
           <input value={stake} onChange={(e) => setStake(e.target.value)} />
 
-          <button className="buy even">
+          <button className="buyEven">
             Even
             <span>Payout 19.00 USD</span>
           </button>
 
-          <button className="buy odd">
+          <button className="buyOdd">
             Odd
             <span>Payout 19.00 USD</span>
           </button>
