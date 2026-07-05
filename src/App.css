@@ -760,3 +760,66 @@ height:52px;
 }
 
 }
+h1{
+
+color:white;
+
+}
+
+.tradeTitle{
+
+color:white;
+
+font-size:54px;
+
+}
+
+.chartHeader h1{
+
+color:white;
+
+font-size:42px;
+
+}
+
+.chartHeader p{
+
+color:#d1d8e4;
+
+}
+
+.buyEven{
+
+cursor:pointer;
+
+}
+
+.buyOdd{
+
+cursor:pointer;
+
+}
+
+.chart svg{
+
+width:100%;
+
+height:100%;
+
+}
+
+.chart path{
+
+stroke:white;
+
+stroke-width:4;
+
+fill:none;
+
+}
+
+.chart{
+
+height:500px;
+
+}
