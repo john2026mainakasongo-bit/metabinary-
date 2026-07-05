@@ -3,7 +3,6 @@
 html,body,#root{
 width:100%;
 height:100%;
-overflow:hidden;
 font-family:Arial,Helvetica,sans-serif;
 background:#f7f7f7;
 color:#111;
@@ -20,8 +19,6 @@ flex-direction:column;
 background:#f7f7f7;
 overflow:hidden;
 }
-
-/* TOPBAR */
 
 .topbar{
 height:72px;
@@ -53,6 +50,7 @@ padding:10px 14px;
 border-radius:8px;
 font-size:14px;
 font-weight:800;
+white-space:nowrap;
 }
 
 .accountBox{
@@ -75,6 +73,7 @@ border:1px solid #24344c;
 font-size:18px;
 font-weight:900;
 color:white;
+white-space:nowrap;
 }
 
 .depositBtn{
@@ -86,16 +85,12 @@ font-weight:900;
 color:white;
 }
 
-/* LAYOUT */
-
 .layout{
 flex:1;
 display:grid;
-grid-template-columns:180px 1fr 360px;
+grid-template-columns:180px minmax(0,1fr)360px;
 overflow:hidden;
 }
-
-/* LEFT PANEL */
 
 .leftPanel{
 width:180px;
@@ -173,8 +168,6 @@ font-size:13px;
 border-left:5px solid #ff4040;
 }
 
-/* CHART */
-
 .chartWrap{
 background:white;
 overflow:hidden;
@@ -217,9 +210,7 @@ overflow:hidden;
 background:
 linear-gradient(to right,rgba(0,0,0,.055) 1px,transparent 1px),
 linear-gradient(to bottom,rgba(0,0,0,.055) 1px,transparent 1px);
-background-size:
-120px 100%,
-100% 78px;
+background-size:120px 100%,100% 78px;
 }
 
 .chart svg{
@@ -244,8 +235,6 @@ opacity:.75;
 transform:scaleY(1.25);
 transform-origin:center;
 }
-
-/* PRICE TAG */
 
 .priceTag{
 position:absolute;
@@ -283,8 +272,6 @@ border-radius:50%;
 transform:translateY(-50%);
 }
 
-/* DERIV TOOLS */
-
 .chartCard::before{
 content:"1s\A □\A ↗\A ▤\A ✎\A ⇩";
 white-space:pre;
@@ -316,8 +303,6 @@ font-size:30px;
 line-height:48px;
 text-align:center;
 }
-
-/* DIGITS */
 
 .digits{
 position:absolute;
@@ -359,8 +344,6 @@ margin-top:4px;
 border-color:#29c6c2!important;
 box-shadow:0 0 0 5px rgba(41,198,194,.15)!important;
 }
-
-/* RIGHT PANEL */
 
 .tradePanel{
 width:360px;
@@ -499,8 +482,6 @@ font-size:15px;
 margin-top:4px;
 }
 
-/* AUTH */
-
 .authPage{
 width:100vw;
 height:100vh;
@@ -508,29 +489,38 @@ display:flex;
 justify-content:center;
 align-items:center;
 background:#07111d;
+padding:20px;
 }
 
-.authCard{
+.authCard,.authBox{
 width:420px;
+max-width:100%;
 background:#111d2d;
 padding:35px;
 border-radius:20px;
 }
 
-.authCard h1{
+.authCard h1,.authBox h1{
 font-size:46px;
 color:white;
 text-align:center;
 margin-bottom:15px;
 }
 
-.authCard p{
+.authCard h2,.authBox h2{
+color:white;
 text-align:center;
-color:#8d9ab0;
-margin-bottom:25px;
+margin-bottom:20px;
 }
 
-.authCard input{
+.authCard p,.authBox p{
+text-align:center;
+color:#26d6cb;
+margin-top:18px;
+cursor:pointer;
+}
+
+.authCard input,.authBox input{
 width:100%;
 height:50px;
 margin-bottom:12px;
@@ -541,7 +531,7 @@ padding-left:15px;
 color:white;
 }
 
-.authCard button{
+.authCard button,.authBox button{
 width:100%;
 height:54px;
 border:none;
@@ -552,16 +542,6 @@ font-weight:900;
 color:white;
 }
 
-.authCard span{
-display:block;
-margin-top:18px;
-text-align:center;
-color:#26d6cb;
-cursor:pointer;
-}
-
-/* MODAL */
-
 .modal{
 position:fixed;
 inset:0;
@@ -570,10 +550,12 @@ display:flex;
 justify-content:center;
 align-items:center;
 z-index:999;
+padding:20px;
 }
 
 .modalBox{
 width:420px;
+max-width:100%;
 background:#111d2d;
 padding:30px;
 border-radius:20px;
@@ -624,10 +606,10 @@ border:none;
 color:white;
 }
 
-/* MOBILE */
-
 @media(max-width:900px){
 html,body,#root{
+height:auto;
+min-height:100%;
 overflow:auto;
 }
 
@@ -637,45 +619,200 @@ min-height:100vh;
 overflow:auto;
 }
 
-.layout{
-display:flex;
-flex-direction:column;
-}
-
 .topbar{
 height:auto;
 display:flex;
 flex-direction:column;
-padding:15px;
 align-items:flex-start;
+padding:12px;
+gap:12px;
+}
+
+.brand{
+font-size:30px;
 }
 
 .nav{
+width:100%;
+display:flex;
 overflow-x:auto;
 justify-content:flex-start;
-width:100%;
+gap:8px;
+padding-bottom:4px;
+}
+
+.nav button{
+flex:0 0 auto;
+padding:9px 12px;
+font-size:13px;
 }
 
 .accountBox{
 width:100%;
 justify-content:space-between;
+gap:8px;
+}
+
+.balance{
+font-size:17px;
+}
+
+.layout{
+display:flex;
+flex-direction:column;
+overflow:visible;
+}
+
+.leftPanel{
+order:3;
+width:100%;
+min-height:230px;
+border-right:none;
+border-top:1px solid #e4e6eb;
+}
+
+.positions{
+min-height:170px;
+justify-content:center;
+}
+
+.avatar{
+width:70px;
+height:70px;
+font-size:30px;
+}
+
+.chartWrap{
+order:1;
+width:100%;
+height:560px;
+overflow:hidden;
+background:white;
 }
 
 .chartCard{
-min-height:700px;
+height:560px;
+min-height:560px;
 }
 
-.tradePanel{
-width:100%;
-border-left:none;
+.chartHeader{
+top:14px;
+left:14px;
+right:14px;
+min-width:0;
+width:auto;
+padding:18px;
+}
+
+.chartHeader h1{
+font-size:22px;
+}
+
+.chartHeader p{
+font-size:15px;
+}
+
+.chart{
+height:560px;
+background-size:85px 100%,100% 78px;
+}
+
+.chart svg{
+height:100%;
+margin-top:0;
+}
+
+.chart svg polygon{
+transform:none;
+}
+
+.chartCard::before{
+top:165px;
+left:10px;
+width:50px;
+font-size:20px;
+line-height:42px;
+}
+
+.chartCard::after{
+top:430px;
+left:10px;
+width:50px;
+font-size:30px;
+line-height:48px;
+}
+
+.priceTag{
+right:12px;
+top:48%;
+font-size:13px;
+padding:7px 10px;
+}
+
+.priceTag:before{
+width:90px;
+}
+
+.priceTag:after{
+right:calc(100% + 86px);
 }
 
 .digits{
-overflow-x:auto;
 left:0;
 right:0;
+bottom:18px;
 transform:none;
-padding-left:20px;
+overflow-x:auto;
 justify-content:flex-start;
+gap:12px;
+padding:0 14px 4px 82px;
+}
+
+.digit{
+width:58px;
+height:58px;
+min-width:58px;
+border-width:5px;
+}
+
+.digit b{
+font-size:18px;
+}
+
+.digit span{
+font-size:10px;
+}
+
+.tradePanel{
+order:2;
+width:100%;
+border-left:none;
+border-top:1px solid #e4e5e8;
+padding:12px;
+overflow:visible;
+}
+
+.tradeTitle{
+min-height:64px;
+padding:18px;
+font-size:18px;
+}
+
+.contractTabs{
+grid-template-columns:1fr 1fr;
+}
+
+.choice button{
+height:62px;
+font-size:20px;
+}
+
+.buyEven{
+height:74px;
+font-size:26px;
+}
+
+.buyEven span{
+font-size:14px;
 }
 }
