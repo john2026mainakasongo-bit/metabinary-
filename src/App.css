@@ -1,83 +1,279 @@
-body {
-  margin: 0;
-  font-family: Arial, sans-serif;
-  background: #07111f;
-  color: white;
-}
-
-.authPage {
-  min-height: 100vh;
-  display: grid;
-  place-items: center;
-  background:
-    radial-gradient(circle at top, #14315a, transparent 45%),
-    #07111f;
-}
-
-.authCard {
-  width: 420px;
-  background: #0b1628;
-  border: 1px solid #1f2f46;
-  border-radius: 24px;
-  padding: 36px;
-  box-shadow: 0 30px 80px rgba(0,0,0,.5);
-}
-
-.logo {
-  font-size: 42px;
-  font-weight: 900;
-  color: #22c55e;
-  text-align: center;
-}
-
-.subtitle {
-  color: #94a3b8;
-  text-align: center;
-  margin-bottom: 28px;
-}
-
-input {
-  width: 100%;
-  padding: 15px;
-  margin-bottom: 14px;
-  border-radius: 12px;
-  border: 1px solid #263954;
-  background: #111f35;
-  color: white;
-  font-size: 15px;
+* {
   box-sizing: border-box;
 }
 
-.authRow {
+body {
+  margin: 0;
+  background: #07101c;
+  color: white;
+  font-family: Arial, sans-serif;
+}
+
+.platform {
+  min-height: 100vh;
+  background: #07101c;
+}
+
+.topbar {
+  height: 74px;
+  background: #0b111b;
+  border-bottom: 1px solid #202b3c;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 0 22px;
+}
+
+.brand {
+  font-size: 26px;
+  font-weight: 900;
+}
+
+nav {
+  display: flex;
+  gap: 12px;
+}
+
+button,
+select,
+input {
+  border-radius: 8px;
+  border: 1px solid #2d3b52;
+  background: #0d1728;
+  color: white;
+  padding: 11px 16px;
+  font-weight: 700;
+}
+
+button {
+  cursor: pointer;
+}
+
+.accountBox {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.deposit {
+  background: #ff4055;
+  border-color: #ff4055;
+}
+
+.layout {
+  display: grid;
+  grid-template-columns: 300px 1fr 380px;
+  height: calc(100vh - 74px);
+}
+
+.leftPanel {
+  background: #1a2536;
+  border-right: 1px solid #2d3b52;
+  position: relative;
+}
+
+.tabs {
+  display: flex;
+  height: 55px;
+  border-bottom: 1px solid #2d3b52;
+}
+
+.tabs span {
+  flex: 1;
+  display: grid;
+  place-items: center;
+  color: #9eb2cc;
+}
+
+.tabs .active {
+  color: #20e0d0;
+  border-bottom: 3px solid #20e0d0;
+}
+
+.empty {
+  height: 72%;
+  display: grid;
+  place-items: center;
+  text-align: center;
+}
+
+.avatar {
+  width: 70px;
+  height: 70px;
+  border-radius: 50%;
+  background: #0f1728;
+  display: grid;
+  place-items: center;
+  font-size: 28px;
+  font-weight: 900;
+}
+
+.empty p,
+.leftPanel small {
+  color: #9eb2cc;
+}
+
+.leftPanel small {
+  position: absolute;
+  bottom: 22px;
+  left: 22px;
+}
+
+.chartWrap {
+  padding: 20px;
+  background: #07101c;
+}
+
+.chartCard {
+  height: 100%;
+  background: #141c2a;
+  padding: 20px;
+}
+
+.chartTitle {
+  background: #202b3e;
+  padding: 18px;
+  border-radius: 12px;
   display: flex;
   justify-content: space-between;
-  font-size: 14px;
-  color: #93c5fd;
-  margin-bottom: 18px;
 }
 
-.primaryBtn {
-  width: 100%;
-  padding: 15px;
-  border-radius: 12px;
-  border: 0;
-  background: #22c55e;
-  color: #03100a;
+.chartTitle h1 {
+  margin: 0;
+  font-size: 26px;
+}
+
+.chartTitle p {
+  margin: 6px 0 0;
+}
+
+.digitBox {
+  width: 58px;
+  height: 58px;
+  background: #172238;
+  border-radius: 10px;
+  display: grid;
+  place-items: center;
+  font-size: 30px;
   font-weight: 900;
-  font-size: 16px;
-  cursor: pointer;
 }
 
-.switchText {
-  text-align: center;
-  color: #94a3b8;
+.chart {
+  height: 56vh;
+  margin-top: 20px;
 }
 
-.switchText button {
-  margin-left: 8px;
-  background: none;
-  border: 0;
-  color: #22c55e;
-  font-weight: bold;
-  cursor: pointer;
+.chart svg {
+  width: 100%;
+  height: 100%;
+}
+
+.digits {
+  display: flex;
+  justify-content: space-between;
+  margin-top: 18px;
+}
+
+.digits button {
+  width: 66px;
+  height: 66px;
+  border-radius: 50%;
+  background: #1e293b;
+  display: grid;
+  place-items: center;
+}
+
+.digits button span {
+  font-size: 13px;
+}
+
+.digits .selected {
+  border: 3px solid #34d1c8;
+}
+
+.tradePanel {
+  background: #1a2536;
+  border-left: 1px solid #2d3b52;
+  padding: 26px;
+  overflow-y: auto;
+}
+
+.learn {
+  color: #20e0d0;
+}
+
+.tradePanel h1 {
+  text-align: right;
+  font-size: 32px;
+}
+
+.contractTabs {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 10px;
+}
+
+.contractTabs button {
+  font-size: 12px;
+}
+
+.contractTabs .active {
+  border-color: #20e0d0;
+  color: #20e0d0;
+}
+
+.tradeMode {
+  margin: 24px 0 18px;
+  border: 1px solid #2d3b52;
+  border-radius: 10px;
+  padding: 16px;
+  display: flex;
+  justify-content: space-between;
+  color: #9eb2cc;
+}
+
+.choice {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 12px;
+  margin-bottom: 20px;
+}
+
+.choice .green {
+  background: #16bf86;
+}
+
+.tradePanel label {
+  display: block;
+  color: #9eb2cc;
+  margin: 14px 0 8px;
+}
+
+.tradePanel input {
+  width: 100%;
+  font-size: 18px;
+}
+
+.buy {
+  width: 100%;
+  margin-top: 18px;
+  padding: 24px;
+  font-size: 24px;
+  display: grid;
+  gap: 8px;
+}
+
+.buy span {
+  font-size: 17px;
+}
+
+.buy.even {
+  background: #16bf86;
+  border-color: #16bf86;
+}
+
+.buy.odd {
+  background: #591824;
+  border-color: #ff4164;
+  color: #ff5f7a;
 }
