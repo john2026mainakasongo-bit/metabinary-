@@ -735,3 +735,30 @@ justify-content:flex-start;
   height:70px;
   min-width:70px;
 }
+.chart svg{
+  margin-top:-95px;
+  height:120%;
+}
+
+.chart svg polyline{
+  stroke-width:3.2!important;
+}
+
+.chart svg polygon{
+  transform:scaleY(1.25);
+  transform-origin:center;
+}
+
+.priceTag{
+  top:45%;
+}
+
+.digits{
+  bottom:38px;
+}
+
+.digit{
+  width:74px;
+  height:74px;
+  min-width:74px;
+}
