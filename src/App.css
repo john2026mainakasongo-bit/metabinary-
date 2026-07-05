@@ -1,407 +1,93 @@
-* {
-  margin: 0;
-  padding: 0;
-  box-sizing: border-box;
-}
+*{margin:0;padding:0;box-sizing:border-box}
+html,body,#root{width:100%;height:100%;overflow:hidden;font-family:Arial,Helvetica,sans-serif;background:#07111d;color:white}
+button,input,select{font-family:inherit}
+button{cursor:pointer}
 
-html,
-body,
-#root {
-  width: 100%;
-  height: 100%;
-  overflow: hidden;
-  font-family: Arial, Helvetica, sans-serif;
-  background: #07111d;
-  color: white;
-}
+.authPage{width:100vw;height:100vh;background:radial-gradient(circle at top,#173050,#07111d 60%);display:flex;align-items:center;justify-content:center;padding:20px}
+.authCard{width:420px;background:#111c2d;border:1px solid #26364d;border-radius:22px;padding:35px;box-shadow:0 30px 90px #000}
+.authCard h1{font-size:48px;margin-bottom:10px}
+.authCard p{color:#aebbd0;margin-bottom:25px}
+.authCard input{width:100%;height:52px;margin-bottom:14px;background:#07111d;border:1px solid #26364d;border-radius:10px;color:white;padding:0 15px;font-size:16px}
+.authCard button{width:100%;height:54px;background:#20c98b;color:white;border:none;border-radius:10px;font-size:18px;font-weight:900}
+.authCard span{display:block;text-align:center;margin-top:20px;color:#22d7cf}
 
-button {
-  font-family: inherit;
-}
+.platform{width:100vw;height:100vh;display:flex;flex-direction:column;background:#07111d}
+.topbar{height:72px;background:#091321;display:flex;align-items:center;justify-content:space-between;padding:0 20px;border-bottom:1px solid rgba(255,255,255,.08)}
+.brand{font-size:40px;font-weight:900}
+.nav{display:flex;gap:8px}
+.nav button{background:#101b2d;border:1px solid #26364d;color:white;padding:10px 14px;border-radius:8px}
+.accountBox{display:flex;align-items:center;gap:12px}
+.accountBox select{height:44px;background:#101b2d;color:white;border:1px solid white;border-radius:9px;padding:0 14px}
+.balance{font-size:22px;font-weight:900}
+.depositBtn{background:#ff5d6c;border:none;color:white;padding:14px 20px;border-radius:9px;font-weight:900}
 
-.platform {
-  width: 100vw;
-  height: 100vh;
-  display: flex;
-  flex-direction: column;
-  background: #07111d;
-}
+.layout{flex:1;display:grid;grid-template-columns:250px minmax(0,1fr)350px;overflow:hidden}
+.leftPanel{background:#1a2538;border-right:1px solid rgba(255,255,255,.08);display:flex;flex-direction:column}
+.tabs{height:55px;display:flex;border-bottom:1px solid rgba(255,255,255,.08)}
+.tabs span{flex:1;display:flex;align-items:center;justify-content:center;color:#9badc6}
+.tabs .active{color:#20d6cb;border-bottom:3px solid #20d6cb}
+.positions{flex:1;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:20px;text-align:center;padding:20px;overflow:auto}
+.avatar{width:82px;height:82px;border-radius:50%;background:#0d1929;display:flex;align-items:center;justify-content:center;font-size:34px;font-weight:900}
+.positions h2{color:white;font-size:24px}
+.positions p{color:#d5dceb;font-size:17px;line-height:1.4}
+.tradeCard{width:100%;background:#101b2d;border:1px solid #26364d;border-radius:12px;padding:14px;text-align:left;display:flex;flex-direction:column;gap:5px}
 
-.topbar {
-  height: 72px;
-  background: #091321;
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-  padding: 0 20px;
-  border-bottom: 1px solid rgba(255,255,255,.08);
-}
+.chartWrap{padding:16px;overflow:hidden}
+.chartCard{height:100%;background:#141d2e;border-radius:12px;padding:16px;display:flex;flex-direction:column;overflow:hidden}
+.chartHeader{background:#202b3f;padding:25px;border-radius:12px;display:flex;justify-content:space-between;align-items:center}
+.chartHeader h1{font-size:38px;color:white}
+.chartHeader p{color:#d1d8e4;margin-top:12px}
+.lastDigit{width:62px;height:62px;border-radius:12px;background:#101b2d;display:flex;align-items:center;justify-content:center;font-size:34px;font-weight:900}
+.chart{flex:1;margin-top:18px;background:#121c2c;border-radius:10px;overflow:hidden;min-height:430px}
+.chart svg{width:100%;height:100%}
+.digits{display:flex;justify-content:space-between;gap:10px;margin-top:14px;padding-bottom:6px}
+.digit{width:64px;height:64px;border-radius:50%;background:#1c283a;color:white;border:2px solid transparent;display:flex;flex-direction:column;align-items:center;justify-content:center}
+.digit b{font-size:20px}
+.digit span{font-size:11px;color:#c6cfdd}
+.selected{border-color:#29d8cf;box-shadow:0 0 20px rgba(41,216,207,.8)}
 
-.brand {
-  font-size: 40px;
-  font-weight: 900;
-}
+.tradePanel{background:#1a2538;border-left:1px solid rgba(255,255,255,.08);padding:20px;overflow-y:auto}
+.tradePanel::-webkit-scrollbar{width:6px}
+.tradePanel::-webkit-scrollbar-thumb{background:#2a364d;border-radius:50px}
+.learn{color:#20d6cb;margin-bottom:25px;text-align:right}
+.tradeTitle{font-size:52px;font-weight:900;text-align:right;margin-bottom:15px}
+.contractTabs{display:flex;flex-wrap:wrap;gap:8px;margin-bottom:20px}
+.contractTabs button{background:#101b2b;border:1px solid #26364d;color:white;border-radius:8px;padding:11px 13px}
+.contractTabs .active{border-color:#24d9cf;color:#24d9cf}
+.tradeMode{background:#101b2b;border:1px solid #24344d;padding:16px;border-radius:10px;display:flex;justify-content:space-between;margin-bottom:20px;font-size:18px}
+.choice{display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-bottom:20px}
+.choice button{height:50px;border-radius:8px;border:none;font-weight:900}
+.green{background:#1bc488;color:white}
+.white{background:white;color:black}
+.tradePanel label{display:block;margin:18px 0 8px;color:#aebbd0;text-align:center;font-size:18px}
+.tradePanel input{width:100%;height:50px;border-radius:8px;background:#08111f;border:1px solid #24344d;color:white;padding-left:15px;font-size:18px}
+.buyEven{width:100%;height:92px;border-radius:12px;margin-top:18px;border:none;background:#18be84;color:white;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:6px;font-size:28px;font-weight:900}
+.buyEven span{font-size:17px}
 
-.nav {
-  display: flex;
-  gap: 8px;
-}
+.modal{position:fixed;inset:0;background:rgba(0,0,0,.75);display:flex;align-items:center;justify-content:center;z-index:99}
+.modalBox{width:420px;background:#111c2d;border:1px solid #26364d;border-radius:20px;padding:30px;position:relative}
+.modalBox h2{font-size:36px}
+.modalBox p{color:#aebbd0;margin:10px 0 20px}
+.modalBox input{width:100%;height:52px;margin-bottom:14px;background:#07111d;border:1px solid #26364d;border-radius:10px;color:white;padding:0 15px;font-size:16px}
+.modalBox button:not(.x){width:100%;height:54px;background:#20c98b;color:white;border:none;border-radius:10px;font-weight:900}
+.x{position:absolute;right:15px;top:15px;background:#26364d;color:white;border:none;width:35px;height:35px;border-radius:50%;font-size:22px}
 
-.nav button {
-  background: #101b2d;
-  border: 1px solid #26364d;
-  color: white;
-  padding: 9px 13px;
-  border-radius: 7px;
-  cursor: pointer;
-}
-
-.accountBox {
-  display: flex;
-  align-items: center;
-  gap: 12px;
-}
-
-.accountBox select {
-  height: 42px;
-  background: #101b2d;
-  color: white;
-  border: 1px solid #26364d;
-  border-radius: 8px;
-  padding: 0 12px;
-}
-
-.balance {
-  font-size: 22px;
-  font-weight: 800;
-}
-
-.deposit {
-  background: #ff5d6c;
-  border: none;
-  color: white;
-  padding: 13px 20px;
-  border-radius: 8px;
-  font-weight: 800;
-  cursor: pointer;
-}
-
-.layout {
-  flex: 1;
-  display: grid;
-  grid-template-columns: 250px minmax(0, 1fr) 350px;
-  overflow: hidden;
-}
-
-.leftPanel {
-  background: #1a2538;
-  border-right: 1px solid rgba(255,255,255,.08);
-  display: flex;
-  flex-direction: column;
-}
-
-.tabs {
-  height: 55px;
-  display: flex;
-  border-bottom: 1px solid rgba(255,255,255,.08);
-}
-
-.tabs span {
-  flex: 1;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  color: #9badc6;
-}
-
-.tabs .active {
-  color: #20d6cb;
-  border-bottom: 3px solid #20d6cb;
-}
-
-.positions {
-  flex: 1;
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  justify-content: center;
-  gap: 22px;
-  text-align: center;
-  padding: 20px;
-}
-
-.avatar {
-  width: 82px;
-  height: 82px;
-  border-radius: 50%;
-  background: #0d1929;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  font-size: 34px;
-  font-weight: 900;
-}
-
-.positions h2 {
-  font-size: 24px;
-}
-
-.positions p {
-  color: #d5dceb;
-  font-size: 17px;
-  line-height: 1.4;
-}
-
-.bottomText {
-  padding: 20px;
-  color: white;
-  font-size: 15px;
-}
-
-.chartWrap {
-  padding: 16px;
-  overflow: hidden;
-}
-
-.chartCard {
-  height: 100%;
-  background: #141d2e;
-  border-radius: 12px;
-  padding: 16px;
-  display: flex;
-  flex-direction: column;
-}
-
-.chartHeader {
-  background: #202b3f;
-  padding: 22px;
-  border-radius: 12px;
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
-}
-
-.chartHeader h1 {
-  font-size: 42px;
-  color: white;
-}
-
-.chartHeader p {
-  color: #d1d8e4;
-  margin-top: 6px;
-}
-
-.lastDigit {
-  width: 60px;
-  height: 60px;
-  border-radius: 12px;
-  background: #101b2d;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  font-size: 34px;
-  font-weight: 900;
-}
-
-.chart {
-  flex: 1;
-  margin-top: 18px;
-  background: #121c2c;
-  border-radius: 10px;
-  overflow: hidden;
-  min-height: 420px;
-}
-
-.chart svg {
-  width: 100%;
-  height: 100%;
-}
-
-.digits {
-  margin-top: 18px;
-  display: flex;
-  justify-content: space-between;
-  gap: 10px;
-}
-
-.digit {
-  width: 64px;
-  height: 64px;
-  border-radius: 50%;
-  background: #1c283a;
-  color: white;
-  border: 2px solid transparent;
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  justify-content: center;
-  cursor: pointer;
-}
-
-.digit b {
-  font-size: 20px;
-}
-
-.selected {
-  border-color: #29d8cf;
-  box-shadow: 0 0 18px rgba(41,216,207,.4);
-}
-
-.percent {
-  font-size: 11px;
-  color: #c6cfdd;
-}
-
-.tradePanel {
-  background: #1a2538;
-  border-left: 1px solid rgba(255,255,255,.08);
-  padding: 20px;
-  overflow-y: auto;
-}
-
-.learn {
-  color: #20d6cb;
-  margin-bottom: 25px;
-  font-size: 14px;
-  text-align: right;
-}
-
-.tradeTitle {
-  color: white;
-  font-size: 54px;
-  font-weight: 900;
-  text-align: right;
-  margin-bottom: 20px;
-}
-
-.contractTabs {
-  display: flex;
-  flex-wrap: wrap;
-  gap: 8px;
-  margin-bottom: 20px;
-}
-
-.contractTabs button {
-  background: #101b2b;
-  border: 1px solid #26364d;
-  color: white;
-  border-radius: 8px;
-  padding: 11px 13px;
-  cursor: pointer;
-}
-
-.contractTabs .active {
-  border-color: #24d9cf;
-  color: #24d9cf;
-}
-
-.tradeMode {
-  background: #101b2b;
-  border: 1px solid #24344d;
-  padding: 16px;
-  border-radius: 10px;
-  display: flex;
-  justify-content: space-between;
-  margin-bottom: 20px;
-  font-size: 18px;
-}
-
-.choice {
-  display: grid;
-  grid-template-columns: 1fr 1fr;
-  gap: 10px;
-  margin-bottom: 20px;
-}
-
-.choice button {
-  height: 50px;
-  border-radius: 8px;
-  border: none;
-  font-weight: 800;
-  cursor: pointer;
-}
-
-.green {
-  background: #1bc488;
-  color: white;
-}
-
-.dark {
-  background: white;
-  color: black;
-}
-
-.tradePanel label {
-  display: block;
-  margin: 18px 0 8px;
-  color: #aebbd0;
-  text-align: center;
-  font-size: 18px;
-}
-
-.tradePanel input {
-  width: 100%;
-  height: 50px;
-  border-radius: 8px;
-  background: #08111f;
-  border: 1px solid #24344d;
-  color: white;
-  padding-left: 15px;
-  font-size: 18px;
-}
-
-.buyEven,
-.buyOdd {
-  width: 100%;
-  height: 95px;
-  border-radius: 12px;
-  margin-top: 18px;
-  border: none;
-  cursor: pointer;
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  justify-content: center;
-  gap: 6px;
-  font-size: 30px;
-  font-weight: 900;
-}
-
-.buyEven {
-  background: #18be84;
-  color: white;
-}
-
-.buyOdd {
-  background: #5a1522;
-  border: 1px solid #ff4f6a;
-  color: #ff5876;
-}
-
-.buyEven span,
-.buyOdd span {
-  font-size: 17px;
-}
-
-@media (max-width: 1200px) {
-  .layout {
-    grid-template-columns: 210px 1fr 310px;
-  }
-
-  .brand {
-    font-size: 32px;
-  }
-
-  .chartHeader h1 {
-    font-size: 34px;
-  }
-
-  .tradeTitle {
-    font-size: 42px;
-  }
-
-  .digit {
-    width: 52px;
-    height: 52px;
-  }
+@media(max-width:900px){
+html,body,#root{overflow:auto}
+.platform{height:auto;min-height:100vh}
+.topbar{height:auto;flex-direction:column;align-items:flex-start;gap:15px;padding:15px}
+.nav{width:100%;overflow-x:auto}
+.accountBox{width:100%;justify-content:space-between}
+.layout{display:flex;flex-direction:column}
+.leftPanel{min-height:220px}
+.chartWrap{padding:10px}
+.chartCard{min-height:620px}
+.chartHeader{flex-direction:column;align-items:flex-start;gap:15px}
+.chartHeader h1{font-size:30px}
+.chart{min-height:330px}
+.digits{overflow-x:auto}
+.digit{min-width:58px}
+.tradePanel{border-left:none}
+.tradeTitle{text-align:left;font-size:42px}
+.learn{text-align:left}
 }
