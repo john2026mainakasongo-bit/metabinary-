@@ -277,3 +277,72 @@ font-size:16px;
 }
 
 }
+@media(max-width:900px){
+
+.topbar,
+.topbar *{
+color:white!important;
+}
+
+.nav button{
+background:#101b2d!important;
+color:white!important;
+border:1px solid #26364d!important;
+}
+
+.accountBox select{
+background:#101b2d!important;
+color:white!important;
+border:1px solid #26364d!important;
+}
+
+.depositBtn{
+background:#ff4d73!important;
+color:white!important;
+border:none!important;
+}
+
+.chartWrap{
+height:420px!important;
+}
+
+.chartCard{
+height:420px!important;
+min-height:420px!important;
+}
+
+.chart{
+height:420px!important;
+}
+
+.chartHeader{
+background:white!important;
+box-shadow:0 4px 20px rgba(0,0,0,.08)!important;
+}
+
+.chart svg{
+height:100%!important;
+margin-top:40px!important;
+}
+
+.chartCard::before{
+display:none!important;
+}
+
+.chartCard::after{
+display:none!important;
+}
+
+.digits{
+bottom:8px!important;
+padding-left:20px!important;
+}
+
+.priceTag{
+top:55%!important;
+}
+
+.tradePanel{
+margin-top:0!important;
+}
+}
