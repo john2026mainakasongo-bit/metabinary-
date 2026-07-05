@@ -1,20 +1,159 @@
-import { useMemo, useState } from "react";
+import { useEffect, useMemo, useState } from "react";
 import "./App.css";
 
+const API = "http://localhost:5000";
+
 export default function App() {
-  const [account, setAccount] = useState("Real");
+  const [screen, setScreen] = useState(localStorage.getItem("token") ? "app" : "login");
+  const [mode, setMode] = useState("Real");
+  const [email, setEmail] = useState(localStorage.getItem("email") || "");
+  const [password, setPassword] = useState("");
+  const [balance, setBalance] = useState({ demo: 10000, real: 0 });
   const [stake, setStake] = useState(10);
   const [duration, setDuration] = useState(5);
-  const [activeTab, setActiveTab] = useState("Even/Odd");
   const [lastDigit, setLastDigit] = useState(8);
+  const [selectedDigit, setSelectedDigit] = useState(8);
+  const [choice, setChoice] = useState("Even");
+  const [openTrades, setOpenTrades] = useState([]);
+  const [closedTrades, setClosedTrades] = useState([]);
+  const [depositOpen, setDepositOpen] = useState(false);
+  const [phone, setPhone] = useState("");
+  const [depositAmount, setDepositAmount] = useState(10);
+
+  const currentBalance = mode === "Demo" ? balance.demo : balance.real;
 
   const points = useMemo(() => {
-    return Array.from({ length: 90 }, (_, i) => {
-      const x = i * 10;
-      const y = 180 + Math.sin(i * 1.7) * 35 + Math.random() * 45;
+    return Array.from({ length: 80 }, (_, i) => {
+      const x = i * 12;
+      const y = 185 + Math.sin(i * 1.7) * 35 + Math.random() * 50;
       return `${x},${y}`;
     }).join(" ");
-  }, []);
+  }, [lastDigit]);
+
+  async function refreshBalance() {
+    if (!email) return;
+    const res = await fetch(`${API}/api/user/${email}`);
+    const data = await res.json();
+    setBalance({ demo: data.demoBalance, real: data.realBalance });
+  }
+
+  useEffect(() => {
+    if (screen === "app") refreshBalance();
+    const t = setInterval(() => {
+      const d = Math.floor(Math.random() * 10);
+      setLastDigit(d);
+      setSelectedDigit(d);
+    }, 1000);
+    return () => clearInterval(t);
+  }, [screen, email]);
+
+  useEffect(() => {
+    if (screen !== "app") return;
+    const t = setInterval(refreshBalance, 3000);
+    return () => clearInterval(t);
+  }, [screen, email]);
+
+  async function auth(type) {
+    const res = await fetch(`${API}/api/${type}`, {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ email, password }),
+    });
+
+    const data = await res.json();
+    if (!data.success) return alert(data.message);
+
+    localStorage.setItem("token", data.token);
+    localStorage.setItem("email", email);
+    setBalance({ demo: data.user.demoBalance, real: data.user.realBalance });
+    setScreen("app");
+  }
+
+  function logout() {
+    localStorage.clear();
+    setScreen("login");
+  }
+
+  function trade() {
+    const amount = Number(stake);
+    if (amount <= 0) return alert("Enter stake");
+    if (currentBalance < amount) return alert("Insufficient balance");
+
+    const tradeId = Date.now();
+    const trade = {
+      id: tradeId,
+      choice,
+      stake: amount,
+      target: selectedDigit,
+      duration,
+      mode,
+      status: "Running",
+    };
+
+    setOpenTrades((x) => [trade, ...x]);
+
+    setBalance((b) =>
+      mode === "Demo"
+        ? { ...b, demo: b.demo - amount }
+        : { ...b, real: b.real - amount }
+    );
+
+    setTimeout(() => {
+      const win =
+        choice === "Even" ? lastDigit % 2 === 0 : lastDigit % 2 !== 0;
+
+      const payout = win ? amount * 1.9 : 0;
+
+      setOpenTrades((x) => x.filter((t) => t.id !== tradeId));
+      setClosedTrades((x) => [
+        { ...trade, result: lastDigit, win, payout },
+        ...x,
+      ]);
+
+      if (win) {
+        setBalance((b) =>
+          mode === "Demo"
+            ? { ...b, demo: b.demo + payout }
+            : { ...b, real: b.real + payout }
+        );
+      }
+    }, Number(duration) * 1000);
+  }
+
+  async function deposit() {
+    const res = await fetch(`${API}/api/deposit`, {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ email, phone, amount: Number(depositAmount) }),
+    });
+
+    const data = await res.json();
+    if (!data.success) return alert(data.message || "Deposit failed");
+
+    alert("STK Push sent. Enter M-Pesa PIN.");
+  }
+
+  if (screen === "login" || screen === "register") {
+    return (
+      <div className="authPage">
+        <div className="authCard">
+          <h1>MetaBinary</h1>
+          <p>{screen === "login" ? "Login to continue trading" : "Create your trading account"}</p>
+
+          <input placeholder="Email" value={email} onChange={(e) => setEmail(e.target.value)} />
+          <input placeholder="Password" type="password" value={password} onChange={(e) => setPassword(e.target.value)} />
+
+          <button onClick={() => auth(screen)}>
+            {screen === "login" ? "Login" : "Register"}
+          </button>
+
+          <span onClick={() => setScreen(screen === "login" ? "register" : "login")}>
+            {screen === "login" ? "Create account" : "Already have account? Login"}
+          </span>
+        </div>
+      </div>
+    );
+  }
 
   return (
     <div className="platform">
@@ -23,38 +162,47 @@ export default function App() {
 
         <nav className="nav">
           <button>Trader&apos;s Hub</button>
-          <button>Deposit</button>
+          <button onClick={() => setDepositOpen(true)}>Deposit</button>
           <button>Withdraw</button>
           <button>History</button>
           <button>Chat</button>
-          <button>Logout</button>
+          <button onClick={logout}>Logout</button>
         </nav>
 
         <div className="accountBox">
-          <select value={account} onChange={(e) => setAccount(e.target.value)}>
+          <select value={mode} onChange={(e) => setMode(e.target.value)}>
             <option>Real</option>
             <option>Demo</option>
           </select>
-
-          <div className="balance">$1.00</div>
-          <button className="deposit">Deposit</button>
+          <div className="balance">${currentBalance.toFixed(2)}</div>
+          <button className="depositBtn" onClick={() => setDepositOpen(true)}>Deposit</button>
         </div>
       </header>
 
       <div className="layout">
         <aside className="leftPanel">
           <div className="tabs">
-            <span className="active">Open (0)</span>
-            <span>Closed (0)</span>
+            <span className="active">Open ({openTrades.length})</span>
+            <span>Closed ({closedTrades.length})</span>
           </div>
 
           <div className="positions">
-            <div className="avatar">MB</div>
-            <h2>No open positions</h2>
-            <p>Your MetaBinary trades will appear here</p>
+            {openTrades.length === 0 ? (
+              <>
+                <div className="avatar">MB</div>
+                <h2>No open positions</h2>
+                <p>Your MetaBinary trades will appear here</p>
+              </>
+            ) : (
+              openTrades.map((t) => (
+                <div className="tradeCard" key={t.id}>
+                  <b>{t.choice}</b>
+                  <span>{t.mode} • ${t.stake}</span>
+                  <small>Target {t.target}</small>
+                </div>
+              ))
+            )}
           </div>
-
-          <div className="bottomText">0 open positions</div>
         </aside>
 
         <main className="chartWrap">
@@ -64,45 +212,37 @@ export default function App() {
                 <h1>Volatility 100 (1s)</h1>
                 <p>Live Synthetic Market</p>
               </div>
-
               <div className="lastDigit">{lastDigit}</div>
             </div>
 
             <div className="chart">
-              <svg viewBox="0 0 900 380" preserveAspectRatio="none">
+              <svg viewBox="0 0 950 390" preserveAspectRatio="none">
                 <defs>
-                  <pattern id="grid" width="90" height="55" patternUnits="userSpaceOnUse">
-                    <path
-                      d="M 90 0 L 0 0 0 55"
-                      fill="none"
-                      stroke="#ffffff"
-                      strokeWidth="1.4"
-                    />
+                  <pattern id="grid" width="95" height="55" patternUnits="userSpaceOnUse">
+                    <path d="M95 0 L0 0 0 55" fill="none" stroke="#ffffff" strokeWidth="1.2" />
                   </pattern>
+                  <filter id="glow">
+                    <feGaussianBlur stdDeviation="4" result="blur" />
+                    <feMerge>
+                      <feMergeNode in="blur" />
+                      <feMergeNode in="SourceGraphic" />
+                    </feMerge>
+                  </filter>
                 </defs>
-
                 <rect width="100%" height="100%" fill="url(#grid)" />
-
-                <polyline
-                  points={points}
-                  fill="none"
-                  stroke="#dbe4f0"
-                  strokeWidth="4"
-                  strokeLinejoin="round"
-                  strokeLinecap="round"
-                />
+                <polyline points={points} fill="none" stroke="#edf3ff" strokeWidth="4" filter="url(#glow)" />
               </svg>
             </div>
 
             <div className="digits">
-              {[0, 1, 2, 3, 4, 5, 6, 7, 8, 9].map((d) => (
+              {[0,1,2,3,4,5,6,7,8,9].map((d) => (
                 <button
                   key={d}
-                  onClick={() => setLastDigit(d)}
-                  className={`digit ${d === lastDigit ? "selected" : ""}`}
+                  onClick={() => setSelectedDigit(d)}
+                  className={`digit ${selectedDigit === d ? "selected" : ""}`}
                 >
                   <b>{d}</b>
-                  <span className="percent">{(12.3 + Math.random()).toFixed(1)}%</span>
+                  <span>{(12 + Math.random()).toFixed(1)}%</span>
                 </button>
               ))}
             </div>
@@ -111,21 +251,12 @@ export default function App() {
 
         <aside className="tradePanel">
           <p className="learn">ⓘ Learn about this trade type</p>
-
-          <h1 className="tradeTitle">{activeTab}</h1>
+          <h1 className="tradeTitle">Even/Odd</h1>
 
           <div className="contractTabs">
-            {["Even/Odd", "Matches/Differs", "Over/Under", "Rise/Fall", "Touch/No Touch"].map(
-              (tab) => (
-                <button
-                  key={tab}
-                  onClick={() => setActiveTab(tab)}
-                  className={activeTab === tab ? "active" : ""}
-                >
-                  {tab}
-                </button>
-              )
-            )}
+            {["Even/Odd", "Matches/Differs", "Over/Under", "Rise/Fall", "Touch/No Touch"].map((x) => (
+              <button className={x === "Even/Odd" ? "active" : ""} key={x}>{x}</button>
+            ))}
           </div>
 
           <div className="tradeMode">
@@ -134,8 +265,8 @@ export default function App() {
           </div>
 
           <div className="choice">
-            <button className="green">Even</button>
-            <button className="dark">Odd</button>
+            <button onClick={() => setChoice("Even")} className={choice === "Even" ? "green" : "white"}>Even</button>
+            <button onClick={() => setChoice("Odd")} className={choice === "Odd" ? "green" : "white"}>Odd</button>
           </div>
 
           <label>Duration ticks</label>
@@ -144,17 +275,27 @@ export default function App() {
           <label>Stake</label>
           <input value={stake} onChange={(e) => setStake(e.target.value)} />
 
-          <button className="buyEven">
-            Even
-            <span>Payout 19.00 USD</span>
-          </button>
-
-          <button className="buyOdd">
-            Odd
-            <span>Payout 19.00 USD</span>
+          <button className="buyEven" onClick={trade}>
+            Buy {choice}
+            <span>Payout {(Number(stake) * 1.9).toFixed(2)} USD</span>
           </button>
         </aside>
       </div>
+
+      {depositOpen && (
+        <div className="modal">
+          <div className="modalBox">
+            <button className="x" onClick={() => setDepositOpen(false)}>×</button>
+            <h2>Deposit</h2>
+            <p>Send M-Pesa STK Push</p>
+
+            <input placeholder="2547XXXXXXXX" value={phone} onChange={(e) => setPhone(e.target.value)} />
+            <input placeholder="Amount" value={depositAmount} onChange={(e) => setDepositAmount(e.target.value)} />
+
+            <button onClick={deposit}>Send STK Push</button>
+          </div>
+        </div>
+      )}
     </div>
   );
 }
