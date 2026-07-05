@@ -1,8 +1,4 @@
-*{
-margin:0;
-padding:0;
-box-sizing:border-box;
-}
+*{margin:0;padding:0;box-sizing:border-box}
 
 html,body,#root{
 width:100%;
@@ -13,17 +9,8 @@ background:#f7f7f7;
 color:#111;
 }
 
-button,input,select{
-font-family:inherit;
-}
-
-button{
-cursor:pointer;
-}
-
-/* =======================
-APP
-======================= */
+button,input,select{font-family:inherit}
+button{cursor:pointer}
 
 .platform{
 width:100vw;
@@ -34,9 +21,7 @@ background:#f7f7f7;
 overflow:hidden;
 }
 
-/* =======================
-TOPBAR
-======================= */
+/* TOPBAR */
 
 .topbar{
 height:72px;
@@ -46,7 +31,6 @@ grid-template-columns:260px 1fr 310px;
 align-items:center;
 padding:0 18px;
 gap:18px;
-border-bottom:1px solid rgba(255,255,255,.04);
 }
 
 .brand{
@@ -102,22 +86,19 @@ font-weight:900;
 color:white;
 }
 
-/* =======================
-LAYOUT
-======================= */
+/* LAYOUT */
 
 .layout{
 flex:1;
 display:grid;
-grid-template-columns:180px 1fr 320px;
+grid-template-columns:180px 1fr 360px;
 overflow:hidden;
 }
 
-/* =======================
-LEFT PANEL
-======================= */
+/* LEFT PANEL */
 
 .leftPanel{
+width:180px;
 background:#fafafa;
 border-right:1px solid #e4e6eb;
 display:flex;
@@ -155,14 +136,14 @@ gap:15px;
 }
 
 .avatar{
-width:72px;
-height:72px;
+width:84px;
+height:84px;
 border-radius:50%;
 background:#eceef3;
 display:flex;
 align-items:center;
 justify-content:center;
-font-size:34px;
+font-size:36px;
 font-weight:900;
 }
 
@@ -192,9 +173,7 @@ font-size:13px;
 border-left:5px solid #ff4040;
 }
 
-/* =======================
-CENTER CHART
-======================= */
+/* CHART */
 
 .chartWrap{
 background:white;
@@ -240,39 +219,45 @@ linear-gradient(to right,rgba(0,0,0,.055) 1px,transparent 1px),
 linear-gradient(to bottom,rgba(0,0,0,.055) 1px,transparent 1px);
 background-size:
 120px 100%,
-100% 90px;
+100% 78px;
 }
 
 .chart svg{
+position:absolute;
+inset:0;
 width:100%;
-height:100%;
-margin-top:-35px;
+height:120%;
+margin-top:-95px;
+overflow:visible;
 }
 
 .chart svg polyline{
 stroke:#3a3a3a!important;
-stroke-width:2.8!important;
+stroke-width:3.2!important;
 fill:none;
+stroke-linecap:round;
+stroke-linejoin:round;
 }
 
 .chart svg polygon{
 opacity:.75;
+transform:scaleY(1.25);
+transform-origin:center;
 }
 
-/* =======================
-PRICE TAG
-======================= */
+/* PRICE TAG */
 
 .priceTag{
 position:absolute;
-top:49%;
-right:24px;
+right:22px;
+top:52%;
+transform:translateY(-50%);
 background:black;
 color:white;
 padding:8px 12px;
 border-radius:6px;
-font-weight:800;
 font-size:14px;
+font-weight:800;
 z-index:40;
 }
 
@@ -281,16 +266,15 @@ content:"";
 position:absolute;
 right:100%;
 top:50%;
-width:170px;
-height:1px;
-border-top:2px dashed rgba(0,0,0,.45);
+width:150px;
+border-top:2px dashed rgba(0,0,0,.35);
 transform:translateY(-50%);
 }
 
 .priceTag:after{
 content:"";
 position:absolute;
-right:calc(100% + 166px);
+right:calc(100% + 146px);
 top:50%;
 width:8px;
 height:8px;
@@ -299,9 +283,7 @@ border-radius:50%;
 transform:translateY(-50%);
 }
 
-/* =======================
-FAKE DERIV TOOLS
-======================= */
+/* DERIV TOOLS */
 
 .chartCard::before{
 content:"1s\A □\A ↗\A ▤\A ✎\A ⇩";
@@ -335,9 +317,7 @@ line-height:48px;
 text-align:center;
 }
 
-/* =======================
-DIGITS
-======================= */
+/* DIGITS */
 
 .digits{
 position:absolute;
@@ -345,17 +325,17 @@ bottom:28px;
 left:50%;
 transform:translateX(-50%);
 display:flex;
-gap:14px;
+gap:16px;
 z-index:40;
 }
 
 .digit{
-width:74px;
-height:74px;
-min-width:74px;
+width:70px;
+height:70px;
+min-width:70px;
 border-radius:50%;
 background:white;
-border:6px solid #e8e8e8;
+border:5px solid #e8e8e8;
 display:flex;
 flex-direction:column;
 justify-content:center;
@@ -364,7 +344,7 @@ box-shadow:0 3px 12px rgba(0,0,0,.08);
 }
 
 .digit b{
-font-size:24px;
+font-size:21px;
 font-weight:900;
 line-height:1;
 }
@@ -376,17 +356,16 @@ margin-top:4px;
 }
 
 .selected{
-border-color:#26c7c2!important;
-box-shadow:0 0 0 4px rgba(38,199,194,.15)!important;
+border-color:#29c6c2!important;
+box-shadow:0 0 0 5px rgba(41,198,194,.15)!important;
 }
 
-/* =======================
-RIGHT PANEL
-======================= */
+/* RIGHT PANEL */
 
 .tradePanel{
+width:360px;
 background:#f5f6f8;
-padding:12px;
+padding:14px;
 overflow-y:auto;
 border-left:1px solid #e4e5e8;
 }
@@ -405,6 +384,9 @@ border-radius:8px;
 font-size:18px;
 font-weight:900;
 margin-bottom:12px;
+min-height:76px;
+display:flex;
+align-items:center;
 }
 
 .tradeTitle::before{
@@ -459,10 +441,10 @@ margin-bottom:10px;
 }
 
 .choice button{
-height:74px;
+height:72px;
 border:none;
 border-radius:8px;
-font-size:26px;
+font-size:20px;
 font-weight:800;
 text-align:left;
 padding-left:22px;
@@ -498,13 +480,13 @@ font-size:15px;
 
 .buyEven{
 width:100%;
-height:80px;
+height:82px;
 background:#1ec280;
 border:none;
 border-radius:8px;
 margin-top:14px;
 color:white;
-font-size:30px;
+font-size:32px;
 font-weight:900;
 display:flex;
 flex-direction:column;
@@ -513,13 +495,11 @@ align-items:center;
 }
 
 .buyEven span{
-font-size:14px;
+font-size:15px;
 margin-top:4px;
 }
 
-/* =======================
-AUTH
-======================= */
+/* AUTH */
 
 .authPage{
 width:100vw;
@@ -580,9 +560,7 @@ color:#26d6cb;
 cursor:pointer;
 }
 
-/* =======================
-DEPOSIT
-======================= */
+/* MODAL */
 
 .modal{
 position:fixed;
@@ -646,12 +624,9 @@ border:none;
 color:white;
 }
 
-/* =======================
-MOBILE
-======================= */
+/* MOBILE */
 
 @media(max-width:900px){
-
 html,body,#root{
 overflow:auto;
 }
@@ -691,6 +666,7 @@ min-height:700px;
 }
 
 .tradePanel{
+width:100%;
 border-left:none;
 }
 
@@ -702,63 +678,4 @@ transform:none;
 padding-left:20px;
 justify-content:flex-start;
 }
-
-}
-.tradePanel{
-  width:320px;
-  background:#f0f1f3;
-  padding:10px;
-}
-
-.tradeTitle{
-  min-height:76px;
-}
-
-.choice button{
-  height:64px;
-}
-
-.buyEven{
-  height:72px;
-}
-
-.chart svg{
-  margin-top:-55px;
-}
-
-.digits{
-  bottom:30px;
-}
-
-.digit{
-  width:70px;
-  height:70px;
-  min-width:70px;
-}
-.chart svg{
-  margin-top:-95px;
-  height:120%;
-}
-
-.chart svg polyline{
-  stroke-width:3.2!important;
-}
-
-.chart svg polygon{
-  transform:scaleY(1.25);
-  transform-origin:center;
-}
-
-.priceTag{
-  top:45%;
-}
-
-.digits{
-  bottom:38px;
-}
-
-.digit{
-  width:74px;
-  height:74px;
-  min-width:74px;
 }
