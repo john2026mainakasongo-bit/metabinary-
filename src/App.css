@@ -9,51 +9,196 @@ background:white;
 color:#111;
 }
 
-button,input,select{
-font-family:inherit;
-}
-
-button{
-cursor:pointer;
-}
+button,input,select{font-family:inherit}
+button{cursor:pointer}
 
 .platform{
 width:100vw;
 height:100vh;
 background:white;
+display:flex;
+flex-direction:column;
 overflow:hidden;
 }
 
-/* HIDE METABINARY TOPBAR */
+/* TOP BAR */
 .topbar{
-display:none;
+height:72px;
+background:#07111d;
+color:white;
+display:grid;
+grid-template-columns:240px 1fr 330px;
+align-items:center;
+padding:0 18px;
+gap:14px;
 }
 
-/* MAIN LAYOUT LIKE DERIV */
-.layout{
-width:100vw;
-height:100vh;
-display:grid;
-grid-template-columns:1fr 290px;
+.brand{
+font-size:34px;
+font-weight:900;
+color:white;
+white-space:nowrap;
+}
+
+.nav{
+display:flex;
+justify-content:center;
+gap:8px;
 overflow:hidden;
 }
 
-/* HIDE LEFT PANEL */
-.leftPanel{
-display:none;
+.nav button{
+background:#101b2d;
+border:1px solid #26364d;
+color:white;
+border-radius:8px;
+padding:11px 15px;
+font-size:14px;
+font-weight:900;
+white-space:nowrap;
+box-shadow:0 4px 12px rgba(0,0,0,.25);
 }
+
+.accountBox{
+display:flex;
+align-items:center;
+justify-content:flex-end;
+gap:12px;
+}
+
+.accountBox select{
+height:42px;
+background:#101b2d;
+color:white;
+border:1px solid #26364d;
+border-radius:8px;
+padding:0 12px;
+font-weight:700;
+}
+
+.balance{
+font-size:22px;
+font-weight:900;
+color:white;
+white-space:nowrap;
+}
+
+.depositBtn{
+background:#ff4f6c!important;
+border:none!important;
+color:white!important;
+border-radius:8px!important;
+padding:14px 20px!important;
+font-weight:900!important;
+}
+
+/* MAIN LAYOUT */
+.layout{
+flex:1;
+display:grid;
+grid-template-columns:220px minmax(0,1fr)315px;
+overflow:hidden;
+}
+
+/* LEFT PANEL */
+.leftPanel{
+background:#f1f3f5;
+border-right:1px solid #dfe3e8;
+display:flex;
+flex-direction:column;
+overflow:hidden;
+color:#111;
+}
+
+.tabs{
+height:58px;
+display:flex;
+border-bottom:1px solid #dfe3e8;
+}
+
+.tabs span{
+flex:1;
+display:flex;
+align-items:center;
+justify-content:center;
+color:#596579;
+font-size:14px;
+}
+
+.tabs .active{
+color:#00a7a7;
+border-bottom:3px solid #00c7c7;
+}
+
+.positions{
+flex:1;
+display:flex;
+flex-direction:column;
+align-items:center;
+justify-content:center;
+gap:16px;
+text-align:center;
+padding:16px;
+overflow:auto;
+}
+
+.avatar{
+width:78px;
+height:78px;
+border-radius:50%;
+background:#e3e7ec;
+color:#111;
+display:flex;
+align-items:center;
+justify-content:center;
+font-size:32px;
+font-weight:900;
+}
+
+.positions h2{
+font-size:22px;
+line-height:1.1;
+color:#111;
+}
+
+.positions p{
+font-size:15px;
+line-height:1.45;
+color:#596579;
+}
+
+.tradeCard{
+background:white;
+color:#111;
+border-radius:8px;
+padding:12px;
+width:100%;
+text-align:left;
+border:1px solid #dfe3e8;
+font-size:14px;
+}
+
+.tradeCard b{display:block}
+
+.tradeCard span,
+.tradeCard small{
+display:block;
+color:#555;
+margin-top:4px;
+}
+
+.tradeCard.win{border-left:5px solid #18be84}
+.tradeCard.loss{border-left:5px solid #ef3737}
 
 /* CHART AREA */
 .chartWrap{
-height:100vh;
+padding:0;
 background:white;
 overflow:hidden;
-padding:0;
 }
 
 .chartCard{
 height:100%;
-width:100%;
 background:white;
 position:relative;
 overflow:hidden;
@@ -61,33 +206,51 @@ padding:0;
 border-radius:0;
 }
 
-/* MARKET TITLE CARD */
+/* DERIV MARKET CARD */
 .chartHeader{
 position:absolute;
-top:8px;
-left:6px;
+top:16px;
+left:18px;
 z-index:30;
+width:370px;
+height:88px;
 background:white;
-width:335px;
-height:68px;
-border-radius:4px;
-box-shadow:0 2px 14px rgba(0,0,0,.08);
+border-radius:6px;
+box-shadow:0 4px 18px rgba(0,0,0,.08);
 display:flex;
 align-items:center;
-padding:12px 16px;
+padding:0 22px;
 }
 
 .chartHeader h1{
-font-size:20px;
+font-size:23px;
 font-weight:900;
 color:#222;
 line-height:1.1;
 }
 
+.chartHeader h1::before{
+content:"100 🔴";
+font-size:11px;
+font-weight:900;
+background:#f3f4f5;
+border-radius:4px;
+padding:3px 5px;
+margin-right:10px;
+vertical-align:middle;
+}
+
 .chartHeader p{
-font-size:14px;
+font-size:16px;
 color:#777;
-margin-top:6px;
+margin-top:8px;
+}
+
+.chartHeader p::after{
+content:" ▼";
+color:#ff3153;
+font-weight:900;
+font-size:18px;
 }
 
 .lastDigit{
@@ -100,9 +263,9 @@ width:100%;
 height:100%;
 position:relative;
 background:
-linear-gradient(to right,#e8ecef 1px,transparent 1px),
-linear-gradient(to bottom,#e8ecef 1px,transparent 1px);
-background-size:115px 100%,100% 108px;
+linear-gradient(to right,#e6eaee 1px,transparent 1px),
+linear-gradient(to bottom,#e6eaee 1px,transparent 1px);
+background-size:115px 100%,100% 112px;
 overflow:hidden;
 }
 
@@ -116,8 +279,8 @@ opacity:0;
 }
 
 .chart svg polyline{
-stroke:#3b3b3b!important;
-stroke-width:2.2!important;
+stroke:#3a3a3a!important;
+stroke-width:2.1!important;
 stroke-linecap:round!important;
 stroke-linejoin:round!important;
 filter:none!important;
@@ -126,8 +289,8 @@ filter:none!important;
 /* PRICE TAG */
 .priceTag{
 position:absolute;
-right:35px;
-top:37%;
+right:38px;
+top:39%;
 transform:translateY(-50%);
 background:black;
 color:white;
@@ -141,9 +304,9 @@ z-index:40;
 .priceTag::before{
 content:"";
 position:absolute;
-left:-300px;
+right:100%;
 top:50%;
-width:300px;
+width:310px;
 border-top:2px dashed #555;
 transform:translateY(-50%);
 }
@@ -151,7 +314,7 @@ transform:translateY(-50%);
 .priceTag::after{
 content:"";
 position:absolute;
-left:-306px;
+right:calc(100% + 306px);
 top:50%;
 width:10px;
 height:10px;
@@ -160,21 +323,54 @@ border-radius:50%;
 transform:translateY(-50%);
 }
 
-/* DIGIT CIRCLES */
+/* FAKE LEFT TOOLBAR LIKE DERIV */
+.chartCard::before{
+content:"1s\A □\A ↗\A ▤\A ✎\A ⇩";
+white-space:pre;
+position:absolute;
+top:145px;
+left:6px;
+z-index:25;
+width:56px;
+background:white;
+border-radius:4px;
+box-shadow:0 2px 14px rgba(0,0,0,.12);
+color:#222;
+font-size:22px;
+line-height:46px;
+text-align:center;
+padding:8px 0;
+}
+
+.chartCard::after{
+content:"+\A ⚙\A −";
+white-space:pre;
+position:absolute;
+top:500px;
+left:0;
+z-index:25;
+width:52px;
+color:#222;
+font-size:30px;
+line-height:48px;
+text-align:center;
+}
+
+/* DIGITS */
 .digits{
 position:absolute;
-bottom:28px;
+bottom:26px;
 left:50%;
 transform:translateX(-50%);
 display:flex;
-gap:11px;
+gap:15px;
 z-index:40;
 }
 
 .digit{
-width:54px;
-height:54px;
-min-width:54px;
+width:58px;
+height:58px;
+min-width:58px;
 border-radius:50%;
 background:white;
 border:5px solid #d7d7d7;
@@ -187,7 +383,7 @@ color:#222;
 }
 
 .digit b{
-font-size:16px;
+font-size:17px;
 font-weight:900;
 line-height:1;
 }
@@ -203,9 +399,8 @@ border-color:#38b9b8!important;
 box-shadow:0 0 0 4px rgba(56,185,184,.18)!important;
 }
 
-/* RIGHT TRADE PANEL */
+/* RIGHT PANEL */
 .tradePanel{
-height:100vh;
 background:#eef0f2;
 border-left:1px solid #dfe3e8;
 padding:10px;
@@ -215,31 +410,39 @@ color:#111;
 }
 
 .learn{
-font-size:12px;
+font-size:13px;
 color:#111;
 text-decoration:underline;
-margin:0 0 8px;
+margin-bottom:9px;
 }
 
-/* TRADE TYPE BOX */
+/* TRADE TYPE */
 .tradeTitle{
-height:66px;
+height:88px;
 background:white;
-border-radius:4px;
+border-radius:5px;
 display:flex;
 align-items:center;
-font-size:18px;
+font-size:19px;
 font-weight:900;
-padding:0 16px;
+padding:0 18px;
 margin-bottom:12px;
 color:#111;
 }
 
-/* CONTRACT TABS CARD */
+.tradeTitle::before{
+content:"‹  ▦  △";
+font-size:25px;
+font-weight:400;
+color:#222;
+margin-right:16px;
+}
+
+/* CONTRACT TABS */
 .contractTabs{
 background:white;
-border-radius:4px;
-padding:10px;
+border-radius:5px;
+padding:11px;
 display:grid;
 grid-template-columns:1fr 1fr;
 gap:8px;
@@ -247,7 +450,7 @@ margin-bottom:12px;
 }
 
 .contractTabs button{
-height:40px;
+height:43px;
 background:#fafafa;
 border:1px solid #d4d9df;
 border-radius:5px;
@@ -271,7 +474,7 @@ color:#00a7a7;
 height:54px;
 background:white;
 border:1px solid #dfe3e8;
-border-radius:4px;
+border-radius:5px;
 display:flex;
 align-items:center;
 justify-content:space-between;
@@ -284,7 +487,7 @@ margin-bottom:12px;
 font-size:16px;
 }
 
-/* EVEN ODD BUTTONS */
+/* CHOICE BUTTONS */
 .choice{
 display:flex;
 flex-direction:column;
@@ -295,11 +498,11 @@ margin-bottom:12px;
 .choice button{
 height:68px;
 border:none;
-border-radius:4px;
-font-size:17px;
+border-radius:5px;
+font-size:18px;
 font-weight:900;
 text-align:left;
-padding-left:16px;
+padding-left:18px;
 color:white!important;
 }
 
@@ -330,7 +533,7 @@ font-size:17px;
 color:#111;
 }
 
-/* BUY BUTTON */
+/* BUY */
 .buyEven{
 width:100%;
 height:76px;
@@ -339,7 +542,7 @@ border:none;
 border-radius:5px;
 margin-top:14px;
 color:white;
-font-size:26px;
+font-size:27px;
 font-weight:900;
 display:flex;
 flex-direction:column;
@@ -494,10 +697,32 @@ min-height:100vh;
 overflow:auto;
 }
 
+.topbar{
+height:auto;
+display:flex;
+flex-direction:column;
+align-items:flex-start;
+padding:15px;
+}
+
+.nav{
+width:100%;
+overflow-x:auto;
+justify-content:flex-start;
+}
+
+.accountBox{
+width:100%;
+justify-content:space-between;
+}
+
 .layout{
 display:flex;
 flex-direction:column;
-height:auto;
+}
+
+.leftPanel{
+min-height:220px;
 }
 
 .chartWrap{
@@ -520,8 +745,8 @@ padding:0 12px;
 }
 
 .chartHeader{
-width:260px;
-height:62px;
+width:280px;
+height:70px;
 }
 
 .chartHeader h1{
