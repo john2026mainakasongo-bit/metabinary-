@@ -13,14 +13,17 @@ background:#f7f7f7;
 color:#111;
 }
 
-button{
-cursor:pointer;
+button,input,select{
 font-family:inherit;
 }
 
-input{
-font-family:inherit;
+button{
+cursor:pointer;
 }
+
+/* =======================
+APP
+======================= */
 
 .platform{
 width:100vw;
@@ -99,7 +102,6 @@ font-weight:900;
 color:white;
 }
 
-
 /* =======================
 LAYOUT
 ======================= */
@@ -107,10 +109,9 @@ LAYOUT
 .layout{
 flex:1;
 display:grid;
-grid-template-columns:140px 1fr 300px;
+grid-template-columns:180px 1fr 320px;
 overflow:hidden;
 }
-
 
 /* =======================
 LEFT PANEL
@@ -149,7 +150,7 @@ display:flex;
 flex-direction:column;
 align-items:center;
 justify-content:center;
-padding:15px;
+padding:18px;
 gap:15px;
 }
 
@@ -166,7 +167,8 @@ font-weight:900;
 }
 
 .positions h2{
-font-size:18px;
+font-size:20px;
+line-height:1.1;
 text-align:center;
 }
 
@@ -191,7 +193,7 @@ border-left:5px solid #ff4040;
 }
 
 /* =======================
-CENTER
+CENTER CHART
 ======================= */
 
 .chartWrap{
@@ -203,126 +205,134 @@ overflow:hidden;
 height:100%;
 position:relative;
 background:white;
+overflow:hidden;
 }
 
 .chartHeader{
 position:absolute;
-top:15px;
-left:15px;
+top:16px;
+left:16px;
 z-index:50;
-
 background:white;
-
-padding:18px;
-
+padding:22px 26px;
 border-radius:12px;
-
-box-shadow:
-0 2px 12px rgba(0,0,0,.05);
+min-width:380px;
+box-shadow:0 2px 12px rgba(0,0,0,.06);
 }
 
 .chartHeader h1{
-font-size:20px;
+font-size:22px;
 font-weight:900;
 }
 
 .chartHeader p{
-margin-top:5px;
+margin-top:6px;
 font-size:14px;
 color:#6e7682;
 }
 
 .chart{
-
 height:100%;
-
-background:
-
-linear-gradient(
-
-to right,
-
-rgba(0,0,0,.05) 1px,
-
-transparent 1px
-
-),
-
-linear-gradient(
-
-to bottom,
-
-rgba(0,0,0,.05) 1px,
-
-transparent 1px
-
-);
-
-background-size:
-
-120px 100%,
-
-100% 90px;
-
-overflow:hidden;
-
 position:relative;
-
+overflow:hidden;
+background:
+linear-gradient(to right,rgba(0,0,0,.055) 1px,transparent 1px),
+linear-gradient(to bottom,rgba(0,0,0,.055) 1px,transparent 1px);
+background-size:
+120px 100%,
+100% 90px;
 }
 
 .chart svg{
 width:100%;
 height:100%;
+margin-top:-35px;
 }
 
 .chart svg polyline{
-
-stroke:#3a3a3a;
-
-stroke-width:2.8;
-
+stroke:#3a3a3a!important;
+stroke-width:2.8!important;
 fill:none;
-
 }
 
+.chart svg polygon{
+opacity:.75;
+}
+
+/* =======================
+PRICE TAG
+======================= */
+
 .priceTag{
-
 position:absolute;
-
-top:44%;
-
-right:25px;
-
+top:49%;
+right:24px;
 background:black;
-
 color:white;
-
 padding:8px 12px;
-
 border-radius:6px;
-
 font-weight:800;
-
 font-size:14px;
-
+z-index:40;
 }
 
 .priceTag:before{
-
 content:"";
-
 position:absolute;
-
-left:-120px;
-
+right:100%;
 top:50%;
-
-width:110px;
-
+width:170px;
 height:1px;
+border-top:2px dashed rgba(0,0,0,.45);
+transform:translateY(-50%);
+}
 
-border-top:2px dashed rgba(0,0,0,.4);
+.priceTag:after{
+content:"";
+position:absolute;
+right:calc(100% + 166px);
+top:50%;
+width:8px;
+height:8px;
+background:#333;
+border-radius:50%;
+transform:translateY(-50%);
+}
 
+/* =======================
+FAKE DERIV TOOLS
+======================= */
+
+.chartCard::before{
+content:"1s\A □\A ↗\A ▤\A ✎\A ⇩";
+white-space:pre;
+position:absolute;
+top:145px;
+left:6px;
+z-index:25;
+width:54px;
+background:white;
+border-radius:4px;
+box-shadow:0 2px 14px rgba(0,0,0,.12);
+color:#222;
+font-size:20px;
+line-height:44px;
+text-align:center;
+padding:8px 0;
+}
+
+.chartCard::after{
+content:"+\A ⚙\A −";
+white-space:pre;
+position:absolute;
+top:500px;
+left:0;
+z-index:25;
+width:52px;
+color:#222;
+font-size:30px;
+line-height:48px;
+text-align:center;
 }
 
 /* =======================
@@ -330,71 +340,44 @@ DIGITS
 ======================= */
 
 .digits{
-
 position:absolute;
-
-bottom:18px;
-
+bottom:28px;
 left:50%;
-
 transform:translateX(-50%);
-
 display:flex;
-
 gap:14px;
-
-z-index:20;
-
+z-index:40;
 }
 
 .digit{
-
-width:64px;
-
-height:64px;
-
+width:74px;
+height:74px;
+min-width:74px;
 border-radius:50%;
-
 background:white;
-
-border:5px solid #e6e7eb;
-
+border:6px solid #e8e8e8;
 display:flex;
-
 flex-direction:column;
-
-align-items:center;
-
 justify-content:center;
-
-box-shadow:
-
-0 2px 10px rgba(0,0,0,.08);
-
+align-items:center;
+box-shadow:0 3px 12px rgba(0,0,0,.08);
 }
 
 .digit b{
-
-font-size:20px;
-
+font-size:24px;
+font-weight:900;
+line-height:1;
 }
 
 .digit span{
-
-font-size:10px;
-
+font-size:11px;
 color:#8a9098;
-
+margin-top:4px;
 }
 
 .selected{
-
-border-color:#26c7c2;
-
-box-shadow:
-
-0 0 0 4px rgba(38,199,194,.15);
-
+border-color:#26c7c2!important;
+box-shadow:0 0 0 4px rgba(38,199,194,.15)!important;
 }
 
 /* =======================
@@ -402,217 +385,136 @@ RIGHT PANEL
 ======================= */
 
 .tradePanel{
-
 background:#f5f6f8;
-
 padding:12px;
-
 overflow-y:auto;
-
 border-left:1px solid #e4e5e8;
-
 }
 
 .learn{
-
 font-size:12px;
-
 text-decoration:underline;
-
 margin-bottom:10px;
-
 color:#555;
-
 }
 
 .tradeTitle{
-
 background:white;
-
 padding:22px;
-
 border-radius:8px;
-
 font-size:18px;
-
 font-weight:900;
-
 margin-bottom:12px;
+}
 
+.tradeTitle::before{
+content:"‹  ▦  △";
+font-size:24px;
+font-weight:400;
+margin-right:16px;
 }
 
 .contractTabs{
-
 background:white;
-
 padding:12px;
-
 border-radius:8px;
-
-display:flex;
-
-flex-wrap:wrap;
-
+display:grid;
+grid-template-columns:1fr 1fr;
 gap:8px;
-
 margin-bottom:12px;
-
 }
 
 .contractTabs button{
-
 background:#fafafa;
-
 border:1px solid #dfe2e8;
-
 padding:10px 12px;
-
 border-radius:6px;
-
 font-weight:800;
+}
 
+.contractTabs button:last-child{
+grid-column:1/3;
 }
 
 .contractTabs .active{
-
 background:#eafcfd;
-
 border-color:#19c3bc;
-
 color:#19c3bc;
-
 }
 
 .tradeMode{
-
 background:white;
-
 padding:15px;
-
 border-radius:8px;
-
 display:flex;
-
 justify-content:space-between;
-
 margin-bottom:12px;
-
 }
 
 .choice{
-
 display:flex;
-
 flex-direction:column;
-
-gap:10px;
-
+gap:12px;
 margin-bottom:10px;
-
 }
 
 .choice button{
-
-height:62px;
-
+height:74px;
 border:none;
-
 border-radius:8px;
-
-font-size:18px;
-
-font-weight:900;
-
+font-size:26px;
+font-weight:800;
 text-align:left;
-
-padding-left:18px;
-
+padding-left:22px;
 }
 
 .green{
-
 background:#53bab8;
-
 color:white;
-
 }
 
 .white{
-
 background:#f63339;
-
 color:white;
-
 }
 
 .tradePanel label{
-
 display:block;
-
 margin-top:10px;
-
 margin-bottom:5px;
-
 font-size:14px;
-
 color:#666;
-
 }
 
 .tradePanel input{
-
 width:100%;
-
 height:46px;
-
 border-radius:6px;
-
 border:1px solid #dfe3e8;
-
 padding-left:14px;
-
 background:white;
-
 font-size:15px;
-
 }
 
 .buyEven{
-
 width:100%;
-
-height:74px;
-
+height:80px;
 background:#1ec280;
-
 border:none;
-
 border-radius:8px;
-
 margin-top:14px;
-
 color:white;
-
-font-size:28px;
-
+font-size:30px;
 font-weight:900;
-
 display:flex;
-
 flex-direction:column;
-
 justify-content:center;
-
 align-items:center;
-
 }
 
 .buyEven span{
-
 font-size:14px;
-
 margin-top:4px;
-
 }
 
 /* =======================
@@ -620,107 +522,62 @@ AUTH
 ======================= */
 
 .authPage{
-
 width:100vw;
-
 height:100vh;
-
 display:flex;
-
 justify-content:center;
-
 align-items:center;
-
 background:#07111d;
-
 }
 
 .authCard{
-
 width:420px;
-
 background:#111d2d;
-
 padding:35px;
-
 border-radius:20px;
-
 }
 
 .authCard h1{
-
 font-size:46px;
-
 color:white;
-
 text-align:center;
-
 margin-bottom:15px;
-
 }
 
 .authCard p{
-
 text-align:center;
-
 color:#8d9ab0;
-
 margin-bottom:25px;
-
 }
 
 .authCard input{
-
 width:100%;
-
 height:50px;
-
 margin-bottom:12px;
-
 border-radius:10px;
-
 border:1px solid #24344c;
-
 background:#07111d;
-
 padding-left:15px;
-
 color:white;
-
 }
 
 .authCard button{
-
 width:100%;
-
 height:54px;
-
 border:none;
-
 border-radius:10px;
-
 background:#18c97c;
-
 font-size:18px;
-
 font-weight:900;
-
 color:white;
-
 }
 
 .authCard span{
-
 display:block;
-
 margin-top:18px;
-
 text-align:center;
-
 color:#26d6cb;
-
 cursor:pointer;
-
 }
 
 /* =======================
@@ -728,113 +585,65 @@ DEPOSIT
 ======================= */
 
 .modal{
-
 position:fixed;
-
 inset:0;
-
 background:rgba(0,0,0,.7);
-
 display:flex;
-
 justify-content:center;
-
 align-items:center;
-
 z-index:999;
-
 }
 
 .modalBox{
-
 width:420px;
-
 background:#111d2d;
-
 padding:30px;
-
 border-radius:20px;
-
 position:relative;
-
 color:white;
-
 }
 
 .modalBox h2{
-
 font-size:34px;
-
 margin-bottom:8px;
-
 }
 
 .modalBox p{
-
 margin-bottom:20px;
-
 color:#9aa6ba;
-
 }
 
 .modalBox input{
-
 width:100%;
-
 height:50px;
-
 margin-bottom:12px;
-
 border-radius:10px;
-
 border:1px solid #24344c;
-
 background:#07111d;
-
 padding-left:15px;
-
 color:white;
-
 }
 
 .modalBox button:not(.x){
-
 width:100%;
-
 height:52px;
-
 border:none;
-
 border-radius:10px;
-
 background:#19c97e;
-
 font-weight:900;
-
 color:white;
-
 }
 
 .x{
-
 position:absolute;
-
 right:15px;
-
 top:15px;
-
 width:35px;
-
 height:35px;
-
 border-radius:50%;
-
 background:#24344c;
-
 border:none;
-
 color:white;
-
 }
 
 /* =======================
@@ -843,65 +652,55 @@ MOBILE
 
 @media(max-width:900px){
 
+html,body,#root{
+overflow:auto;
+}
+
+.platform{
+height:auto;
+min-height:100vh;
+overflow:auto;
+}
+
 .layout{
 display:flex;
 flex-direction:column;
 }
 
 .topbar{
-
 height:auto;
-
 display:flex;
-
 flex-direction:column;
-
 padding:15px;
-
+align-items:flex-start;
 }
 
 .nav{
-
 overflow-x:auto;
-
 justify-content:flex-start;
-
 width:100%;
-
 }
 
 .accountBox{
-
 width:100%;
-
 justify-content:space-between;
-
 }
 
 .chartCard{
-
 min-height:700px;
-
 }
 
 .tradePanel{
-
 border-left:none;
-
 }
 
 .digits{
-
 overflow-x:auto;
-
 left:0;
-
+right:0;
 transform:none;
-
 padding-left:20px;
-
 justify-content:flex-start;
-
 }
 
 }
