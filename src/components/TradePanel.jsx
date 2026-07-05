@@ -1,130 +1,54 @@
-
-export default function TradePanel(){
-
-return(
-
-<div className="tradePanel">
-
-<p className="learn">
-
-ⓘ Learn about this trade type
-
-</p>
-
-<h1 className="tradeTitle">
-
-Even/Odd
-
-</h1>
-
-<div className="contractTabs">
-
-<button className="active">
-
-Even/Odd
-
-</button>
-
-<button>
-
-Matches/Differs
-
-</button>
-
-<button>
-
-Over/Under
-
-</button>
-
-<button>
-
-Rise/Fall
-
-</button>
-
-<button>
-
-Touch/No Touch
-
-</button>
-
-</div>
-
-<div className="tradeMode">
-
-<span>
-
-Trade Mode
-
-</span>
-
-<b>
-
-Manual
-
-</b>
-
-</div>
-
-<div className="choice">
-
-<button className="green">
-
-Even
-
-</button>
-
-<button className="dark">
-
-Odd
-
-</button>
-
-</div>
-
-<label>
-
-Duration ticks
-
-</label>
-
-<input value="5"/>
-
-<label>
-
-Stake
-
-</label>
-
-<input value="10"/>
-
-<div className="buyEven">
-
-Even
-
-<span>
-
-Payout 19 USD
-
-</span>
-
-</div>
-
-<div className="buyOdd">
-
-Odd
-
-<span>
-
-Payout 19 USD
-
-</span>
-
-</div>
-
-</div>
-
-)
-
+export default function TradePanel() {
+  return (
+    <div className="tradePanel">
+      <p className="learn">ⓘ Learn about this trade type</p>
+
+      <div className="tradeTitle">
+        <span className="backIcon">‹</span>
+        <span className="tradeIcon">▦</span>
+        <span className="tradeIcon">△</span>
+        <b>Even/Odd</b>
+      </div>
+
+      <div className="tickBox">
+        <div className="tickTop">Ticks</div>
+
+        <div className="tickDots">
+          {[1, 2, 3, 4, 5, 6, 7, 8, 9].map((x) => (
+            <span key={x}></span>
+          ))}
+        </div>
+
+        <h3>1 Tick</h3>
+      </div>
+
+      <div className="stakeBox">
+        <div className="stakeTabs">
+          <button className="active">Stake</button>
+          <button>Payout</button>
+        </div>
+
+        <div className="amountRow">
+          <button>-</button>
+          <input value="10" readOnly />
+          <button>+</button>
+          <select defaultValue="USD">
+            <option>USD</option>
+            <option>AUD</option>
+            <option>KES</option>
+          </select>
+        </div>
+      </div>
+
+      <button className="tradeBuy evenBuy">
+        <span>▦ Even</span>
+        <b>82.00%</b>
+      </button>
+
+      <button className="tradeBuy oddBuy">
+        <span>△ Odd</span>
+        <b>82.00%</b>
+      </button>
+    </div>
+  );
 }
