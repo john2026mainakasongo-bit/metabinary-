@@ -3,19 +3,45 @@ import "./App.css";
 
 const API = import.meta.env.VITE_API_URL || "http://localhost:5000";
 
+const contracts = [
+  "Even/Odd",
+  "Matches/Differs",
+  "Over/Under",
+  "Rise/Fall",
+  "Touch/No Touch",
+];
+
+const choicesByContract = {
+  "Even/Odd": ["Even", "Odd"],
+  "Matches/Differs": ["Matches", "Differs"],
+  "Over/Under": ["Over", "Under"],
+  "Rise/Fall": ["Rise", "Fall"],
+  "Touch/No Touch": ["Touch", "No Touch"],
+};
+
 export default function App() {
-  const [screen, setScreen] = useState(localStorage.getItem("token") ? "app" : "login");
+  const [screen, setScreen] = useState(
+    localStorage.getItem("token") ? "app" : "login"
+  );
+
   const [mode, setMode] = useState("Real");
   const [email, setEmail] = useState(localStorage.getItem("email") || "");
   const [password, setPassword] = useState("");
   const [balance, setBalance] = useState({ demo: 10000, real: 0 });
+
   const [stake, setStake] = useState(10);
   const [duration, setDuration] = useState(5);
+
   const [lastDigit, setLastDigit] = useState(8);
+  const [previousDigit, setPreviousDigit] = useState(8);
   const [selectedDigit, setSelectedDigit] = useState(8);
+
+  const [contractType, setContractType] = useState("Even/Odd");
   const [choice, setChoice] = useState("Even");
+
   const [openTrades, setOpenTrades] = useState([]);
   const [closedTrades, setClosedTrades] = useState([]);
+
   const [depositOpen, setDepositOpen] = useState(false);
   const [phone, setPhone] = useState("");
   const [depositAmount, setDepositAmount] = useState(10);
@@ -29,6 +55,45 @@ export default function App() {
       return `${x},${y}`;
     }).join(" ");
   }, [lastDigit]);
+
+  function changeContract(type) {
+    setContractType(type);
+    setChoice(choicesByContract[type][0]);
+  }
+
+  function checkWin(type, selectedChoice, targetDigit, startDigit, finalDigit) {
+    if (type === "Even/Odd") {
+      return selectedChoice === "Even"
+        ? finalDigit % 2 === 0
+        : finalDigit % 2 !== 0;
+    }
+
+    if (type === "Matches/Differs") {
+      return selectedChoice === "Matches"
+        ? finalDigit === targetDigit
+        : finalDigit !== targetDigit;
+    }
+
+    if (type === "Over/Under") {
+      return selectedChoice === "Over"
+        ? finalDigit > targetDigit
+        : finalDigit < targetDigit;
+    }
+
+    if (type === "Rise/Fall") {
+      return selectedChoice === "Rise"
+        ? finalDigit > startDigit
+        : finalDigit < startDigit;
+    }
+
+    if (type === "Touch/No Touch") {
+      return selectedChoice === "Touch"
+        ? finalDigit === targetDigit
+        : finalDigit !== targetDigit;
+    }
+
+    return false;
+  }
 
   async function refreshBalance() {
     if (!email) return;
@@ -53,16 +118,20 @@ export default function App() {
 
     const t = setInterval(() => {
       const d = Math.floor(Math.random() * 10);
+
+      setPreviousDigit(lastDigit);
       setLastDigit(d);
       setSelectedDigit(d);
     }, 1000);
 
     return () => clearInterval(t);
-  }, [screen, email]);
+  }, [screen, email, lastDigit]);
 
   useEffect(() => {
     if (screen !== "app") return;
+
     const t = setInterval(refreshBalance, 3000);
+
     return () => clearInterval(t);
   }, [screen, email]);
 
@@ -90,6 +159,7 @@ export default function App() {
       localStorage.setItem("email", data.user.email);
 
       setEmail(data.user.email);
+
       setBalance({
         demo: Number(data.user.demoBalance || 10000),
         real: Number(data.user.realBalance || 0),
@@ -116,19 +186,22 @@ export default function App() {
     if (currentBalance < amount) return alert("Insufficient balance");
 
     const tradeId = Date.now();
-    const startDigit = selectedDigit;
+    const targetDigit = selectedDigit;
+    const startDigit = previousDigit;
 
-    const trade = {
+    const tradeData = {
       id: tradeId,
+      contractType,
       choice,
       stake: amount,
-      target: startDigit,
+      target: targetDigit,
+      startDigit,
       duration: seconds,
       mode,
       status: "Running",
     };
 
-    setOpenTrades((x) => [trade, ...x]);
+    setOpenTrades((x) => [tradeData, ...x]);
 
     setBalance((b) =>
       mode === "Demo"
@@ -138,14 +211,32 @@ export default function App() {
 
     setTimeout(() => {
       const finalDigit = Math.floor(Math.random() * 10);
+
+      setPreviousDigit(lastDigit);
       setLastDigit(finalDigit);
       setSelectedDigit(finalDigit);
 
-      const win = choice === "Even" ? finalDigit % 2 === 0 : finalDigit % 2 !== 0;
+      const win = checkWin(
+        contractType,
+        choice,
+        targetDigit,
+        startDigit,
+        finalDigit
+      );
+
       const payout = win ? amount * 1.9 : 0;
 
       setOpenTrades((x) => x.filter((t) => t.id !== tradeId));
-      setClosedTrades((x) => [{ ...trade, result: finalDigit, win, payout }, ...x]);
+
+      setClosedTrades((x) => [
+        {
+          ...tradeData,
+          result: finalDigit,
+          win,
+          payout,
+        },
+        ...x,
+      ]);
 
       if (win) {
         setBalance((b) =>
@@ -158,13 +249,20 @@ export default function App() {
   }
 
   async function deposit() {
-    if (!phone || !depositAmount) return alert("Enter phone and amount");
+    if (!phone || !depositAmount) {
+      alert("Enter phone and amount");
+      return;
+    }
 
     try {
       const res = await fetch(`${API}/api/deposit`, {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ email, phone, amount: Number(depositAmount) }),
+        body: JSON.stringify({
+          email,
+          phone,
+          amount: Number(depositAmount),
+        }),
       });
 
       const data = await res.json();
@@ -186,7 +284,12 @@ export default function App() {
       <div className="authPage">
         <div className="authCard">
           <h1>MetaBinary</h1>
-          <p>{screen === "login" ? "Login to continue trading" : "Create your trading account"}</p>
+
+          <p>
+            {screen === "login"
+              ? "Login to continue trading"
+              : "Create your trading account"}
+          </p>
 
           <input
             placeholder="Email"
@@ -205,8 +308,14 @@ export default function App() {
             {screen === "login" ? "Login" : "Register"}
           </button>
 
-          <span onClick={() => setScreen(screen === "login" ? "register" : "login")}>
-            {screen === "login" ? "Create account" : "Already have account? Login"}
+          <span
+            onClick={() =>
+              setScreen(screen === "login" ? "register" : "login")
+            }
+          >
+            {screen === "login"
+              ? "Create account"
+              : "Already have account? Login"}
           </span>
         </div>
       </div>
@@ -220,11 +329,21 @@ export default function App() {
 
         <nav className="nav">
           <button type="button">Trader&apos;s Hub</button>
-          <button type="button" onClick={() => setDepositOpen(true)}>Deposit</button>
-          <button type="button" onClick={() => alert("Withdraw coming soon")}>Withdraw</button>
+
+          <button type="button" onClick={() => setDepositOpen(true)}>
+            Deposit
+          </button>
+
+          <button type="button" onClick={() => alert("Withdraw coming soon")}>
+            Withdraw
+          </button>
+
           <button type="button">History</button>
           <button type="button">Chat</button>
-          <button type="button" onClick={logout}>Logout</button>
+
+          <button type="button" onClick={logout}>
+            Logout
+          </button>
         </nav>
 
         <div className="accountBox">
@@ -235,7 +354,11 @@ export default function App() {
 
           <div className="balance">${currentBalance.toFixed(2)}</div>
 
-          <button type="button" className="depositBtn" onClick={() => setDepositOpen(true)}>
+          <button
+            type="button"
+            className="depositBtn"
+            onClick={() => setDepositOpen(true)}
+          >
             Deposit
           </button>
         </div>
@@ -258,16 +381,24 @@ export default function App() {
             ) : (
               openTrades.map((t) => (
                 <div className="tradeCard" key={t.id}>
-                  <b>{t.choice}</b>
-                  <span>{t.mode} • ${t.stake}</span>
-                  <small>Target {t.target}</small>
+                  <b>{t.contractType}</b>
+                  <span>
+                    {t.choice} • {t.mode} • ${t.stake}
+                  </span>
+                  <small>Target digit {t.target}</small>
                 </div>
               ))
             )}
 
             {closedTrades.slice(0, 5).map((t) => (
-              <div className={`tradeCard ${t.win ? "win" : "loss"}`} key={`closed-${t.id}`}>
-                <b>{t.win ? "WIN" : "LOSS"} • {t.choice}</b>
+              <div
+                className={`tradeCard ${t.win ? "win" : "loss"}`}
+                key={`closed-${t.id}`}
+              >
+                <b>
+                  {t.win ? "WIN" : "LOSS"} • {t.choice}
+                </b>
+
                 <span>Result digit: {t.result}</span>
                 <small>Payout ${t.payout.toFixed(2)}</small>
               </div>
@@ -289,8 +420,18 @@ export default function App() {
             <div className="chart">
               <svg viewBox="0 0 950 390" preserveAspectRatio="none">
                 <defs>
-                  <pattern id="grid" width="95" height="55" patternUnits="userSpaceOnUse">
-                    <path d="M95 0 L0 0 0 55" fill="none" stroke="#ffffff" strokeWidth="1.2" />
+                  <pattern
+                    id="grid"
+                    width="95"
+                    height="55"
+                    patternUnits="userSpaceOnUse"
+                  >
+                    <path
+                      d="M95 0 L0 0 0 55"
+                      fill="none"
+                      stroke="#ffffff"
+                      strokeWidth="1.2"
+                    />
                   </pattern>
 
                   <filter id="glow">
@@ -333,12 +474,17 @@ export default function App() {
         <aside className="tradePanel">
           <p className="learn">ⓘ Learn about this trade type</p>
 
-          <h1 className="tradeTitle">Even/Odd</h1>
+          <h1 className="tradeTitle">{contractType}</h1>
 
           <div className="contractTabs">
-            {["Even/Odd", "Matches/Differs", "Over/Under", "Rise/Fall", "Touch/No Touch"].map((x) => (
-              <button type="button" className={x === "Even/Odd" ? "active" : ""} key={x}>
-                {x}
+            {contracts.map((item) => (
+              <button
+                type="button"
+                key={item}
+                onClick={() => changeContract(item)}
+                className={contractType === item ? "active" : ""}
+              >
+                {item}
               </button>
             ))}
           </div>
@@ -349,25 +495,23 @@ export default function App() {
           </div>
 
           <div className="choice">
-            <button
-              type="button"
-              onClick={() => setChoice("Even")}
-              className={choice === "Even" ? "green activeChoice" : "white"}
-            >
-              Even
-            </button>
-
-            <button
-              type="button"
-              onClick={() => setChoice("Odd")}
-              className={choice === "Odd" ? "green activeChoice" : "white"}
-            >
-              Odd
-            </button>
+            {choicesByContract[contractType].map((item) => (
+              <button
+                key={item}
+                type="button"
+                onClick={() => setChoice(item)}
+                className={choice === item ? "green activeChoice" : "white"}
+              >
+                {item}
+              </button>
+            ))}
           </div>
 
           <label>Duration ticks</label>
-          <input value={duration} onChange={(e) => setDuration(e.target.value)} />
+          <input
+            value={duration}
+            onChange={(e) => setDuration(e.target.value)}
+          />
 
           <label>Stake</label>
           <input value={stake} onChange={(e) => setStake(e.target.value)} />
@@ -382,7 +526,13 @@ export default function App() {
       {depositOpen && (
         <div className="modal">
           <div className="modalBox">
-            <button type="button" className="x" onClick={() => setDepositOpen(false)}>×</button>
+            <button
+              type="button"
+              className="x"
+              onClick={() => setDepositOpen(false)}
+            >
+              ×
+            </button>
 
             <h2>Deposit</h2>
             <p>Send M-Pesa STK Push</p>
@@ -399,7 +549,9 @@ export default function App() {
               onChange={(e) => setDepositAmount(e.target.value)}
             />
 
-            <button type="button" onClick={deposit}>Send STK Push</button>
+            <button type="button" onClick={deposit}>
+              Send STK Push
+            </button>
           </div>
         </div>
       )}
