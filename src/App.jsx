@@ -1,7 +1,7 @@
 import { useEffect, useMemo, useState } from "react";
 import "./App.css";
 
-const API = "http://localhost:5000";
+const API = import.meta.env.VITE_API_URL || "http://localhost:5000";
 
 export default function App() {
   const [screen, setScreen] = useState(localStorage.getItem("token") ? "app" : "login");
@@ -32,18 +32,31 @@ export default function App() {
 
   async function refreshBalance() {
     if (!email) return;
-    const res = await fetch(`${API}/api/user/${email}`);
-    const data = await res.json();
-    setBalance({ demo: data.demoBalance, real: data.realBalance });
+
+    try {
+      const res = await fetch(`${API}/api/user/${email}`);
+      const data = await res.json();
+
+      if (data.success) {
+        setBalance({
+          demo: Number(data.user.demoBalance || 0),
+          real: Number(data.user.realBalance || 0),
+        });
+      }
+    } catch {
+      console.log("Backend not reachable");
+    }
   }
 
   useEffect(() => {
     if (screen === "app") refreshBalance();
+
     const t = setInterval(() => {
       const d = Math.floor(Math.random() * 10);
       setLastDigit(d);
       setSelectedDigit(d);
     }, 1000);
+
     return () => clearInterval(t);
   }, [screen, email]);
 
@@ -54,38 +67,63 @@ export default function App() {
   }, [screen, email]);
 
   async function auth(type) {
-    const res = await fetch(`${API}/api/${type}`, {
-      method: "POST",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({ email, password }),
-    });
+    if (!email || !password) {
+      alert("Enter email and password");
+      return;
+    }
 
-    const data = await res.json();
-    if (!data.success) return alert(data.message);
+    try {
+      const res = await fetch(`${API}/api/${type}`, {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ email, password }),
+      });
 
-    localStorage.setItem("token", data.token);
-    localStorage.setItem("email", email);
-    setBalance({ demo: data.user.demoBalance, real: data.user.realBalance });
-    setScreen("app");
+      const data = await res.json();
+
+      if (!data.success) {
+        alert(data.message || "Auth failed");
+        return;
+      }
+
+      localStorage.setItem("token", data.token);
+      localStorage.setItem("email", data.user.email);
+
+      setEmail(data.user.email);
+      setBalance({
+        demo: Number(data.user.demoBalance || 10000),
+        real: Number(data.user.realBalance || 0),
+      });
+
+      setScreen("app");
+    } catch (error) {
+      alert("Backend is not connected. Start backend or set VITE_API_URL on Vercel.");
+    }
   }
 
   function logout() {
     localStorage.clear();
     setScreen("login");
+    setPassword("");
   }
 
   function trade() {
     const amount = Number(stake);
+    const seconds = Number(duration);
+
     if (amount <= 0) return alert("Enter stake");
+    if (seconds <= 0) return alert("Enter duration");
     if (currentBalance < amount) return alert("Insufficient balance");
 
     const tradeId = Date.now();
+    const startDigit = selectedDigit;
+
     const trade = {
       id: tradeId,
       choice,
       stake: amount,
-      target: selectedDigit,
-      duration,
+      target: startDigit,
+      duration: seconds,
       mode,
       status: "Running",
     };
@@ -99,16 +137,15 @@ export default function App() {
     );
 
     setTimeout(() => {
-      const win =
-        choice === "Even" ? lastDigit % 2 === 0 : lastDigit % 2 !== 0;
+      const finalDigit = Math.floor(Math.random() * 10);
+      setLastDigit(finalDigit);
+      setSelectedDigit(finalDigit);
 
+      const win = choice === "Even" ? finalDigit % 2 === 0 : finalDigit % 2 !== 0;
       const payout = win ? amount * 1.9 : 0;
 
       setOpenTrades((x) => x.filter((t) => t.id !== tradeId));
-      setClosedTrades((x) => [
-        { ...trade, result: lastDigit, win, payout },
-        ...x,
-      ]);
+      setClosedTrades((x) => [{ ...trade, result: finalDigit, win, payout }, ...x]);
 
       if (win) {
         setBalance((b) =>
@@ -117,20 +154,31 @@ export default function App() {
             : { ...b, real: b.real + payout }
         );
       }
-    }, Number(duration) * 1000);
+    }, seconds * 1000);
   }
 
   async function deposit() {
-    const res = await fetch(`${API}/api/deposit`, {
-      method: "POST",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({ email, phone, amount: Number(depositAmount) }),
-    });
+    if (!phone || !depositAmount) return alert("Enter phone and amount");
 
-    const data = await res.json();
-    if (!data.success) return alert(data.message || "Deposit failed");
+    try {
+      const res = await fetch(`${API}/api/deposit`, {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ email, phone, amount: Number(depositAmount) }),
+      });
 
-    alert("STK Push sent. Enter M-Pesa PIN.");
+      const data = await res.json();
+
+      if (!data.success) {
+        alert(data.message || "Deposit failed");
+        return;
+      }
+
+      alert("STK Push sent. Enter your M-Pesa PIN.");
+      refreshBalance();
+    } catch {
+      alert("Deposit failed. Backend is not connected.");
+    }
   }
 
   if (screen === "login" || screen === "register") {
@@ -140,8 +188,18 @@ export default function App() {
           <h1>MetaBinary</h1>
           <p>{screen === "login" ? "Login to continue trading" : "Create your trading account"}</p>
 
-          <input placeholder="Email" value={email} onChange={(e) => setEmail(e.target.value)} />
-          <input placeholder="Password" type="password" value={password} onChange={(e) => setPassword(e.target.value)} />
+          <input
+            placeholder="Email"
+            value={email}
+            onChange={(e) => setEmail(e.target.value)}
+          />
+
+          <input
+            placeholder="Password"
+            type="password"
+            value={password}
+            onChange={(e) => setPassword(e.target.value)}
+          />
 
           <button onClick={() => auth(screen)}>
             {screen === "login" ? "Login" : "Register"}
@@ -163,7 +221,7 @@ export default function App() {
         <nav className="nav">
           <button>Trader&apos;s Hub</button>
           <button onClick={() => setDepositOpen(true)}>Deposit</button>
-          <button>Withdraw</button>
+          <button>alert Withdraw coming soon</button>
           <button>History</button>
           <button>Chat</button>
           <button onClick={logout}>Logout</button>
@@ -174,8 +232,12 @@ export default function App() {
             <option>Real</option>
             <option>Demo</option>
           </select>
+
           <div className="balance">${currentBalance.toFixed(2)}</div>
-          <button className="depositBtn" onClick={() => setDepositOpen(true)}>Deposit</button>
+
+          <button className="depositBtn" onClick={() => setDepositOpen(true)}>
+            Deposit
+          </button>
         </div>
       </header>
 
@@ -202,6 +264,14 @@ export default function App() {
                 </div>
               ))
             )}
+
+            {closedTrades.slice(0, 5).map((t) => (
+              <div className={`tradeCard ${t.win ? "win" : "loss"}`} key={`closed-${t.id}`}>
+                <b>{t.win ? "WIN" : "LOSS"} • {t.choice}</b>
+                <span>Result digit: {t.result}</span>
+                <small>Payout ${t.payout.toFixed(2)}</small>
+              </div>
+            ))}
           </div>
         </aside>
 
@@ -212,6 +282,7 @@ export default function App() {
                 <h1>Volatility 100 (1s)</h1>
                 <p>Live Synthetic Market</p>
               </div>
+
               <div className="lastDigit">{lastDigit}</div>
             </div>
 
@@ -221,6 +292,7 @@ export default function App() {
                   <pattern id="grid" width="95" height="55" patternUnits="userSpaceOnUse">
                     <path d="M95 0 L0 0 0 55" fill="none" stroke="#ffffff" strokeWidth="1.2" />
                   </pattern>
+
                   <filter id="glow">
                     <feGaussianBlur stdDeviation="4" result="blur" />
                     <feMerge>
@@ -229,13 +301,21 @@ export default function App() {
                     </feMerge>
                   </filter>
                 </defs>
+
                 <rect width="100%" height="100%" fill="url(#grid)" />
-                <polyline points={points} fill="none" stroke="#edf3ff" strokeWidth="4" filter="url(#glow)" />
+
+                <polyline
+                  points={points}
+                  fill="none"
+                  stroke="#edf3ff"
+                  strokeWidth="4"
+                  filter="url(#glow)"
+                />
               </svg>
             </div>
 
             <div className="digits">
-              {[0,1,2,3,4,5,6,7,8,9].map((d) => (
+              {[0, 1, 2, 3, 4, 5, 6, 7, 8, 9].map((d) => (
                 <button
                   key={d}
                   onClick={() => setSelectedDigit(d)}
@@ -251,11 +331,14 @@ export default function App() {
 
         <aside className="tradePanel">
           <p className="learn">ⓘ Learn about this trade type</p>
+
           <h1 className="tradeTitle">Even/Odd</h1>
 
           <div className="contractTabs">
             {["Even/Odd", "Matches/Differs", "Over/Under", "Rise/Fall", "Touch/No Touch"].map((x) => (
-              <button className={x === "Even/Odd" ? "active" : ""} key={x}>{x}</button>
+              <button className={x === "Even/Odd" ? "active" : ""} key={x}>
+                {x}
+              </button>
             ))}
           </div>
 
@@ -265,8 +348,13 @@ export default function App() {
           </div>
 
           <div className="choice">
-            <button onClick={() => setChoice("Even")} className={choice === "Even" ? "green" : "white"}>Even</button>
-            <button onClick={() => setChoice("Odd")} className={choice === "Odd" ? "green" : "white"}>Odd</button>
+            <button onClick={() => setChoice("Even")} className={choice === "Even" ? "green" : "white"}>
+              Even
+            </button>
+
+            <button onClick={() => setChoice("Odd")} className={choice === "Odd" ? "green" : "white"}>
+              Odd
+            </button>
           </div>
 
           <label>Duration ticks</label>
@@ -286,11 +374,21 @@ export default function App() {
         <div className="modal">
           <div className="modalBox">
             <button className="x" onClick={() => setDepositOpen(false)}>×</button>
+
             <h2>Deposit</h2>
             <p>Send M-Pesa STK Push</p>
 
-            <input placeholder="2547XXXXXXXX" value={phone} onChange={(e) => setPhone(e.target.value)} />
-            <input placeholder="Amount" value={depositAmount} onChange={(e) => setDepositAmount(e.target.value)} />
+            <input
+              placeholder="2547XXXXXXXX"
+              value={phone}
+              onChange={(e) => setPhone(e.target.value)}
+            />
+
+            <input
+              placeholder="Amount"
+              value={depositAmount}
+              onChange={(e) => setDepositAmount(e.target.value)}
+            />
 
             <button onClick={deposit}>Send STK Push</button>
           </div>
