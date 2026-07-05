@@ -1,6 +1,5 @@
 *{margin:0;padding:0;box-sizing:border-box}
 html,body,#root{width:100%;height:100%;overflow:hidden;font-family:Arial,Helvetica,sans-serif;background:#f5f6f7;color:#111}
-
 button,input,select{font-family:inherit}
 button{cursor:pointer}
 
@@ -29,40 +28,42 @@ button{cursor:pointer}
 .chartWrap{padding:0;background:white;overflow:hidden}
 .chartCard{height:100%;background:white;border-radius:0;padding:0;display:flex;flex-direction:column;overflow:hidden;position:relative}
 
-.chartHeader{position:absolute;top:10px;left:0;z-index:5;background:white;padding:16px 20px;border-radius:0 0 8px 0;box-shadow:0 2px 12px rgba(0,0,0,.08);display:block}
+.chartHeader{position:absolute;top:0;left:0;z-index:10;background:white;padding:20px;border-radius:0 0 8px 0;box-shadow:0 2px 12px rgba(0,0,0,.08)}
 .chartHeader h1{font-size:22px;color:#333;font-weight:900}
 .chartHeader p{color:#777;margin-top:6px;font-size:14px}
-.lastDigit{position:absolute;right:-780px;top:270px;background:black;color:white;width:auto;height:auto;padding:8px 12px;border-radius:5px;font-size:16px;font-weight:900}
+.lastDigit{display:none}
 
-.chart{flex:1;margin-top:0;background:linear-gradient(#ffffff,#f8f8f8);border-radius:0;overflow:hidden;min-height:0}
+.chart{flex:1;position:relative;background:linear-gradient(to right,rgba(0,0,0,.08) 1px,transparent 1px),linear-gradient(to bottom,rgba(0,0,0,.08) 1px,transparent 1px);background-size:100px 100%,100% 60px;overflow:hidden}
 .chart svg{width:100%;height:100%}
-.chart svg rect{opacity:.55}
-.chart svg polyline{stroke:#333!important;stroke-width:2.2!important;filter:none!important}
+.chart svg rect{opacity:.5}
+.chart svg polyline{stroke:#2b2b2b!important;stroke-width:3!important;filter:none!important}
 
-.digits{height:100px;display:flex;align-items:center;justify-content:center;gap:14px;margin-top:-105px;z-index:4;position:relative;overflow:hidden}
-.digit{width:58px;height:58px;min-width:58px;border-radius:50%;background:white;color:#333;border:6px solid #e8ebee;display:flex;flex-direction:column;align-items:center;justify-content:center;box-shadow:0 2px 8px rgba(0,0,0,.08)}
+.priceTag{position:absolute;right:10px;top:50%;transform:translateY(-50%);background:black;color:white;padding:8px 12px;border-radius:4px;font-weight:700;font-size:14px;z-index:20}
+
+.digits{position:absolute;bottom:15px;left:50%;transform:translateX(-50%);display:flex;gap:14px;z-index:20}
+.digit{width:58px;height:58px;min-width:58px;border-radius:50%;background:white;color:#333;border:5px solid #e7e7e7;box-shadow:0 2px 8px rgba(0,0,0,.08);display:flex;flex-direction:column;justify-content:center;align-items:center}
 .digit b{font-size:18px;color:#333}
 .digit span{font-size:11px;color:#555}
-.selected{border-color:#2cb8b8!important;box-shadow:0 0 0 4px rgba(44,184,184,.15)!important}
+.selected{border-color:#2cb8b8!important;box-shadow:0 0 0 4px rgba(44,184,184,.18)!important}
 
-.tradePanel{background:#f0f1f3;border-left:1px solid #dfe3e8;padding:10px;overflow-y:auto;overflow-x:hidden;color:#111}
-.learn{color:#111;margin-bottom:10px;text-align:left;font-size:13px;text-decoration:underline}
-.tradeTitle{font-size:18px;font-weight:900;text-align:left;margin-bottom:10px;color:#111;background:white;border-radius:5px;padding:22px 15px}
-.contractTabs{display:flex;flex-wrap:wrap;gap:8px;margin-bottom:14px;background:white;padding:10px;border-radius:5px}
-.contractTabs button{background:#f8f9fa;border:1px solid #dfe3e8;color:#111;border-radius:6px;padding:10px 12px;font-weight:800}
+.tradePanel{background:#f0f1f3;border-left:1px solid #dfe3e8;padding:10px;overflow:hidden;color:#111}
+.learn{color:#111;margin-bottom:8px;text-align:left;font-size:13px;text-decoration:underline}
+.tradeTitle{font-size:18px;font-weight:900;text-align:left;margin-bottom:8px;color:#111;background:white;border-radius:5px;padding:18px 15px}
+.contractTabs{display:flex;flex-wrap:wrap;gap:8px;margin-bottom:10px;background:white;padding:10px;border-radius:5px}
+.contractTabs button{background:#f8f9fa;border:1px solid #dfe3e8;color:#111;border-radius:6px;padding:9px 11px;font-weight:800}
 .contractTabs .active{border-color:#00a7a7;color:#00a7a7;background:#e9ffff}
 
-.tradeMode{background:white;border:1px solid #dfe3e8;padding:16px;border-radius:6px;display:flex;justify-content:space-between;margin-bottom:12px;font-size:17px;color:#111}
+.tradeMode{background:white;border:1px solid #dfe3e8;padding:14px;border-radius:6px;display:flex;justify-content:space-between;margin-bottom:10px;font-size:17px;color:#111}
 
-.choice{display:flex;flex-direction:column;gap:12px;margin-bottom:12px}
-.choice button{height:66px;border-radius:5px;border:none;font-weight:900;font-size:17px;text-align:left;padding:0 18px}
+.choice{display:flex;flex-direction:column;gap:10px;margin-bottom:8px}
+.choice button{height:64px;border-radius:5px;border:none;font-weight:900;font-size:17px;text-align:left;padding:0 18px}
 .green{background:#49b8b7!important;color:white!important}
 .white{background:#ef3737!important;color:white!important}
 
-.tradePanel label{display:block;margin:12px 0 7px;color:#555;text-align:left;font-size:15px}
-.tradePanel input{width:100%;height:48px;border-radius:6px;background:white;border:1px solid #dfe3e8;color:#111;padding-left:15px;font-size:17px}
-.buyEven{width:100%;height:76px;border-radius:6px;margin-top:14px;border:none;background:#18be84;color:white;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:6px;font-size:25px;font-weight:900}
-.buyEven span{font-size:15px}
+.tradePanel label{display:block;margin:8px 0 5px;color:#555;text-align:left;font-size:15px}
+.tradePanel input{width:100%;height:45px;border-radius:6px;background:white;border:1px solid #dfe3e8;color:#111;padding-left:15px;font-size:17px}
+.buyEven{width:100%;height:70px;border-radius:6px;margin-top:10px;border:none;background:#18be84;color:white;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:5px;font-size:24px;font-weight:900}
+.buyEven span{font-size:14px}
 
 .tradeCard{background:white;color:#111;border-radius:8px;padding:10px;width:100%;text-align:left;border:1px solid #dfe3e8}
 .tradeCard b{display:block}
@@ -80,6 +81,8 @@ button{cursor:pointer}
 
 .modal{position:fixed;inset:0;background:rgba(0,0,0,.75);display:flex;align-items:center;justify-content:center;z-index:999}
 .modalBox{width:420px;background:#111c2d;border:1px solid #26364d;border-radius:20px;padding:30px;position:relative;color:white}
+.modalBox h2{font-size:34px;margin-bottom:8px}
+.modalBox p{color:#aebbd0;margin-bottom:18px}
 .modalBox input{width:100%;height:52px;margin-bottom:14px;background:#07111d;border:1px solid #26364d;border-radius:10px;color:white;padding:0 15px}
 .modalBox button:not(.x){width:100%;height:52px;background:#20c98b;color:white;border:none;border-radius:10px;font-weight:900}
 .x{position:absolute;right:15px;top:15px;background:#26364d;color:white;border:none;width:35px;height:35px;border-radius:50%;font-size:22px}
@@ -93,7 +96,7 @@ html,body,#root{overflow:auto}
 .layout{display:flex;flex-direction:column}
 .leftPanel{min-height:220px}
 .chartCard{min-height:620px}
-.tradePanel{border-left:none}
-.digits{overflow-x:auto;justify-content:flex-start;padding:0 12px}
-.lastDigit{right:20px;top:220px}
+.tradePanel{border-left:none;overflow:visible}
+.digits{left:0;right:0;bottom:15px;transform:none;overflow-x:auto;justify-content:flex-start;padding:0 12px}
+.priceTag{right:20px;top:45%}
 }
