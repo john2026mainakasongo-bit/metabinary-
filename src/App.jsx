@@ -19,6 +19,22 @@ const choicesByContract = {
   "Touch/No Touch": ["Touch", "No Touch"],
 };
 
+function createChartData() {
+  let y = 255;
+
+  return Array.from({ length: 95 }, (_, i) => {
+    y += (Math.random() - 0.48) * 28;
+
+    if (y < 115) y = 115;
+    if (y > 360) y = 360;
+
+    return {
+      x: 40 + i * 13,
+      y,
+    };
+  });
+}
+
 export default function App() {
   const [screen, setScreen] = useState(
     localStorage.getItem("token") ? "app" : "login"
@@ -46,6 +62,8 @@ export default function App() {
   const [phone, setPhone] = useState("");
   const [depositAmount, setDepositAmount] = useState(10);
 
+  const [chartData, setChartData] = useState(createChartData);
+
   const currentBalance = mode === "Demo" ? balance.demo : balance.real;
 
   const price = useMemo(() => {
@@ -53,27 +71,8 @@ export default function App() {
   }, [lastDigit]);
 
   const points = useMemo(() => {
-    let y = 250;
-    const arr = [];
-
-    for (let i = 0; i < 95; i++) {
-      y += (Math.random() - 0.48) * 30;
-
-      if (i > 8 && i < 25) y -= 3;
-      if (i > 25 && i < 45) y += 4;
-      if (i > 45 && i < 65) y -= 3;
-      if (i > 65 && i < 82) y += 5;
-      if (i > 82) y -= 4;
-
-      if (y < 115) y = 115;
-      if (y > 360) y = 360;
-
-      const x = 40 + i * 13;
-      arr.push(`${x},${y.toFixed(1)}`);
-    }
-
-    return arr.join(" ");
-  }, [lastDigit]);
+    return chartData.map((p) => `${p.x},${p.y.toFixed(1)}`).join(" ");
+  }, [chartData]);
 
   function changeContract(type) {
     setContractType(type);
@@ -137,13 +136,38 @@ export default function App() {
 
     const timer = setInterval(() => {
       const d = Math.floor(Math.random() * 10);
-      setPreviousDigit(lastDigit);
-      setLastDigit(d);
+
+      setPreviousDigit((old) => old);
+      setLastDigit((old) => {
+        setPreviousDigit(old);
+        return d;
+      });
+
       setSelectedDigit(d);
+
+      setChartData((old) => {
+        const lastY = old[old.length - 1]?.y || 250;
+        let nextY = lastY + (Math.random() - 0.48) * 32;
+
+        if (nextY < 115) nextY = 115;
+        if (nextY > 360) nextY = 360;
+
+        const next = old.slice(1).map((p, i) => ({
+          x: 40 + i * 13,
+          y: p.y,
+        }));
+
+        next.push({
+          x: 40 + (old.length - 1) * 13,
+          y: nextY,
+        });
+
+        return next;
+      });
     }, 1000);
 
     return () => clearInterval(timer);
-  }, [screen, email, lastDigit]);
+  }, [screen, email]);
 
   useEffect(() => {
     if (screen !== "app") return;
