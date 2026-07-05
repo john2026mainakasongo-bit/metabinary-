@@ -7,39 +7,68 @@ export default function Topbar({
 }) {
   return (
     <header className="topbar">
-      <div className="brand">MetaBinary</div>
+
+      <div className="brand">
+        MetaBinary
+      </div>
 
       <nav className="nav">
-        <button type="button">Trader&apos;s Hub</button>
 
-        <button type="button" onClick={openDeposit}>
+        <button>Trader's Hub</button>
+
+        <button onClick={openDeposit}>
           Deposit
         </button>
 
-        <button type="button" onClick={() => alert("Withdraw coming soon")}>
+        <button onClick={() => alert("Withdraw coming soon")}>
           Withdraw
         </button>
 
-        <button type="button">History</button>
-        <button type="button">Chat</button>
+        <button>
+          History
+        </button>
 
-        <button type="button" onClick={logout}>
+        <button>
+          Chat
+        </button>
+
+        <button onClick={logout}>
           Logout
         </button>
+
       </nav>
 
       <div className="accountBox">
-        <select value={account} onChange={(e) => setAccount(e.target.value)}>
-          <option value="demo">Demo</option>
-          <option value="real">Real</option>
+
+        <select
+          value={account}
+          onChange={(e) => setAccount(e.target.value)}
+        >
+          <option value="demo">
+            Demo
+          </option>
+
+          <option value="real">
+            Real
+          </option>
+
         </select>
 
-        <div className="balance">${Number(balance).toFixed(2)}</div>
+        <div className="balance">
 
-        <button type="button" className="depositBtn" onClick={openDeposit}>
+          ${Number(balance).toFixed(2)}
+
+        </div>
+
+        <button
+          className="depositBtn"
+          onClick={openDeposit}
+        >
           Deposit
         </button>
+
       </div>
+
     </header>
   );
 }
