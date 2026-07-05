@@ -20,10 +20,7 @@ const choicesByContract = {
 };
 
 export default function App() {
-  const [screen, setScreen] = useState(
-    localStorage.getItem("token") ? "app" : "login"
-  );
-
+  const [screen, setScreen] = useState(localStorage.getItem("token") ? "app" : "login");
   const [mode, setMode] = useState("Real");
   const [email, setEmail] = useState(localStorage.getItem("email") || "");
   const [password, setPassword] = useState("");
@@ -49,9 +46,14 @@ export default function App() {
   const currentBalance = mode === "Demo" ? balance.demo : balance.real;
 
   const points = useMemo(() => {
-    return Array.from({ length: 80 }, (_, i) => {
-      const x = i * 12;
-      const y = 185 + Math.sin(i * 1.7) * 35 + Math.random() * 50;
+    return Array.from({ length: 75 }, (_, i) => {
+      const x = 30 + i * 13;
+      const y =
+        230 +
+        Math.sin(i * 0.42) * 55 +
+        Math.sin(i * 0.13) * 85 +
+        Math.random() * 22;
+
       return `${x},${y}`;
     }).join(" ");
   }, [lastDigit]);
@@ -63,33 +65,23 @@ export default function App() {
 
   function checkWin(type, selectedChoice, targetDigit, startDigit, finalDigit) {
     if (type === "Even/Odd") {
-      return selectedChoice === "Even"
-        ? finalDigit % 2 === 0
-        : finalDigit % 2 !== 0;
+      return selectedChoice === "Even" ? finalDigit % 2 === 0 : finalDigit % 2 !== 0;
     }
 
     if (type === "Matches/Differs") {
-      return selectedChoice === "Matches"
-        ? finalDigit === targetDigit
-        : finalDigit !== targetDigit;
+      return selectedChoice === "Matches" ? finalDigit === targetDigit : finalDigit !== targetDigit;
     }
 
     if (type === "Over/Under") {
-      return selectedChoice === "Over"
-        ? finalDigit > targetDigit
-        : finalDigit < targetDigit;
+      return selectedChoice === "Over" ? finalDigit > targetDigit : finalDigit < targetDigit;
     }
 
     if (type === "Rise/Fall") {
-      return selectedChoice === "Rise"
-        ? finalDigit > startDigit
-        : finalDigit < startDigit;
+      return selectedChoice === "Rise" ? finalDigit > startDigit : finalDigit < startDigit;
     }
 
     if (type === "Touch/No Touch") {
-      return selectedChoice === "Touch"
-        ? finalDigit === targetDigit
-        : finalDigit !== targetDigit;
+      return selectedChoice === "Touch" ? finalDigit === targetDigit : finalDigit !== targetDigit;
     }
 
     return false;
@@ -116,23 +108,21 @@ export default function App() {
   useEffect(() => {
     if (screen === "app") refreshBalance();
 
-    const t = setInterval(() => {
+    const timer = setInterval(() => {
       const d = Math.floor(Math.random() * 10);
-
       setPreviousDigit(lastDigit);
       setLastDigit(d);
       setSelectedDigit(d);
     }, 1000);
 
-    return () => clearInterval(t);
+    return () => clearInterval(timer);
   }, [screen, email, lastDigit]);
 
   useEffect(() => {
     if (screen !== "app") return;
 
-    const t = setInterval(refreshBalance, 3000);
-
-    return () => clearInterval(t);
+    const timer = setInterval(refreshBalance, 3000);
+    return () => clearInterval(timer);
   }, [screen, email]);
 
   async function auth(type) {
@@ -159,7 +149,6 @@ export default function App() {
       localStorage.setItem("email", data.user.email);
 
       setEmail(data.user.email);
-
       setBalance({
         demo: Number(data.user.demoBalance || 10000),
         real: Number(data.user.realBalance || 0),
@@ -216,14 +205,7 @@ export default function App() {
       setLastDigit(finalDigit);
       setSelectedDigit(finalDigit);
 
-      const win = checkWin(
-        contractType,
-        choice,
-        targetDigit,
-        startDigit,
-        finalDigit
-      );
-
+      const win = checkWin(contractType, choice, targetDigit, startDigit, finalDigit);
       const payout = win ? amount * 1.9 : 0;
 
       setOpenTrades((x) => x.filter((t) => t.id !== tradeId));
@@ -308,14 +290,8 @@ export default function App() {
             {screen === "login" ? "Login" : "Register"}
           </button>
 
-          <span
-            onClick={() =>
-              setScreen(screen === "login" ? "register" : "login")
-            }
-          >
-            {screen === "login"
-              ? "Create account"
-              : "Already have account? Login"}
+          <span onClick={() => setScreen(screen === "login" ? "register" : "login")}>
+            {screen === "login" ? "Create account" : "Already have account? Login"}
           </span>
         </div>
       </div>
@@ -354,11 +330,7 @@ export default function App() {
 
           <div className="balance">${currentBalance.toFixed(2)}</div>
 
-          <button
-            type="button"
-            className="depositBtn"
-            onClick={() => setDepositOpen(true)}
-          >
+          <button type="button" className="depositBtn" onClick={() => setDepositOpen(true)}>
             Deposit
           </button>
         </div>
@@ -413,34 +385,24 @@ export default function App() {
                 <h1>Volatility 100 (1s)</h1>
                 <p>Live Synthetic Market</p>
               </div>
-
-              <div className="lastDigit">{lastDigit}</div>
             </div>
 
             <div className="chart">
-              <svg viewBox="0 0 950 390" preserveAspectRatio="none">
+              <svg viewBox="0 0 1000 450" preserveAspectRatio="none">
                 <defs>
                   <pattern
                     id="grid"
-                    width="95"
-                    height="55"
+                    width="100"
+                    height="60"
                     patternUnits="userSpaceOnUse"
                   >
                     <path
-                      d="M95 0 L0 0 0 55"
+                      d="M100 0 L0 0 0 60"
                       fill="none"
-                      stroke="#ffffff"
-                      strokeWidth="1.2"
+                      stroke="#d7dbe1"
+                      strokeWidth="1"
                     />
                   </pattern>
-
-                  <filter id="glow">
-                    <feGaussianBlur stdDeviation="4" result="blur" />
-                    <feMerge>
-                      <feMergeNode in="blur" />
-                      <feMergeNode in="SourceGraphic" />
-                    </feMerge>
-                  </filter>
                 </defs>
 
                 <rect width="100%" height="100%" fill="url(#grid)" />
@@ -448,11 +410,14 @@ export default function App() {
                 <polyline
                   points={points}
                   fill="none"
-                  stroke="#edf3ff"
-                  strokeWidth="4"
-                  filter="url(#glow)"
+                  stroke="#2b2b2b"
+                  strokeWidth="3"
+                  strokeLinecap="round"
+                  strokeLinejoin="round"
                 />
               </svg>
+
+              <div className="priceTag">{lastDigit}</div>
             </div>
 
             <div className="digits">
@@ -508,10 +473,7 @@ export default function App() {
           </div>
 
           <label>Duration ticks</label>
-          <input
-            value={duration}
-            onChange={(e) => setDuration(e.target.value)}
-          />
+          <input value={duration} onChange={(e) => setDuration(e.target.value)} />
 
           <label>Stake</label>
           <input value={stake} onChange={(e) => setStake(e.target.value)} />
@@ -526,11 +488,7 @@ export default function App() {
       {depositOpen && (
         <div className="modal">
           <div className="modalBox">
-            <button
-              type="button"
-              className="x"
-              onClick={() => setDepositOpen(false)}
-            >
+            <button type="button" className="x" onClick={() => setDepositOpen(false)}>
               ×
             </button>
 
