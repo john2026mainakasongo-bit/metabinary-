@@ -704,3 +704,34 @@ justify-content:flex-start;
 }
 
 }
+.tradePanel{
+  width:320px;
+  background:#f0f1f3;
+  padding:10px;
+}
+
+.tradeTitle{
+  min-height:76px;
+}
+
+.choice button{
+  height:64px;
+}
+
+.buyEven{
+  height:72px;
+}
+
+.chart svg{
+  margin-top:-55px;
+}
+
+.digits{
+  bottom:30px;
+}
+
+.digit{
+  width:70px;
+  height:70px;
+  min-width:70px;
+}
