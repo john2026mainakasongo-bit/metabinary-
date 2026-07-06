@@ -3,14 +3,9 @@ import "./App.css";
 
 const API = import.meta.env.VITE_API_URL || "http://localhost:5000";
 
-const contracts = [
-  "Rise/Fall",
-  "Even/Odd",
-  "Matches/Differs",
-  "Over/Under",
-];
+const CONTRACTS = ["Rise/Fall", "Even/Odd", "Matches/Differs", "Over/Under"];
 
-const choicesByContract = {
+const CHOICES = {
   "Rise/Fall": ["Rise", "Fall"],
   "Even/Odd": ["Even", "Odd"],
   "Matches/Differs": ["Matches", "Differs"],
@@ -18,12 +13,12 @@ const choicesByContract = {
 };
 
 function createChartData() {
-  let y = 255;
-  return Array.from({ length: 95 }, (_, i) => {
+  let y = 250;
+
+  return Array.from({ length: 90 }, (_, i) => {
     y += (Math.random() - 0.48) * 28;
-    if (y < 115) y = 115;
-    if (y > 360) y = 360;
-    return { x: 40 + i * 13, y };
+    y = Math.max(115, Math.min(360, y));
+    return { x: 40 + i * 14, y };
   });
 }
 
@@ -32,12 +27,15 @@ export default function App() {
     localStorage.getItem("token") ? "app" : "login"
   );
 
-  const [mode, setMode] = useState(localStorage.getItem("mode") || "Demo");
   const [email, setEmail] = useState(localStorage.getItem("email") || "");
   const [password, setPassword] = useState("");
+
+  const [mode, setMode] = useState(localStorage.getItem("mode") || "Demo");
   const [balance, setBalance] = useState({ demo: 10000, real: 0 });
 
-  const [mainTab, setMainTab] = useState("Trade");
+  const [mainTab, setMainTab] = useState("Manual Trader");
+
+  const [contractType, setContractType] = useState("Rise/Fall");
   const [stake, setStake] = useState(10);
   const [duration, setDuration] = useState(5);
   const [botRuns, setBotRuns] = useState(3);
@@ -46,17 +44,15 @@ export default function App() {
   const [lastDigit, setLastDigit] = useState(8);
   const [selectedDigit, setSelectedDigit] = useState(8);
 
-  const [contractType, setContractType] = useState("Rise/Fall");
+  const [chartData, setChartData] = useState(createChartData);
 
   const [openTrades, setOpenTrades] = useState([]);
   const [closedTrades, setClosedTrades] = useState([]);
 
-  const [depositOpen, setDepositOpen] = useState(false);
   const [menuOpen, setMenuOpen] = useState(false);
+  const [depositOpen, setDepositOpen] = useState(false);
   const [phone, setPhone] = useState("");
   const [depositAmount, setDepositAmount] = useState(10);
-
-  const [chartData, setChartData] = useState(createChartData);
 
   const currentBalance = mode === "Demo" ? balance.demo : balance.real;
 
@@ -75,38 +71,6 @@ export default function App() {
     }));
   }, [lastDigit]);
 
-  function changeContract(type) {
-    setContractType(type);
-  }
-
-  function checkWin(type, selectedChoice, targetDigit, startDigit, finalDigit) {
-    if (type === "Even/Odd") {
-      return selectedChoice === "Even"
-        ? finalDigit % 2 === 0
-        : finalDigit % 2 !== 0;
-    }
-
-    if (type === "Matches/Differs") {
-      return selectedChoice === "Matches"
-        ? finalDigit === targetDigit
-        : finalDigit !== targetDigit;
-    }
-
-    if (type === "Over/Under") {
-      return selectedChoice === "Over"
-        ? finalDigit > targetDigit
-        : finalDigit < targetDigit;
-    }
-
-    if (type === "Rise/Fall") {
-      return selectedChoice === "Rise"
-        ? finalDigit > startDigit
-        : finalDigit < startDigit;
-    }
-
-    return false;
-  }
-
   async function refreshBalance() {
     if (!email) return;
 
@@ -114,7 +78,7 @@ export default function App() {
       const res = await fetch(`${API}/api/user/${email}`);
       const data = await res.json();
 
-      if (data.success) {
+      if (data.success && data.user) {
         setBalance({
           demo: Number(data.user.demoBalance || 10000),
           real: Number(data.user.realBalance || 0),
@@ -141,17 +105,15 @@ export default function App() {
       setChartData((old) => {
         const lastY = old[old.length - 1]?.y || 250;
         let nextY = lastY + (Math.random() - 0.48) * 32;
-
-        if (nextY < 115) nextY = 115;
-        if (nextY > 360) nextY = 360;
+        nextY = Math.max(115, Math.min(360, nextY));
 
         const next = old.slice(1).map((p, i) => ({
-          x: 40 + i * 13,
+          x: 40 + i * 14,
           y: p.y,
         }));
 
         next.push({
-          x: 40 + (old.length - 1) * 13,
+          x: 40 + (old.length - 1) * 14,
           y: nextY,
         });
 
@@ -164,6 +126,7 @@ export default function App() {
 
   useEffect(() => {
     if (screen !== "app") return;
+
     const timer = setInterval(refreshBalance, 3000);
     return () => clearInterval(timer);
   }, [screen, email]);
@@ -188,6 +151,7 @@ export default function App() {
 
       setEmail(data.user.email);
       setMode("Demo");
+
       setBalance({
         demo: Number(data.user.demoBalance || 10000),
         real: Number(data.user.realBalance || 0),
@@ -211,20 +175,42 @@ export default function App() {
     localStorage.setItem("mode", value);
   }
 
-  function trade({ contractType: type, choice, stake: amount, duration: seconds }) {
-    const tradeStake = Number(amount);
-    const tradeDuration = Number(seconds);
+  function checkWin(type, choice, targetDigit, startDigit, finalDigit) {
+    if (type === "Even/Odd") {
+      return choice === "Even" ? finalDigit % 2 === 0 : finalDigit % 2 !== 0;
+    }
+
+    if (type === "Matches/Differs") {
+      return choice === "Matches"
+        ? finalDigit === targetDigit
+        : finalDigit !== targetDigit;
+    }
+
+    if (type === "Over/Under") {
+      return choice === "Over" ? finalDigit > targetDigit : finalDigit < targetDigit;
+    }
+
+    if (type === "Rise/Fall") {
+      return choice === "Rise" ? finalDigit > startDigit : finalDigit < startDigit;
+    }
+
+    return false;
+  }
+
+  function trade({ type, choice }) {
+    const tradeStake = Number(stake);
+    const tradeDuration = Number(duration);
 
     if (tradeStake <= 0) return alert("Enter stake");
     if (tradeDuration <= 0) return alert("Enter duration");
     if (currentBalance < tradeStake) return alert("Insufficient balance");
 
-    const tradeId = Date.now() + Math.random();
+    const id = Date.now() + Math.random();
     const targetDigit = selectedDigit;
     const startDigit = previousDigit;
 
-    const tradeData = {
-      id: tradeId,
+    const item = {
+      id,
       contractType: type,
       choice,
       stake: tradeStake,
@@ -235,7 +221,7 @@ export default function App() {
       status: "Running",
     };
 
-    setOpenTrades((x) => [tradeData, ...x]);
+    setOpenTrades((x) => [item, ...x]);
 
     setBalance((b) =>
       mode === "Demo"
@@ -245,7 +231,6 @@ export default function App() {
 
     setTimeout(() => {
       const finalDigit = Math.floor(Math.random() * 10);
-
       setPreviousDigit(lastDigit);
       setLastDigit(finalDigit);
       setSelectedDigit(finalDigit);
@@ -253,11 +238,8 @@ export default function App() {
       const win = checkWin(type, choice, targetDigit, startDigit, finalDigit);
       const payout = win ? tradeStake * 1.9 : 0;
 
-      setOpenTrades((x) => x.filter((t) => t.id !== tradeId));
-      setClosedTrades((x) => [
-        { ...tradeData, result: finalDigit, win, payout },
-        ...x,
-      ]);
+      setOpenTrades((x) => x.filter((t) => t.id !== id));
+      setClosedTrades((x) => [{ ...item, result: finalDigit, win, payout }, ...x]);
 
       if (win) {
         setBalance((b) =>
@@ -276,10 +258,8 @@ export default function App() {
     for (let i = 0; i < runs; i++) {
       setTimeout(() => {
         trade({
-          contractType,
-          choice: choicesByContract[contractType][0],
-          stake: Number(stake),
-          duration: Number(duration),
+          type: contractType,
+          choice: CHOICES[contractType][0],
         });
       }, i * 1400);
     }
@@ -338,14 +318,8 @@ export default function App() {
             {screen === "login" ? "Login" : "Register"}
           </button>
 
-          <span
-            onClick={() =>
-              setScreen(screen === "login" ? "register" : "login")
-            }
-          >
-            {screen === "login"
-              ? "Create account"
-              : "Already have account? Login"}
+          <span onClick={() => setScreen(screen === "login" ? "register" : "login")}>
+            {screen === "login" ? "Create account" : "Already have account? Login"}
           </span>
         </div>
       </div>
@@ -356,11 +330,7 @@ export default function App() {
     <div className="platform">
       <header className="topbar">
         <div className="topLine">
-          <button
-            type="button"
-            className="topMenuBtn"
-            onClick={() => setMenuOpen(true)}
-          >
+          <button className="topMenuBtn" type="button" onClick={() => setMenuOpen(true)}>
             ☰
           </button>
 
@@ -377,12 +347,12 @@ export default function App() {
         </div>
 
         <div className="mainTabs">
-          {["Trade", "Charts", "Free Bot", "Copy Trading"].map((tab) => (
+          {["Bot Builder", "Manual Trader", "Bulk Trader"].map((tab) => (
             <button
               type="button"
               key={tab}
-              onClick={() => setMainTab(tab)}
               className={mainTab === tab ? "active" : ""}
+              onClick={() => setMainTab(tab)}
             >
               {tab}
             </button>
@@ -398,11 +368,11 @@ export default function App() {
           </div>
 
           <div className="positions">
-            {openTrades.length === 0 && (
+            {openTrades.length === 0 && closedTrades.length === 0 && (
               <>
                 <div className="avatar">MB</div>
-                <h2>No open positions</h2>
-                <p>Your MetaBinary trades will appear here</p>
+                <h2>No positions</h2>
+                <p>Your trades will appear here</p>
               </>
             )}
 
@@ -417,13 +387,8 @@ export default function App() {
             ))}
 
             {closedTrades.slice(0, 8).map((t) => (
-              <div
-                className={`tradeCard ${t.win ? "win" : "loss"}`}
-                key={`closed-${t.id}`}
-              >
-                <b>
-                  {t.win ? "WIN" : "LOSS"} • {t.choice}
-                </b>
+              <div className={`tradeCard ${t.win ? "win" : "loss"}`} key={t.id}>
+                <b>{t.win ? "WIN" : "LOSS"} • {t.choice}</b>
                 <span>Result digit: {t.result}</span>
                 <small>Payout ${t.payout.toFixed(2)}</small>
               </div>
@@ -438,6 +403,8 @@ export default function App() {
                 <h1>Volatility 100 (1s) Index</h1>
                 <p>{price} - 0.02 (0.00%)</p>
               </div>
+
+              <div className="lastDigitBadge">{lastDigit}</div>
             </div>
 
             <div className="chart">
@@ -446,13 +413,14 @@ export default function App() {
                   points={points}
                   fill="none"
                   stroke="#12d6b3"
-                  strokeWidth="3"
+                  strokeWidth="4"
                   strokeLinecap="round"
                   strokeLinejoin="round"
                 />
               </svg>
 
               <div className="priceTag">{price}</div>
+              <div className="cursorDigit">{lastDigit}</div>
             </div>
 
             <div className="digits">
@@ -472,20 +440,18 @@ export default function App() {
         </main>
 
         <aside className="tradePanel">
-          {mainTab === "Trade" && (
+          {mainTab === "Manual Trader" && (
             <>
-              <p className="learn">ⓘ Learn about this trade type</p>
-
               <div className="tradeBox">
-                <h2>{contractType}</h2>
+                <p className="learn">ⓘ Select contract type</p>
 
                 <div className="tradeSelector">
-                  {contracts.map((item) => (
+                  {CONTRACTS.map((item) => (
                     <button
                       type="button"
                       key={item}
-                      onClick={() => changeContract(item)}
                       className={contractType === item ? "active" : ""}
+                      onClick={() => setContractType(item)}
                     >
                       {item}
                     </button>
@@ -493,8 +459,7 @@ export default function App() {
                 </div>
               </div>
 
-              {(contractType === "Matches/Differs" ||
-                contractType === "Over/Under") && (
+              {(contractType === "Matches/Differs" || contractType === "Over/Under") && (
                 <div className="tradeBox">
                   <h3>Select digit</h3>
 
@@ -519,9 +484,7 @@ export default function App() {
                 <div className="stepper">
                   <button
                     type="button"
-                    onClick={() =>
-                      setDuration(Math.max(1, Number(duration) - 1))
-                    }
+                    onClick={() => setDuration(Math.max(1, Number(duration) - 1))}
                   >
                     −
                   </button>
@@ -550,40 +513,23 @@ export default function App() {
 
                   <b>{stake} USD</b>
 
-                  <button
-                    type="button"
-                    onClick={() => setStake(Number(stake) + 1)}
-                  >
+                  <button type="button" onClick={() => setStake(Number(stake) + 1)}>
                     +
                   </button>
                 </div>
               </div>
 
               <div className="tradeActions">
-                {choicesByContract[contractType].map((item, index) => (
+                {CHOICES[contractType].map((item, index) => (
                   <button
                     key={item}
                     type="button"
-                    onClick={() =>
-                      trade({
-                        contractType,
-                        choice: item,
-                        stake: Number(stake),
-                        duration: Number(duration),
-                      })
-                    }
+                    onClick={() => trade({ type: contractType, choice: item })}
                     className={index === 0 ? "riseAction" : "fallAction"}
                   >
                     <strong>{item}</strong>
-
                     <small>
-                      Payout{" "}
-                      <b>
-                        {(Number(stake) * (index === 0 ? 2.22 : 1.82)).toFixed(
-                          2
-                        )}{" "}
-                        USD
-                      </b>
+                      Payout <b>{(Number(stake) * 1.9).toFixed(2)} USD</b>
                     </small>
                   </button>
                 ))}
@@ -591,24 +537,10 @@ export default function App() {
             </>
           )}
 
-          {mainTab === "Charts" && (
-            <div className="toolBox">
-              <h2>Charts</h2>
-              <p>Live synthetic movement is displayed in the market area.</p>
-              <button
-                type="button"
-                className="mainBuy"
-                onClick={() => setMainTab("Trade")}
-              >
-                Back to Trade
-              </button>
-            </div>
-          )}
-
-          {mainTab === "Free Bot" && (
+          {mainTab === "Bot Builder" && (
             <div className="toolBox">
               <h2>Free Bot</h2>
-              <p>Run automatic trades using your selected contract.</p>
+              <p>Run automatic trades using your current selected contract.</p>
 
               <label>Bot Runs</label>
               <input
@@ -622,16 +554,17 @@ export default function App() {
             </div>
           )}
 
-          {mainTab === "Copy Trading" && (
+          {mainTab === "Bulk Trader" && (
             <div className="toolBox">
-              <h2>Copy Trading</h2>
-              <p>Copy trading is coming soon on MetaBinary.</p>
+              <h2>Bulk Trader</h2>
+              <p>Bulk trading is coming soon on MetaBinary.</p>
+
               <button
                 type="button"
                 className="mainBuy"
-                onClick={() => setMainTab("Trade")}
+                onClick={() => setMainTab("Manual Trader")}
               >
-                Back to Trade
+                Back to Manual Trader
               </button>
             </div>
           )}
@@ -641,11 +574,7 @@ export default function App() {
       {menuOpen && (
         <div className="sideMenu" onClick={() => setMenuOpen(false)}>
           <div className="menuContent" onClick={(e) => e.stopPropagation()}>
-            <button
-              type="button"
-              className="closeMenu"
-              onClick={() => setMenuOpen(false)}
-            >
+            <button type="button" className="closeMenu" onClick={() => setMenuOpen(false)}>
               ×
             </button>
 
@@ -671,10 +600,7 @@ export default function App() {
 
             <button type="button">History</button>
             <button type="button">Settings</button>
-
-            <button type="button" onClick={logout}>
-              Logout
-            </button>
+            <button type="button" onClick={logout}>Logout</button>
           </div>
         </div>
       )}
@@ -682,16 +608,12 @@ export default function App() {
       {depositOpen && (
         <div className="modal">
           <div className="modalBox">
-            <button
-              type="button"
-              className="x"
-              onClick={() => setDepositOpen(false)}
-            >
+            <button type="button" className="x" onClick={() => setDepositOpen(false)}>
               ×
             </button>
 
             <h2>Deposit</h2>
-            <p>Send M-Pesa STK Push</p>
+            <p>Send M-Pesa STK Push to your phone</p>
 
             <input
               placeholder="2547XXXXXXXX"
