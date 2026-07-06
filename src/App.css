@@ -10,6 +10,7 @@ min-height:100%;
 font-family:Arial,Helvetica,sans-serif;
 background:#07111d;
 color:white;
+overflow-x:hidden;
 }
 
 button,input,select{
@@ -90,7 +91,7 @@ color:#13c9a8;
 cursor:pointer;
 }
 
-/* DESKTOP TOPBAR */
+/* TOPBAR */
 
 .topbar{
 height:76px;
@@ -129,10 +130,6 @@ color:white;
 font-weight:700;
 }
 
-.nav button:hover{
-background:#0c937c;
-}
-
 .accountBox{
 display:flex;
 align-items:center;
@@ -167,7 +164,7 @@ font-size:16px;
 font-weight:900;
 }
 
-/* DESKTOP LAYOUT */
+/* LAYOUT */
 
 .layout{
 display:grid;
@@ -187,10 +184,6 @@ gap:14px;
 margin-bottom:20px;
 font-size:14px;
 color:#8fa0b5;
-}
-
-.tabs span{
-padding-bottom:8px;
 }
 
 .tabs .active{
@@ -251,7 +244,7 @@ border-color:#10b981;
 border-color:#ef4444;
 }
 
-/* DESKTOP CHART */
+/* CHART */
 
 .chartWrap{
 background:#07111d;
@@ -280,7 +273,6 @@ background:#101b2d;
 border:1px solid #20314d;
 border-radius:14px;
 padding:18px;
-box-shadow:0 20px 50px rgba(0,0,0,.25);
 }
 
 .chartHeader h1{
@@ -343,6 +335,8 @@ height:1px;
 width:260px;
 border-top:1px dashed #12d6b3;
 }
+
+/* DIGITS */
 
 .digits{
 position:absolute;
@@ -414,7 +408,7 @@ border-right:10px solid transparent;
 border-bottom:15px solid #ff4b3f;
 }
 
-/* DESKTOP TRADE PANEL */
+/* TRADE PANEL */
 
 .tradePanel{
 background:#091827;
@@ -633,18 +627,20 @@ font-size:18px;
 @media(max-width:900px){
 
 html,body,#root{
+width:100%;
 height:auto;
 overflow-x:hidden;
 background:#f4f5f6;
 }
 
 .platform{
+width:100%;
 background:#f4f5f6;
 color:#202020;
 overflow-x:hidden;
 }
 
-/* PHONE TOP */
+/* PHONE TOPBAR */
 
 .topbar{
 height:auto;
@@ -652,14 +648,13 @@ background:white;
 display:flex;
 flex-direction:column;
 align-items:stretch;
-gap:12px;
-padding:14px;
+gap:10px;
+padding:12px;
 border-bottom:1px solid #e3e6ea;
 }
 
 .brand{
-font-size:30px;
-font-weight:900;
+font-size:26px;
 color:#08796c;
 }
 
@@ -667,10 +662,10 @@ color:#08796c;
 display:flex;
 gap:8px;
 overflow-x:auto;
-padding:10px 14px;
+padding:9px 12px;
 background:linear-gradient(90deg,#00482f,#09b8aa);
-margin-left:-14px;
-margin-right:-14px;
+margin-left:-12px;
+margin-right:-12px;
 }
 
 .nav::-webkit-scrollbar{
@@ -678,29 +673,25 @@ display:none;
 }
 
 .nav button{
-height:44px;
-padding:0 14px;
+height:40px;
+padding:0 12px;
 flex:0 0 auto;
 border-radius:8px;
 background:rgba(0,0,0,.25);
 border:1px solid rgba(255,255,255,.14);
 color:white;
-font-size:14px;
+font-size:13px;
 font-weight:900;
-}
-
-.nav button:first-child{
-background:#19b9aa;
 }
 
 .accountBox{
 display:grid;
-grid-template-columns:1fr 1fr 1fr;
+grid-template-columns:1fr 1fr;
 gap:8px;
 }
 
 .accountBox select{
-height:44px;
+height:42px;
 background:#f3f5f7;
 color:#222;
 border:1px solid #dce1e6;
@@ -710,14 +701,20 @@ font-weight:800;
 }
 
 .balance{
-font-size:16px;
+height:42px;
+display:flex;
+align-items:center;
+justify-content:center;
+font-size:15px;
 color:#111;
+background:#f3f5f7;
+border-radius:10px;
 text-align:center;
-align-self:center;
 min-width:0;
 }
 
 .depositBtn{
+grid-column:1 / -1;
 height:44px;
 border-radius:10px;
 background:#0dbb8f;
@@ -726,25 +723,30 @@ font-size:15px;
 font-weight:900;
 }
 
+/* PHONE LAYOUT */
+
 .layout{
 display:flex;
 flex-direction:column;
+width:100%;
+min-height:auto;
 }
 
 .leftPanel{
 display:none;
 }
 
-/* PHONE MARKET AREA */
+/* PHONE CHART */
 
 .chartWrap{
 width:100%;
 background:#f4f5f6;
-padding:18px 14px 0;
+padding:12px 10px 0;
 overflow:visible;
 }
 
 .chartCard{
+width:100%;
 height:auto;
 min-height:0;
 padding:0;
@@ -764,9 +766,9 @@ width:100%;
 background:white;
 border:1px solid #edf0f2;
 border-radius:11px;
-padding:18px;
+padding:14px;
 box-shadow:0 4px 16px rgba(0,0,0,.06);
-margin-bottom:86px;
+margin-bottom:22px;
 }
 
 .chartHeader::before{
@@ -781,22 +783,22 @@ color:white;
 border-radius:4px;
 font-size:11px;
 font-weight:900;
-margin-right:10px;
+margin-right:8px;
 vertical-align:top;
 }
 
 .chartHeader h1{
-font-size:26px;
+font-size:22px;
 font-weight:900;
 color:#252525;
 display:inline;
 }
 
 .chartHeader p{
-font-size:21px;
+font-size:17px;
 color:#9a9a9a;
-margin-top:10px;
-padding-left:88px;
+margin-top:8px;
+padding-left:70px;
 }
 
 .chartHeader p::after{
@@ -812,7 +814,7 @@ display:none;
 display:none;
 }
 
-/* PHONE DIGITS - 2 ROWS OF 5 */
+/* PHONE DIGITS */
 
 .digits{
 position:relative !important;
@@ -822,20 +824,20 @@ right:auto !important;
 bottom:auto !important;
 display:grid !important;
 grid-template-columns:repeat(5,1fr) !important;
-gap:52px 16px !important;
+gap:28px 4px !important;
 width:100% !important;
-padding:0 0 86px !important;
+padding:0 0 48px !important;
 overflow:visible !important;
 z-index:2 !important;
 }
 
 .digit{
-width:76px !important;
-height:76px !important;
-min-width:76px !important;
+width:54px !important;
+height:54px !important;
+min-width:54px !important;
 border-radius:50% !important;
 background:white !important;
-border:8px solid #e6e8eb !important;
+border:6px solid #e6e8eb !important;
 box-shadow:none !important;
 color:#2a2a2a !important;
 display:flex !important;
@@ -847,16 +849,16 @@ position:relative !important;
 }
 
 .digit b{
-font-size:27px !important;
+font-size:19px !important;
 line-height:1 !important;
 font-weight:900 !important;
 color:#2a2a2a !important;
 }
 
 .digit span{
-font-size:17px !important;
+font-size:11px !important;
 line-height:1.05 !important;
-margin-top:4px !important;
+margin-top:3px !important;
 color:#3d3d3d !important;
 }
 
@@ -881,22 +883,22 @@ border-bottom-color:#ef3e42 !important;
 .digit:nth-child(10)::after{
 content:"";
 position:absolute;
-bottom:-31px;
+bottom:-24px;
 left:50%;
 transform:translateX(-50%);
 width:0;
 height:0;
-border-left:12px solid transparent;
-border-right:12px solid transparent;
-border-bottom:18px solid #ff5a45;
+border-left:9px solid transparent;
+border-right:9px solid transparent;
+border-bottom:14px solid #ff5a45;
 }
 
 .chartCard::before{
 content:"≪";
 position:absolute;
-left:6px;
-bottom:24px;
-font-size:48px;
+left:4px;
+bottom:12px;
+font-size:34px;
 color:#909090;
 font-weight:300;
 z-index:5;
@@ -905,9 +907,9 @@ z-index:5;
 .chartCard::after{
 content:"≫";
 position:absolute;
-right:6px;
-bottom:24px;
-font-size:48px;
+right:4px;
+bottom:12px;
+font-size:34px;
 color:#222;
 font-weight:300;
 z-index:5;
@@ -919,71 +921,72 @@ z-index:5;
 width:100%;
 background:#f1f2f4;
 border:none;
-padding:18px 14px 22px;
+padding:14px 10px 18px;
 display:flex;
 flex-direction:column;
-gap:11px;
+gap:10px;
 color:#222;
 position:relative;
 }
 
 .tradePanel::before{
 content:"";
-width:72px;
-height:7px;
+width:70px;
+height:6px;
 border-radius:20px;
 background:#cfd4d5;
 align-self:center;
-margin:-4px 0 8px;
+margin:0 0 8px;
 }
 
 .learn{
-font-size:16px;
+font-size:14px;
 color:#333;
 text-decoration:underline dotted;
-margin-bottom:5px;
+margin-bottom:2px;
 }
 
 .tradeTitle{
-height:72px;
+height:60px;
 background:white;
 border:none;
 border-radius:10px;
 box-shadow:0 1px 8px rgba(0,0,0,.04);
 color:#222;
-font-size:24px;
+font-size:20px;
 font-weight:900;
-padding:0 16px;
+padding:0 12px;
 }
 
 .tradeTitle::before{
 content:"↗ ↘";
 color:#ef3e42;
 background:#f1f3f5;
-padding:8px;
+padding:7px;
 border-radius:7px;
-margin-right:14px;
+margin-right:10px;
+font-size:18px;
 }
 
 .tradeTitle::after{
 content:"›";
 margin-left:auto;
-font-size:42px;
+font-size:34px;
 font-weight:300;
 }
 
 .contractTabs{
 display:grid;
 grid-template-columns:repeat(5,1fr);
-gap:10px;
+gap:7px;
 background:white;
 border:none;
 border-radius:10px;
-padding:12px;
+padding:10px;
 }
 
 .contractTabs button{
-height:58px;
+height:48px;
 border-radius:8px;
 background:#f1f2f4;
 border:none;
@@ -1000,7 +1003,7 @@ inset:0;
 display:flex;
 align-items:center;
 justify-content:center;
-font-size:24px;
+font-size:20px;
 color:#333;
 }
 
@@ -1021,13 +1024,13 @@ display:none;
 }
 
 .tradeRow{
-height:62px;
+height:54px;
 background:white;
 border:none;
 border-radius:9px;
 color:#222;
-padding:0 18px;
-font-size:20px;
+padding:0 14px;
+font-size:17px;
 font-weight:900;
 display:flex;
 align-items:center;
@@ -1035,23 +1038,24 @@ justify-content:space-between;
 }
 
 .tradeRow span{
-font-size:16px;
+font-size:14px;
 color:#555;
 font-weight:600;
 }
 
 .tradeRow b{
 color:#222;
-font-size:21px;
+font-size:18px;
 }
 
 .tradePanel input{
-height:58px;
+width:100%;
+height:54px;
 background:white;
 border:none;
 border-radius:9px;
 color:#222;
-font-size:21px;
+font-size:19px;
 font-weight:900;
 text-align:center;
 }
@@ -1059,14 +1063,14 @@ text-align:center;
 .choice{
 display:grid;
 grid-template-columns:1fr 1fr;
-gap:10px;
+gap:8px;
 order:20;
 }
 
 .choice button{
-height:98px;
+height:88px;
 border-radius:9px;
-font-size:26px;
+font-size:22px;
 font-weight:900;
 position:relative;
 overflow:hidden;
@@ -1074,24 +1078,24 @@ display:flex;
 flex-direction:column;
 align-items:flex-start;
 justify-content:flex-start;
-padding:16px;
+padding:13px;
 text-align:left;
 }
 
 .choice button small{
 position:absolute;
-left:16px;
-bottom:17px;
-font-size:16px;
+left:13px;
+bottom:14px;
+font-size:13px;
 font-weight:400;
 opacity:.95;
 }
 
 .choice button strong{
 position:absolute;
-right:16px;
-bottom:17px;
-font-size:15px;
+right:13px;
+bottom:14px;
+font-size:13px;
 font-weight:900;
 }
 
@@ -1106,12 +1110,7 @@ color:white !important;
 }
 
 .buyEven{
-height:78px;
-border-radius:10px;
-background:#10b981;
-color:white;
-font-size:26px;
-font-weight:900;
+display:none !important;
 }
 
 /* PHONE MODAL */
@@ -1140,101 +1139,49 @@ color:#222;
 
 }
 
-/* SMALL PHONES */
+/* VERY SMALL PHONES */
 
-@media(max-width:420px){
+@media(max-width:360px){
+
+.brand{
+font-size:23px;
+}
 
 .chartHeader h1{
-font-size:22px;
+font-size:20px;
 }
 
 .chartHeader p{
-font-size:18px;
-padding-left:74px;
+font-size:15px;
+padding-left:64px;
 }
 
 .digit{
-width:66px !important;
-height:66px !important;
-min-width:66px !important;
-border-width:7px !important;
+width:48px !important;
+height:48px !important;
+min-width:48px !important;
+border-width:5px !important;
 }
 
 .digit b{
-font-size:23px !important;
+font-size:17px !important;
 }
 
 .digit span{
-font-size:15px !important;
+font-size:10px !important;
 }
 
 .digits{
-gap:46px 9px !important;
+gap:26px 2px !important;
 }
 
 .choice button{
-font-size:22px;
-height:92px;
+height:82px;
+font-size:20px;
 }
 
 .tradeTitle{
-font-size:21px;
-}
-
-}
-/* FINAL PHONE FIX */
-
-@media(max-width:900px){
-
-.digit{
-width:58px !important;
-height:58px !important;
-min-width:58px !important;
-border-width:6px !important;
-}
-
-.digit b{
-font-size:20px !important;
-}
-
-.digit span{
-font-size:12px !important;
-}
-
-.digits{
-gap:34px 6px !important;
-padding-bottom:60px !important;
-}
-
-.buyEven{
-display:none !important;
-}
-
-}
-
-@media(max-width:420px){
-
-.digit{
-width:54px !important;
-height:54px !important;
-min-width:54px !important;
-border-width:6px !important;
-}
-
-.digit b{
-font-size:19px !important;
-}
-
-.digit span{
-font-size:11px !important;
-}
-
-.digits{
-gap:32px 4px !important;
-}
-
-.buyEven{
-display:none !important;
+font-size:18px;
 }
 
 }
