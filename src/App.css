@@ -39,9 +39,7 @@ select {
   display: flex;
   align-items: center;
   justify-content: center;
-  background:
-    radial-gradient(circle at top, rgba(0, 194, 180, 0.2), transparent 35%),
-    #07111d;
+  background: radial-gradient(circle at top, rgba(0, 194, 180, 0.2), transparent 35%), #07111d;
   padding: 20px;
 }
 
@@ -108,13 +106,13 @@ select {
   flex-direction: column;
 }
 
-/* TOPBAR */
+/* TOPBAR DESKTOP */
 
 .topbar {
   height: 74px;
   background: #091321;
   display: grid;
-  grid-template-columns: 250px 1fr 360px;
+  grid-template-columns: 260px 1fr 360px;
   align-items: center;
   border-bottom: 1px solid rgba(255, 255, 255, 0.06);
   flex-shrink: 0;
@@ -124,39 +122,40 @@ select {
   height: 100%;
   display: flex;
   align-items: center;
-  padding-left: 22px;
-  font-size: 34px;
-  font-weight: 900;
+  gap: 14px;
+  padding-left: 18px;
   color: #12d6b3;
+}
+
+.brand span {
+  font-size: 32px;
+  font-weight: 900;
+}
+
+.topMenuBtn,
+.refreshBtn {
+  background: transparent;
+  color: #12d6b3;
+  font-size: 28px;
+  font-weight: 900;
 }
 
 .nav {
   display: flex;
   align-items: center;
-  gap: 10px;
-  overflow-x: auto;
-  padding: 0 12px;
+  overflow: hidden;
+  height: 100%;
 }
 
-.nav::-webkit-scrollbar {
-  display: none;
-}
-
-.nav button {
-  height: 40px;
-  padding: 0 14px;
+.hubBtn {
+  height: 42px;
+  min-width: 150px;
+  padding: 0 18px;
   border-radius: 10px;
-  background: transparent;
-  color: #c6d1e2;
-  font-size: 14px;
-  font-weight: 800;
-  white-space: nowrap;
-}
-
-.nav button:hover,
-.nav button:nth-child(2) {
   background: #12d6b3;
   color: #061426;
+  font-size: 15px;
+  font-weight: 900;
 }
 
 .accountBox {
@@ -547,6 +546,7 @@ select {
   font-weight: 900;
   padding: 14px;
   text-align: left;
+  position: relative;
 }
 
 .choice button small,
@@ -675,65 +675,118 @@ select {
   font-weight: 900;
 }
 
-/* TABLET */
+/* SIDE MENU */
+
+.sideMenu {
+  position: fixed;
+  inset: 0;
+  background: rgba(0, 0, 0, 0.45);
+  z-index: 99999;
+}
+
+.menuContent {
+  position: absolute;
+  left: 0;
+  top: 0;
+  width: 280px;
+  height: 100%;
+  background: white;
+  padding: 30px;
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+  box-shadow: 0 0 60px rgba(0, 0, 0, 0.25);
+}
+
+.menuContent button {
+  height: 54px;
+  border-radius: 10px;
+  background: #f4f4f4;
+  font-size: 17px;
+  font-weight: 800;
+  color: #222;
+}
+
+.closeMenu {
+  background: none !important;
+  font-size: 36px !important;
+  height: auto !important;
+  align-self: flex-end;
+}
+
+/* MOBILE */
 
 @media (max-width: 1023px) {
+  html,
+  body,
+  #root {
+    height: 100%;
+    overflow: hidden !important;
+    background: white;
+  }
+
+  .platform {
+    height: 100dvh !important;
+    overflow: hidden !important;
+    background: white !important;
+  }
+
   .topbar {
     height: 170px;
+    background: white;
+    display: grid;
     grid-template-columns: 1fr;
     grid-template-rows: 54px 58px 58px;
+    border-bottom: 0;
   }
 
   .brand {
-    font-size: 0;
-    padding: 0 18px;
-  }
-
-  .brand::before {
-    content: "☰";
-    font-size: 32px;
-    color: #111;
-    margin-right: 30px;
-  }
-
-  .brand::after {
-    content: "↻";
-    font-size: 36px;
-    color: #21b8bb;
-  }
-
-  .topbar {
+    height: 54px;
+    padding: 0 28px;
+    justify-content: flex-start;
+    gap: 32px;
     background: white;
+  }
+
+  .brand span {
+    display: none;
+  }
+
+  .topMenuBtn {
+    color: #111;
+    font-size: 42px;
+    line-height: 1;
+    font-weight: 400;
+  }
+
+  .refreshBtn {
+    color: #22b8bd;
+    font-size: 44px;
+    font-weight: 400;
   }
 
   .nav {
     height: 58px;
     background: #061426;
     padding: 0;
+    display: flex;
   }
 
-  .nav button {
+  .hubBtn {
+    width: 100%;
     height: 58px;
-    min-width: 165px;
     border-radius: 0;
     background: #061426;
     color: white;
-    font-size: 16px;
-  }
-
-  .nav button:nth-child(2) {
-    background: #2fbec1;
-    color: white;
-  }
-
-  .nav button:nth-child(n + 4) {
-    display: none;
+    font-size: 22px;
+    font-weight: 900;
   }
 
   .accountBox {
     height: 58px;
     grid-template-columns: 1fr 1.75fr;
-    padding: 8px 14px;
+    gap: 16px;
+    padding: 8px 28px;
     background: white;
   }
 
@@ -743,10 +796,17 @@ select {
     background: white;
     border: 1px solid #e0e2e5;
     color: #111;
+    border-radius: 14px;
+    font-size: 17px;
   }
 
   .balance {
     color: #14aeb0;
+    font-size: 25px;
+  }
+
+  .balance::before {
+    font-size: 28px;
   }
 
   .depositBtn {
@@ -758,8 +818,7 @@ select {
     grid-template-columns: repeat(3, 1fr);
     height: 48px;
     gap: 0;
-    background: #f5f5f5;
-    border-bottom: 1px solid #e5e5e5;
+    background: white;
   }
 
   .mobileTabs button {
@@ -767,7 +826,7 @@ select {
     border-radius: 0;
     background: white;
     color: #555;
-    font-size: 13px;
+    font-size: 15px;
   }
 
   .mobileTabs button.active {
@@ -780,7 +839,8 @@ select {
     flex: none;
     display: grid;
     grid-template-columns: 1fr;
-    grid-template-rows: 52% 48%;
+    grid-template-rows: 42% 58%;
+    overflow: hidden;
     background: white;
   }
 
@@ -789,70 +849,77 @@ select {
   }
 
   .chartWrap {
+    height: 100%;
     background: white;
-    padding: 14px 16px 0;
+    padding: 12px 28px 0;
+    overflow: hidden;
   }
 
   .chartCard {
+    height: 100%;
     background: white;
     border: none;
     border-radius: 0;
     padding: 0;
-    position: relative;
+    overflow: hidden;
   }
 
   .chartHeader {
-    height: 112px;
+    height: 96px;
     background: white;
     border: 1px solid #e2e4e7;
-    border-radius: 8px;
-    padding: 26px 16px 14px 78px;
-    margin-bottom: 36px;
+    border-radius: 12px;
+    padding: 24px 16px 12px 136px;
+    margin-bottom: 18px;
     color: #222;
+    position: relative;
   }
 
   .chartHeader::before {
-    content: "100  1s";
+    content: "100 1s";
     position: absolute;
-    left: 38px;
-    top: 29px;
-    height: 22px;
-    padding: 0 5px;
+    left: 66px;
+    top: 31px;
+    height: 36px;
+    padding: 0 10px;
     display: flex;
     align-items: center;
     justify-content: center;
     background: #111;
     color: white;
-    border-radius: 4px;
-    font-size: 11px;
+    border-radius: 7px;
+    font-size: 16px;
     font-weight: 900;
+    z-index: 2;
   }
 
   .chartHeader::after {
     content: "▥";
     position: absolute;
-    left: 36px;
-    top: 52px;
+    left: 66px;
+    top: 62px;
     font-size: 30px;
     color: #74bdc0;
   }
 
   .chartHeader h1 {
-    font-size: 22px;
+    font-size: 27px;
     color: #202020;
     white-space: nowrap;
+    line-height: 1.05;
   }
 
   .chartHeader h1::after {
     content: "⌄";
     float: right;
-    font-size: 28px;
+    font-size: 34px;
     font-weight: 400;
   }
 
   .chartHeader p {
-    font-size: 16px;
+    font-size: 19px;
     color: #999;
+    margin-top: 9px;
   }
 
   .chartHeader p::after {
@@ -869,14 +936,14 @@ select {
     height: auto;
     display: grid;
     grid-template-columns: repeat(5, 1fr);
-    gap: 38px 12px;
-    padding: 0 12px;
+    gap: 14px 8px;
+    padding: 0 20px;
   }
 
   .digit {
-    width: 58px;
-    height: 58px;
-    min-width: 58px;
+    width: 50px;
+    height: 50px;
+    min-width: 50px;
     border-radius: 50%;
     background: white;
     border: 6px solid #e9ebee;
@@ -885,12 +952,12 @@ select {
   }
 
   .digit b {
-    font-size: 20px;
+    font-size: 18px;
     color: #222;
   }
 
   .digit span {
-    font-size: 13px;
+    font-size: 11px;
     color: #333;
   }
 
@@ -899,65 +966,66 @@ select {
     box-shadow: none;
   }
 
-  .tradePanel {
-    background: #f4f4f4;
-    border-left: 0;
-    padding: 12px 16px 14px;
-    overflow-y: auto;
-  }
-
-  .desktopTabs {
-    display: none;
-  }
-
-  .learn {
-    font-size: 15px;
-    color: #222;
-    text-decoration: underline dotted;
-  }
-
-  .tradeTitle {
-    height: 52px;
-    background: white;
-    border-radius: 8px;
-    color: #222;
-    font-size: 23px;
-    margin-bottom: 9px;
-  }
-
-  .tradeTitle::before {
-    content: "▦";
-    width: 38px;
-    height: 38px;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    background: #f0f2f3;
-    color: #4fb6b5;
-    border-radius: 7px;
-    margin-right: 14px;
-    font-size: 20px;
-  }
-
-  .tradeTitle::after {
-    content: "›";
-    font-size: 38px;
-    font-weight: 300;
-    margin-left: auto;
-  }
-
+  .desktopTabs,
   .contractTabs,
   .tradeMode {
     display: none;
   }
 
-  .tradeRow {
-    height: 46px;
-    background: white;
-    border-radius: 8px;
-    color: #333;
+  .tradePanel {
+    height: 100%;
+    background: #f4f4f4;
+    border-left: 0;
+    padding: 14px 28px 90px;
+    overflow-y: auto;
+  }
+
+  .learn {
     font-size: 17px;
-    margin-bottom: 9px;
+    color: #222;
+    text-decoration: underline dotted;
+    margin-bottom: 12px;
+  }
+
+  .tradeTitle {
+    height: 74px;
+    background: white;
+    border-radius: 10px;
+    color: #222;
+    font-size: 31px;
+    margin-bottom: 14px;
+    padding: 0 26px;
+  }
+
+  .tradeTitle::before {
+    content: "▦";
+    width: 50px;
+    height: 50px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    background: #f0f2f3;
+    color: #4fb6b5;
+    border-radius: 9px;
+    margin-right: 24px;
+    font-size: 23px;
+  }
+
+  .tradeTitle::after {
+    content: "›";
+    font-size: 46px;
+    font-weight: 300;
+    margin-left: auto;
+  }
+
+  .tradeRow {
+    height: 64px;
+    background: white;
+    border-radius: 10px;
+    color: #333;
+    font-size: 24px;
+    margin-bottom: 14px;
+    padding: 0 24px;
   }
 
   .tradeRow span {
@@ -966,7 +1034,7 @@ select {
 
   .tradeRow b {
     color: #111;
-    font-size: 22px;
+    font-size: 32px;
   }
 
   .tradePanel input {
@@ -974,26 +1042,27 @@ select {
   }
 
   .choice {
-    gap: 12px;
+    gap: 20px;
   }
 
   .choice button {
-    height: 78px;
-    border-radius: 8px;
-    font-size: 24px;
+    height: 96px;
+    min-height: 96px;
+    border-radius: 10px;
+    font-size: 34px;
     display: grid;
-    grid-template-rows: 1fr 32px;
+    grid-template-rows: 1fr 34px;
     overflow: hidden;
     padding: 0;
     text-align: center;
   }
 
   .choice button small {
-    height: 32px;
+    height: 34px;
     display: flex;
     align-items: center;
-    padding-left: 16px;
-    font-size: 14px;
+    padding-left: 26px;
+    font-size: 16px;
     background: rgba(0, 0, 0, 0.16);
   }
 
@@ -1001,7 +1070,7 @@ select {
     position: absolute;
     right: 16px;
     bottom: 8px;
-    font-size: 13px;
+    font-size: 15px;
   }
 
   .buyEven {
@@ -1048,349 +1117,133 @@ select {
   }
 }
 
-/* PHONE */
-
 @media (max-width: 430px) {
   .topbar {
-    height: 182px;
-    grid-template-rows: 52px 62px 68px;
-  }
-
-  .brand::before {
-    font-size: 30px;
-    margin-right: 28px;
-  }
-
-  .brand::after {
-    font-size: 34px;
-  }
-
-  .nav {
-    height: 62px;
-  }
-
-  .nav button {
-    height: 62px;
-    min-width: 172px;
-    font-size: 17px;
-  }
-
-  .accountBox {
-    height: 68px;
-    padding: 11px 16px;
-  }
-
-  .layout {
-    height: calc(100dvh - 230px);
-    grid-template-rows: 55% 45%;
-  }
-
-  .chartWrap {
-    padding: 14px 16px 0;
-  }
-
-  .chartHeader {
-    height: 112px;
-    padding: 26px 16px 14px 78px;
-    margin-bottom: 46px;
-  }
-
-  .digits {
-    gap: 38px 12px;
-    padding: 0 12px;
-  }
-
-  .digit {
-    width: 58px;
-    height: 58px;
-    min-width: 58px;
-  }
-
-  .tradePanel {
-    padding: 12px 16px 14px;
-  }
-}
-
-/* SMALL PHONE */
-
-@media (max-width: 380px) {
-  .topbar {
     height: 170px;
-    grid-template-rows: 48px 58px 64px;
+    grid-template-rows: 52px 56px 62px;
   }
 
-  .nav {
-    height: 58px;
+  .brand {
+    height: 52px;
+    padding: 0 28px;
+    gap: 28px;
   }
 
-  .nav button {
-    height: 58px;
-    min-width: 160px;
-    font-size: 16px;
+  .topMenuBtn {
+    font-size: 40px;
+  }
+
+  .refreshBtn {
+    font-size: 42px;
+  }
+
+  .nav,
+  .hubBtn {
+    height: 56px;
+  }
+
+  .hubBtn {
+    font-size: 21px;
   }
 
   .accountBox {
-    height: 64px;
-    padding: 10px 12px;
+    height: 62px;
+    padding: 8px 28px;
   }
 
   .accountBox select,
   .balance {
-    height: 44px;
-    font-size: 16px;
-  }
-
-  .balance {
-    font-size: 20px;
+    height: 42px;
   }
 
   .layout {
     height: calc(100dvh - 218px);
-    grid-template-rows: 55% 45%;
+    grid-template-rows: 42% 58%;
   }
 
   .chartWrap {
-    padding: 12px 12px 0;
+    padding: 12px 28px 0;
   }
 
   .chartHeader {
-    height: 104px;
-    padding: 24px 12px 12px 70px;
-    margin-bottom: 40px;
-  }
-
-  .chartHeader::before {
-    left: 34px;
-    top: 27px;
-  }
-
-  .chartHeader::after {
-    left: 32px;
-    top: 49px;
-    font-size: 28px;
+    height: 96px;
+    padding: 24px 16px 12px 136px;
+    margin-bottom: 18px;
   }
 
   .chartHeader h1 {
-    font-size: 19px;
+    font-size: 27px;
   }
 
   .chartHeader p {
-    font-size: 14px;
+    font-size: 19px;
   }
 
   .digits {
-    gap: 30px 8px;
-    padding: 0 8px;
+    gap: 14px 8px;
+    padding: 0 20px;
   }
 
   .digit {
     width: 50px;
     height: 50px;
     min-width: 50px;
+  }
+
+  .tradePanel {
+    padding: 14px 28px 90px;
+  }
+}
+
+@media (max-width: 380px) {
+  .chartHeader {
+    padding-left: 112px;
+  }
+
+  .chartHeader::before {
+    left: 48px;
+  }
+
+  .chartHeader::after {
+    left: 48px;
+  }
+
+  .chartHeader h1 {
+    font-size: 22px;
+  }
+
+  .chartHeader p {
+    font-size: 16px;
+  }
+
+  .digits {
+    padding: 0 12px;
+  }
+
+  .digit {
+    width: 46px;
+    height: 46px;
+    min-width: 46px;
     border-width: 5px;
   }
 
-  .digit b {
-    font-size: 17px;
-  }
-
-  .digit span {
-    font-size: 11px;
-  }
-
-  .tradePanel {
-    padding: 10px 12px 12px;
-  }
-
-  .learn {
-    font-size: 14px;
-  }
-
   .tradeTitle {
-    height: 48px;
-    font-size: 21px;
-    padding: 0 16px;
+    height: 64px;
+    font-size: 27px;
   }
 
   .tradeRow {
-    height: 42px;
-    font-size: 16px;
-    padding: 0 16px;
-  }
-
-  .tradeRow b {
+    height: 56px;
     font-size: 20px;
   }
 
-  .choice {
-    gap: 10px;
+  .tradeRow b {
+    font-size: 28px;
   }
 
   .choice button {
-    height: 70px;
-    font-size: 21px;
-  }
-}
-@media (max-width: 1023px) {
-  html,
-  body,
-  #root {
-    height: 100%;
-    overflow: hidden !important;
-  }
-
-  .platform {
-    height: 100dvh !important;
-    overflow: hidden !important;
-    background: white !important;
-  }
-
-  .layout {
-    height: calc(100dvh - 230px) !important;
-    display: grid !important;
-    grid-template-rows: 48% 52% !important;
-    overflow: hidden !important;
-  }
-
-  .chartWrap {
-    height: 100% !important;
-    padding: 14px 16px 0 !important;
-    overflow: hidden !important;
-  }
-
-  .chartCard {
-    height: 100% !important;
-    min-height: 0 !important;
-    overflow: hidden !important;
-  }
-
-  .chartHeader {
-    margin-bottom: 28px !important;
-  }
-
-  .digits {
-    gap: 26px 10px !important;
-  }
-
-  .tradePanel {
-    height: 100% !important;
-    min-height: 0 !important;
-    overflow-y: auto !important;
-    padding-bottom: 30px !important;
-  }
-}
-
-@media (max-width: 430px) {
-  .layout {
-    height: calc(100dvh - 230px) !important;
-    grid-template-rows: 47% 53% !important;
-  }
-
-  .chartHeader {
-    height: 104px !important;
-    margin-bottom: 26px !important;
-  }
-
-  .digits {
-    gap: 24px 8px !important;
-  }
-
-  .digit {
-    width: 54px !important;
-    height: 54px !important;
-    min-width: 54px !important;
-  }
-}
-@media (max-width: 430px) {
-  .layout {
-    height: calc(100dvh - 230px) !important;
-    grid-template-rows: 42% 58% !important;
-  }
-
-  .chartHeader {
-    height: 96px !important;
-    margin-bottom: 18px !important;
-  }
-
-  .digits {
-    gap: 14px 8px !important;
-  }
-
-  .digit {
-    width: 50px !important;
-    height: 50px !important;
-    min-width: 50px !important;
-  }
-
-  .digit b {
-    font-size: 18px !important;
-  }
-
-  .digit span {
-    font-size: 11px !important;
-  }
-
-  .tradePanel {
-    padding-bottom: 90px !important;
-  }
-
-  .choice button {
-    height: 96px !important;
-  }
-}
-@media (max-width: 1023px) {
-  .nav button:nth-child(2),
-  .nav button:nth-child(3) {
-    display: none !important;
-  }
-
-  .nav {
-    justify-content: flex-start !important;
-  }
-
-  .nav button:nth-child(1) {
-    min-width: 100% !important;
-  }
-}
-.sideMenu {
-  position: fixed;
-  inset: 0;
-  background: rgba(0, 0, 0, 0.45);
-  z-index: 99999;
-}
-
-.menuContent {
-  position: absolute;
-  left: 0;
-  top: 0;
-  width: 280px;
-  height: 100%;
-  background: white;
-  padding: 30px;
-  display: flex;
-  flex-direction: column;
-  gap: 12px;
-  box-shadow: 0 0 60px rgba(0, 0, 0, 0.25);
-}
-
-.menuContent button {
-  height: 54px;
-  border-radius: 10px;
-  background: #f4f4f4;
-  font-size: 17px;
-  font-weight: 800;
-  color: #222;
-}
-
-.closeMenu {
-  background: none !important;
-  font-size: 36px !important;
-  height: auto !important;
-  align-self: flex-end;
-}
-
-@media (max-width: 1023px) {
-  .nav button {
-    min-width: 50% !important;
+    height: 86px;
+    min-height: 86px;
+    font-size: 29px;
   }
 }
