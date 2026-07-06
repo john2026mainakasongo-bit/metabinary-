@@ -1352,3 +1352,45 @@ select {
     min-width: 100% !important;
   }
 }
+.sideMenu {
+  position: fixed;
+  inset: 0;
+  background: rgba(0, 0, 0, 0.45);
+  z-index: 99999;
+}
+
+.menuContent {
+  position: absolute;
+  left: 0;
+  top: 0;
+  width: 280px;
+  height: 100%;
+  background: white;
+  padding: 30px;
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+  box-shadow: 0 0 60px rgba(0, 0, 0, 0.25);
+}
+
+.menuContent button {
+  height: 54px;
+  border-radius: 10px;
+  background: #f4f4f4;
+  font-size: 17px;
+  font-weight: 800;
+  color: #222;
+}
+
+.closeMenu {
+  background: none !important;
+  font-size: 36px !important;
+  height: auto !important;
+  align-self: flex-end;
+}
+
+@media (max-width: 1023px) {
+  .nav button {
+    min-width: 50% !important;
+  }
+}
