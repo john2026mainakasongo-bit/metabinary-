@@ -1301,3 +1301,40 @@ select {
     min-width: 54px !important;
   }
 }
+@media (max-width: 430px) {
+  .layout {
+    height: calc(100dvh - 230px) !important;
+    grid-template-rows: 42% 58% !important;
+  }
+
+  .chartHeader {
+    height: 96px !important;
+    margin-bottom: 18px !important;
+  }
+
+  .digits {
+    gap: 14px 8px !important;
+  }
+
+  .digit {
+    width: 50px !important;
+    height: 50px !important;
+    min-width: 50px !important;
+  }
+
+  .digit b {
+    font-size: 18px !important;
+  }
+
+  .digit span {
+    font-size: 11px !important;
+  }
+
+  .tradePanel {
+    padding-bottom: 90px !important;
+  }
+
+  .choice button {
+    height: 96px !important;
+  }
+}
