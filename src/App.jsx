@@ -55,7 +55,7 @@ export default function App() {
     const finished = openTrades.filter((t) => t.ticksLeft <= 0);
     if (!finished.length) return;
 
-    finished.forEach((trade) => closeTrade(trade));
+    finished.forEach(closeTrade);
     setOpenTrades((old) => old.filter((t) => t.ticksLeft > 0));
   }, [openTrades]);
 
@@ -76,19 +76,9 @@ export default function App() {
     const returned = won ? Number((trade.stake * trade.payout).toFixed(2)) : 0;
     const profit = won ? Number((returned - trade.stake).toFixed(2)) : -trade.stake;
 
-    if (won) {
-      setBalance((b) => Number((b + returned).toFixed(2)));
-    }
+    if (won) setBalance((b) => Number((b + returned).toFixed(2)));
 
-    setHistory((h) => [
-      {
-        ...trade,
-        result: won ? "WON" : "LOST",
-        returned,
-        profit,
-      },
-      ...h,
-    ]);
+    setHistory((h) => [{ ...trade, result: won ? "WON" : "LOST", returned, profit }, ...h]);
   }
 
   function buy(type) {
@@ -147,7 +137,7 @@ export default function App() {
 
         .app{
           width:100%;
-          max-width:480px;
+          max-width:430px;
           min-height:100vh;
           margin:0 auto;
           background:#f2f2f2;
@@ -156,48 +146,48 @@ export default function App() {
         }
 
         .top{
-          height:106px;
+          height:78px;
           background:white;
           display:flex;
           align-items:center;
           justify-content:space-between;
-          padding:0 20px;
+          padding:0 16px;
         }
 
         .menu{
-          font-size:50px;
+          font-size:36px;
           font-weight:900;
           line-height:1;
         }
 
         .account{
-          height:58px;
-          width:130px;
-          border:3px solid #111;
-          border-radius:18px;
-          padding:0 16px;
-          font-size:22px;
+          height:48px;
+          width:110px;
+          border:2px solid #111;
+          border-radius:15px;
+          padding:0 12px;
+          font-size:18px;
           font-weight:900;
           background:white;
           color:#111;
         }
 
         .wallet{
-          min-width:130px;
-          height:58px;
+          min-width:110px;
+          height:48px;
           display:flex;
           align-items:center;
           justify-content:center;
           border:1px solid #ddd;
-          border-radius:18px;
+          border-radius:15px;
           background:white;
           color:#19b8aa;
-          font-size:28px;
+          font-size:24px;
           font-weight:900;
         }
 
         .tabs{
-          height:68px;
+          height:56px;
           display:grid;
           grid-template-columns:repeat(4,1fr);
           background:#07111d;
@@ -207,7 +197,7 @@ export default function App() {
           border:none;
           background:#07111d;
           color:white;
-          font-size:16px;
+          font-size:14px;
           font-weight:900;
         }
 
@@ -216,68 +206,70 @@ export default function App() {
         }
 
         .market{
-          margin:18px 20px;
+          margin:12px 16px;
           background:white;
           border:1px solid #ddd;
-          border-radius:24px;
-          padding:20px;
+          border-radius:20px;
+          padding:16px;
           display:flex;
           align-items:center;
           justify-content:space-between;
+          gap:10px;
         }
 
         .market h1{
-          font-size:27px;
+          font-size:22px;
           line-height:1.1;
           font-weight:900;
         }
 
         .market p{
-          margin-top:8px;
+          margin-top:6px;
           color:#19b8aa;
-          font-size:20px;
+          font-size:16px;
           font-weight:900;
         }
 
         .last{
-          width:70px;
-          height:70px;
+          width:56px;
+          height:56px;
+          min-width:56px;
           border-radius:50%;
           background:#19b8aa;
           color:white;
           display:flex;
           align-items:center;
           justify-content:center;
-          font-size:34px;
+          font-size:28px;
           font-weight:900;
         }
 
         .digits{
-          margin:0 26px 20px;
+          margin:0 22px 12px;
           display:grid;
           grid-template-columns:repeat(5,1fr);
-          gap:18px 22px;
+          gap:12px 16px;
           justify-items:center;
         }
 
         .digit{
-          width:66px;
-          height:66px;
+          width:54px;
+          height:54px;
           border-radius:50%;
-          border:8px solid #e9edf3;
+          border:6px solid #e9edf3;
           background:white;
           display:flex;
           flex-direction:column;
           align-items:center;
           justify-content:center;
           font-weight:900;
-          font-size:27px;
+          font-size:22px;
         }
 
         .digit span{
-          font-size:13px;
+          font-size:11px;
           color:#8c95a1;
-          margin-top:2px;
+          margin-top:1px;
         }
 
         .digit.active{
@@ -286,30 +278,30 @@ export default function App() {
 
         .panel{
           background:white;
-          margin:0 20px 20px;
-          padding:22px 16px;
-          border-radius:24px;
+          margin:0 16px 12px;
+          padding:16px 14px;
+          border-radius:20px;
         }
 
         .panelTitle{
           color:#9aa3ae;
-          font-size:19px;
-          margin-bottom:16px;
+          font-size:16px;
+          margin-bottom:12px;
         }
 
         .contractGrid{
           display:grid;
           grid-template-columns:1fr 1fr;
-          gap:12px;
+          gap:10px;
         }
 
         .contractGrid button{
-          height:64px;
-          border-radius:16px;
+          height:52px;
+          border-radius:14px;
           border:1px solid #ddd;
           background:#f8f8f8;
           color:#111;
-          font-size:18px;
+          font-size:16px;
           font-weight:900;
         }
 
@@ -321,28 +313,28 @@ export default function App() {
 
         .prediction{
           background:white;
-          margin:0 20px 20px;
-          padding:18px;
-          border-radius:24px;
+          margin:0 16px 12px;
+          padding:14px;
+          border-radius:20px;
         }
 
         .prediction h3{
-          font-size:20px;
-          margin-bottom:14px;
+          font-size:17px;
+          margin-bottom:10px;
         }
 
         .predictionGrid{
           display:grid;
           grid-template-columns:repeat(5,1fr);
-          gap:10px;
+          gap:8px;
         }
 
         .predictionGrid button{
-          height:48px;
+          height:40px;
           border-radius:50%;
           border:1px solid #ddd;
           background:#f2f4f7;
-          font-size:18px;
+          font-size:16px;
           font-weight:900;
         }
 
@@ -353,37 +345,37 @@ export default function App() {
         }
 
         .control{
-          height:76px;
-          margin:0 20px 16px;
-          padding:0 24px;
+          height:62px;
+          margin:0 16px 10px;
+          padding:0 18px;
           background:white;
-          border-radius:20px;
+          border-radius:18px;
           display:flex;
           align-items:center;
           justify-content:space-between;
         }
 
         .control h2{
-          font-size:23px;
+          font-size:19px;
           font-weight:900;
         }
 
         .stepper{
           display:flex;
           align-items:center;
-          gap:18px;
-          font-size:24px;
+          gap:12px;
+          font-size:20px;
           font-weight:900;
         }
 
         .stepper button{
-          width:44px;
-          height:44px;
+          width:36px;
+          height:36px;
           border:none;
           border-radius:50%;
           background:#edf0f4;
           color:#111;
-          font-size:30px;
+          font-size:24px;
           font-weight:900;
           display:flex;
           align-items:center;
@@ -391,25 +383,25 @@ export default function App() {
         }
 
         .buyGrid{
-          margin:22px 20px 14px;
+          margin:14px 16px 10px;
           display:grid;
           grid-template-columns:1fr 1fr;
-          gap:16px;
+          gap:12px;
         }
 
         .buyBtn{
-          height:112px;
+          height:88px;
           border:none;
-          border-radius:22px;
+          border-radius:20px;
           color:white;
-          font-size:34px;
+          font-size:28px;
           font-weight:900;
         }
 
         .buyBtn span{
           display:block;
-          margin-top:8px;
-          font-size:15px;
+          margin-top:6px;
+          font-size:13px;
           font-weight:900;
         }
 
@@ -422,28 +414,28 @@ export default function App() {
         }
 
         .positions{
-          padding:12px 20px 30px;
+          padding:8px 16px 24px;
         }
 
         .positions h2{
-          font-size:23px;
-          margin:14px 0 10px;
+          font-size:20px;
+          margin:10px 0 8px;
         }
 
         .empty{
           color:#777;
-          font-size:15px;
+          font-size:14px;
         }
 
         .tradeCard{
           background:white;
           border-radius:14px;
-          padding:13px;
-          margin-bottom:10px;
+          padding:12px;
+          margin-bottom:8px;
           display:flex;
           flex-direction:column;
-          gap:4px;
-          font-size:15px;
+          gap:3px;
+          font-size:14px;
         }
 
         .open{
@@ -458,34 +450,56 @@ export default function App() {
           border-left:5px solid #ff4057;
         }
 
-        @media(max-width:390px){
-          .wallet{
-            min-width:115px;
-            font-size:24px;
+        @media(max-width:380px){
+          .app{
+            max-width:100%;
           }
 
-          .account{
-            width:115px;
+          .top{
+            padding:0 12px;
+          }
+
+          .wallet{
+            min-width:96px;
             font-size:20px;
           }
 
+          .account{
+            width:96px;
+            font-size:17px;
+          }
+
+          .tabs button{
+            font-size:12px;
+          }
+
           .market h1{
-            font-size:24px;
+            font-size:20px;
           }
 
           .digit{
-            width:60px;
-            height:60px;
+            width:48px;
+            height:48px;
+            font-size:20px;
+          }
+
+          .control{
+            padding:0 14px;
+          }
+
+          .stepper{
+            gap:8px;
+            font-size:18px;
           }
 
           .buyBtn{
-            font-size:30px;
+            font-size:25px;
           }
         }
 
         @media(min-width:800px){
           .app{
-            max-width:480px;
+            max-width:430px;
             box-shadow:0 0 40px rgba(0,0,0,.15);
           }
         }
