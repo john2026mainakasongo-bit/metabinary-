@@ -55,7 +55,7 @@ export default function App() {
   const [openTrades, setOpenTrades] = useState([]);
   const [closedTrades, setClosedTrades] = useState([]);
 
-  const [depositOpen, setDepositOpen] = useState(false);
+  const [depositOpen, setDepositOpen] = useState(false); const [menuOpen, setMenuOpen] = useState(false);
   const [phone, setPhone] = useState("");
   const [depositAmount, setDepositAmount] = useState(10);
 
