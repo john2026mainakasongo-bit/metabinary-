@@ -827,3 +827,26 @@ display:none;
 }
 
 }
+.tradeMessage{
+margin-top:14px;
+background:white;
+color:#111;
+padding:14px;
+border-radius:12px;
+font-weight:800;
+text-align:center;
+}
+
+@media(max-width:1023px){
+.tradeTypeButtons{
+display:flex!important;
+}
+
+.choice button{
+cursor:pointer;
+}
+
+.inputRow button{
+cursor:pointer;
+}
+}
