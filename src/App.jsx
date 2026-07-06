@@ -746,3 +746,66 @@ export default function App() {
     </>
   );
 }
+@media (max-width: 600px) {
+  .topbar {
+    padding: 14px 18px;
+  }
+
+  .topbar h1 {
+    font-size: 32px;
+  }
+
+  .topbar p {
+    font-size: 22px;
+  }
+
+  .marketCard {
+    padding: 18px;
+  }
+
+  .marketCard h2 {
+    font-size: 30px;
+  }
+
+  .marketCard strong {
+    font-size: 34px;
+  }
+
+  .digit {
+    width: 58px;
+    height: 58px;
+    min-width: 58px;
+    font-size: 26px;
+  }
+
+  .chartBox {
+    height: 210px;
+  }
+
+  .cursorDigit {
+    width: 82px;
+    height: 82px;
+    font-size: 40px;
+    right: 28px;
+  }
+
+  .tradePanel {
+    margin-top: 18px;
+    padding: 28px 32px;
+  }
+
+  .tradePanel h2 {
+    font-size: 36px;
+  }
+
+  .tradePanel label {
+    font-size: 22px;
+  }
+
+  .tradePanel select,
+  .tradePanel input,
+  .buyButton {
+    height: 60px;
+    font-size: 22px;
+  }
+}
