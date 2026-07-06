@@ -77,9 +77,7 @@ export default function App() {
     const returned = won ? Number((trade.stake * trade.payout).toFixed(2)) : 0;
     const profit = won ? Number((returned - trade.stake).toFixed(2)) : -trade.stake;
 
-    if (won) {
-      setBalance((b) => Number((b + returned).toFixed(2)));
-    }
+    if (won) setBalance((b) => Number((b + returned).toFixed(2)));
 
     setHistory((h) => [
       {
@@ -156,7 +154,7 @@ export default function App() {
         }
 
         .top{
-          height:76px;
+          height:82px;
           background:white;
           display:flex;
           align-items:center;
@@ -164,33 +162,20 @@ export default function App() {
           padding:0 18px;
         }
 
-        .menuBtn{
-          width:48px;
-          height:48px;
-          border:none;
-          background:white;
-          font-size:38px;
-          font-weight:900;
-          display:flex;
-          align-items:center;
-          justify-content:center;
-          cursor:pointer;
-        }
-
         .accountBox{
           height:52px;
-          min-width:146px;
+          min-width:150px;
           border:2px solid #111;
-          border-radius:17px;
+          border-radius:18px;
           display:flex;
           align-items:center;
-          gap:8px;
-          padding:0 12px;
+          gap:7px;
+          padding:0 10px;
           background:white;
         }
 
         .flag{
-          font-size:20px;
+          font-size:19px;
         }
 
         .account{
@@ -199,40 +184,57 @@ export default function App() {
           background:white;
           font-size:18px;
           font-weight:900;
-          flex:1;
           color:#111;
+          width:100%;
         }
 
         .wallet{
-          min-width:124px;
+          min-width:128px;
           height:52px;
           display:flex;
           align-items:center;
           justify-content:center;
           border:1px solid #ddd;
-          border-radius:17px;
+          border-radius:18px;
           background:white;
           color:#19b8aa;
           font-size:24px;
           font-weight:900;
         }
 
-        .tabs{
-          height:58px;
-          display:grid;
-          grid-template-columns:repeat(4,1fr);
+        .nav{
+          height:60px;
           background:#07111d;
+          display:grid;
+          grid-template-columns:62px repeat(4,1fr);
+          position:relative;
+          z-index:50;
         }
 
-        .tabs button{
+        .menuBtn{
           border:none;
           background:#07111d;
           color:white;
-          font-size:15px;
+          font-size:34px;
           font-weight:900;
+          cursor:pointer;
+          display:flex;
+          align-items:center;
+          justify-content:center;
+          position:relative;
+          z-index:80;
         }
 
-        .tabs .active{
+        .nav button{
+          border:none;
+          background:#07111d;
+          color:white;
+          font-size:14px;
+          font-weight:900;
+          cursor:pointer;
+        }
+
+        .nav .active{
           background:#19b8aa;
         }
 
@@ -240,27 +242,25 @@ export default function App() {
           position:fixed;
           inset:0;
           background:rgba(0,0,0,.45);
-          z-index:100;
-          display:${menuOpen ? "block" : "none"};
+          z-index:500;
         }
 
         .drawer{
           position:fixed;
-          left:${menuOpen ? "0" : "-280px"};
+          left:0;
           top:0;
-          width:270px;
+          width:280px;
           height:100vh;
           background:white;
-          z-index:101;
-          transition:.25s ease;
+          z-index:600;
           padding:22px;
-          box-shadow:10px 0 30px rgba(0,0,0,.2);
+          box-shadow:10px 0 30px rgba(0,0,0,.25);
         }
 
         .drawer h2{
           color:#19b8aa;
-          font-size:28px;
-          margin-bottom:20px;
+          font-size:30px;
+          margin-bottom:18px;
         }
 
         .drawer button{
@@ -525,7 +525,7 @@ export default function App() {
           }
 
           .accountBox{
-            min-width:122px;
+            min-width:124px;
           }
 
           .wallet{
@@ -533,7 +533,11 @@ export default function App() {
             font-size:21px;
           }
 
-          .tabs button{
+          .nav{
+            grid-template-columns:52px repeat(4,1fr);
+          }
+
+          .nav button{
             font-size:12px;
           }
 
@@ -558,24 +562,24 @@ export default function App() {
         }
       `}</style>
 
-      <div className="drawerOverlay" onClick={() => setMenuOpen(false)}></div>
+      {menuOpen && (
+        <>
+          <div className="drawerOverlay" onClick={() => setMenuOpen(false)}></div>
 
-      <div className="drawer">
-        <h2>MetaBinary</h2>
-        <button onClick={() => setMenuOpen(false)}>Trade</button>
-        <button onClick={() => setMenuOpen(false)}>Deposit</button>
-        <button onClick={() => setMenuOpen(false)}>Withdraw</button>
-        <button onClick={() => setMenuOpen(false)}>Transactions</button>
-        <button onClick={() => setMenuOpen(false)}>Settings</button>
-        <button onClick={() => setMenuOpen(false)}>Logout</button>
-      </div>
+          <div className="drawer">
+            <h2>MetaBinary</h2>
+            <button onClick={() => setMenuOpen(false)}>Trade</button>
+            <button onClick={() => setMenuOpen(false)}>Deposit</button>
+            <button onClick={() => setMenuOpen(false)}>Withdraw</button>
+            <button onClick={() => setMenuOpen(false)}>Transactions</button>
+            <button onClick={() => setMenuOpen(false)}>Settings</button>
+            <button onClick={() => setMenuOpen(false)}>Logout</button>
+          </div>
+        </>
+      )}
 
       <div className="app">
         <div className="top">
-          <button className="menuBtn" onClick={() => setMenuOpen(true)}>
-            ☰
-          </button>
-
           <div className="accountBox">
             <span className="flag">🇺🇸</span>
             <select className="account" value={account} onChange={(e) => setAccount(e.target.value)}>
@@ -587,7 +591,10 @@ export default function App() {
           <div className="wallet">${balance.toFixed(2)}</div>
         </div>
 
-        <div className="tabs">
+        <div className="nav">
+          <button className="menuBtn" type="button" onClick={() => setMenuOpen(true)}>
+            ☰
+          </button>
           <button className="active">Trade</button>
           <button>Charts</button>
           <button>Free Bot</button>
@@ -636,7 +643,6 @@ export default function App() {
         {["matchesdiffers", "overunder"].includes(mode) && (
           <div className="prediction">
             <h3>Prediction digit</h3>
-
             <div className="predictionGrid">
               {[0,1,2,3,4,5,6,7,8,9].map((n) => (
                 <button key={n} onClick={() => setPrediction(n)} className={prediction === n ? "active" : ""}>
@@ -676,7 +682,6 @@ export default function App() {
 
         <div className="positions">
           <h2>Open trades</h2>
-
           {openTrades.length === 0 && <p className="empty">No open trades</p>}
 
           {openTrades.map((t) => (
@@ -689,7 +694,6 @@ export default function App() {
           ))}
 
           <h2>Trade history</h2>
-
           {history.length === 0 && <p className="empty">No closed trades</p>}
 
           {history.map((t) => (
