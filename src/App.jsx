@@ -8,7 +8,6 @@ const contracts = [
   "Even/Odd",
   "Matches/Differs",
   "Over/Under",
-  "Touch/No Touch",
 ];
 
 const choicesByContract = {
@@ -16,7 +15,6 @@ const choicesByContract = {
   "Even/Odd": ["Even", "Odd"],
   "Matches/Differs": ["Matches", "Differs"],
   "Over/Under": ["Over", "Under"],
-  "Touch/No Touch": ["Touch", "No Touch"],
 };
 
 function createChartData() {
@@ -104,12 +102,6 @@ export default function App() {
       return selectedChoice === "Rise"
         ? finalDigit > startDigit
         : finalDigit < startDigit;
-    }
-
-    if (type === "Touch/No Touch") {
-      return selectedChoice === "Touch"
-        ? finalDigit === targetDigit
-        : finalDigit !== targetDigit;
     }
 
     return false;
@@ -502,8 +494,7 @@ export default function App() {
               </div>
 
               {(contractType === "Matches/Differs" ||
-                contractType === "Over/Under" ||
-                contractType === "Touch/No Touch") && (
+                contractType === "Over/Under") && (
                 <div className="tradeBox">
                   <h3>Select digit</h3>
 
