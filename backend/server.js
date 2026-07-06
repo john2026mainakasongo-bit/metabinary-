@@ -35,90 +35,23 @@ app.get("/", (req, res) => {
   res.send("MetaBinary Backend Running");
 });
 
-app.post("/api/register", (req, res) => {
-  const { name, email, password } = req.body;
-
-  if (!email || !password) {
-    return res.json({
-      success: false,
-      message: "Email and password required",
-    });
-  }
-
-  if (users[email]) {
-    return res.json({
-      success: false,
-      message: "Account already exists",
-    });
-  }
-
-  users[email] = {
-    name: name || "",
-    email,
-    password,
-    demoBalance: 10000,
-    realBalance: 0,
-  };
-
-  res.json({
-    success: true,
-    token: "token-" + Date.now(),
-    user: safeUser(users[email]),
-  });
-});
-
-app.post("/api/login", (req, res) => {
-  const { email, password } = req.body;
-  const user = users[email];
-
-  if (!user) {
-    return res.json({
-      success: false,
-      message: "Account not found",
-    });
-  }
-
-  if (user.password !== password) {
-    return res.json({
-      success: false,
-      message: "Wrong password",
-    });
-  }
-
-  res.json({
-    success: true,
-    token: "token-" + Date.now(),
-    user: safeUser(user),
-  });
-});
-
 app.get("/api/user/:email", (req, res) => {
   const user = ensureUser(req.params.email);
-
-  res.json({
-    success: true,
-    user: safeUser(user),
-  });
+  res.json({ success: true, user: safeUser(user) });
 });
 
 app.post("/api/deposit", (req, res) => {
   const { email, amount, phone } = req.body;
 
   if (!email || !amount) {
-    return res.json({
-      success: false,
-      message: "Email and amount required",
-    });
+    return res.json({ success: false, message: "Email and amount required" });
   }
 
   const user = ensureUser(email);
   const depositAmount = Number(amount);
 
   if (!depositAmount || depositAmount <= 0) {
-    return res.json({
-      success: false,
-      message: "Invalid amount",
-    });
+    return res.json({ success: false, message: "Invalid amount" });
   }
 
   user.realBalance += depositAmount;
