@@ -1125,3 +1125,160 @@ background:#12b8a6!important;
 .fallAction{
 background:#ff4658!important;
 }
+@media(max-width:1023px){
+
+.platform{
+height:100dvh!important;
+overflow:hidden!important;
+}
+
+.topbar{
+height:108px!important;
+}
+
+.topLine{
+height:54px!important;
+padding:0 10px!important;
+}
+
+.mainTabs{
+height:54px!important;
+}
+
+.mainTabs button{
+font-size:12px!important;
+}
+
+.layout{
+height:calc(100dvh - 108px)!important;
+grid-template-columns:1fr!important;
+grid-template-rows:34% 66%!important;
+overflow:hidden!important;
+}
+
+.chartWrap{
+height:100%!important;
+padding:8px!important;
+overflow:hidden!important;
+}
+
+.chartHeader{
+height:58px!important;
+margin-bottom:8px!important;
+padding:8px 12px!important;
+}
+
+.chartHeader h1{
+font-size:16px!important;
+}
+
+.chartHeader p{
+font-size:12px!important;
+margin-top:2px!important;
+}
+
+.digits{
+gap:6px!important;
+padding:0 6px!important;
+}
+
+.digit{
+width:42px!important;
+height:42px!important;
+border-width:3px!important;
+}
+
+.digit b{
+font-size:19px!important;
+}
+
+.digit span{
+font-size:9px!important;
+}
+
+.tradePanel{
+height:100%!important;
+overflow:hidden!important;
+padding:8px 10px!important;
+}
+
+.learn{
+font-size:12px!important;
+margin-bottom:6px!important;
+}
+
+.tradeBox{
+padding:10px!important;
+margin-bottom:8px!important;
+border-radius:12px!important;
+}
+
+.tradeBox h2{
+font-size:20px!important;
+margin-bottom:8px!important;
+}
+
+.tradeSelector{
+grid-template-columns:1fr 1fr!important;
+gap:6px!important;
+}
+
+.tradeSelector button{
+height:34px!important;
+font-size:11px!important;
+border-radius:8px!important;
+}
+
+.tradeRowNew{
+padding:10px!important;
+margin-bottom:8px!important;
+border-radius:12px!important;
+}
+
+.tradeRowNew span{
+font-size:15px!important;
+}
+
+.stepper{
+gap:6px!important;
+}
+
+.stepper button{
+width:26px!important;
+height:26px!important;
+font-size:18px!important;
+}
+
+.stepper b{
+font-size:14px!important;
+}
+
+.tradeActions{
+gap:8px!important;
+}
+
+.tradeActions button{
+height:78px!important;
+border-radius:12px!important;
+gap:6px!important;
+}
+
+.tradeActions strong{
+font-size:24px!important;
+}
+
+.tradeActions small{
+font-size:11px!important;
+}
+
+.selectDigits{
+gap:5px!important;
+}
+
+.selectDigits button{
+height:30px!important;
+font-size:15px!important;
+border-radius:8px!important;
+}
+
+}
