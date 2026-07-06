@@ -12,6 +12,7 @@ const PAYOUTS = {
 };
 
 export default function App() {
+  const [menuOpen, setMenuOpen] = useState(false);
   const [account, setAccount] = useState("Real");
   const [balance, setBalance] = useState(40);
   const [price, setPrice] = useState(819.75);
@@ -76,9 +77,19 @@ export default function App() {
     const returned = won ? Number((trade.stake * trade.payout).toFixed(2)) : 0;
     const profit = won ? Number((returned - trade.stake).toFixed(2)) : -trade.stake;
 
-    if (won) setBalance((b) => Number((b + returned).toFixed(2)));
+    if (won) {
+      setBalance((b) => Number((b + returned).toFixed(2)));
+    }
 
-    setHistory((h) => [{ ...trade, result: won ? "WON" : "LOST", returned, profit }, ...h]);
+    setHistory((h) => [
+      {
+        ...trade,
+        result: won ? "WON" : "LOST",
+        returned,
+        profit,
+      },
+      ...h,
+    ]);
   }
 
   function buy(type) {
@@ -126,17 +137,10 @@ export default function App() {
         }
 
         html,body,#root{
-          width:100% !important;
-          min-width:100% !important;
-          max-width:none !important;
-          min-height:100% !important;
+          width:100%;
+          min-height:100%;
           background:#f2f2f2;
           overflow-x:hidden;
-        }
-
-        body{
-          margin:0 !important;
-          padding:0 !important;
         }
 
         button,select{
@@ -144,50 +148,69 @@ export default function App() {
         }
 
         .app{
-          width:100% !important;
-          max-width:none !important;
+          width:100%;
           min-height:100vh;
-          margin:0 !important;
           background:#f2f2f2;
           color:#111;
           overflow-x:hidden;
         }
 
         .top{
-          height:78px;
+          height:76px;
           background:white;
           display:flex;
           align-items:center;
           justify-content:space-between;
-          padding:0 16px;
+          padding:0 18px;
         }
 
-        .menu{
-          font-size:36px;
+        .menuBtn{
+          width:48px;
+          height:48px;
+          border:none;
+          background:white;
+          font-size:38px;
           font-weight:900;
-          line-height:1;
+          display:flex;
+          align-items:center;
+          justify-content:center;
+          cursor:pointer;
+        }
+
+        .accountBox{
+          height:52px;
+          min-width:146px;
+          border:2px solid #111;
+          border-radius:17px;
+          display:flex;
+          align-items:center;
+          gap:8px;
+          padding:0 12px;
+          background:white;
+        }
+
+        .flag{
+          font-size:20px;
         }
 
         .account{
-          height:48px;
-          width:110px;
-          border:2px solid #111;
-          border-radius:15px;
-          padding:0 12px;
+          border:none;
+          outline:none;
+          background:white;
           font-size:18px;
           font-weight:900;
-          background:white;
+          flex:1;
           color:#111;
         }
 
         .wallet{
-          min-width:110px;
-          height:48px;
+          min-width:124px;
+          height:52px;
           display:flex;
           align-items:center;
           justify-content:center;
           border:1px solid #ddd;
-          border-radius:15px;
+          border-radius:17px;
           background:white;
           color:#19b8aa;
           font-size:24px;
@@ -195,7 +218,7 @@ export default function App() {
         }
 
         .tabs{
-          height:56px;
+          height:58px;
           display:grid;
           grid-template-columns:repeat(4,1fr);
           background:#07111d;
@@ -205,7 +228,7 @@ export default function App() {
           border:none;
           background:#07111d;
           color:white;
-          font-size:14px;
+          font-size:15px;
           font-weight:900;
         }
 
@@ -213,12 +236,51 @@ export default function App() {
           background:#19b8aa;
         }
 
+        .drawerOverlay{
+          position:fixed;
+          inset:0;
+          background:rgba(0,0,0,.45);
+          z-index:100;
+          display:${menuOpen ? "block" : "none"};
+        }
+
+        .drawer{
+          position:fixed;
+          left:${menuOpen ? "0" : "-280px"};
+          top:0;
+          width:270px;
+          height:100vh;
+          background:white;
+          z-index:101;
+          transition:.25s ease;
+          padding:22px;
+          box-shadow:10px 0 30px rgba(0,0,0,.2);
+        }
+
+        .drawer h2{
+          color:#19b8aa;
+          font-size:28px;
+          margin-bottom:20px;
+        }
+
+        .drawer button{
+          width:100%;
+          padding:14px;
+          margin-bottom:10px;
+          border:none;
+          border-radius:12px;
+          background:#f2f2f2;
+          text-align:left;
+          font-weight:900;
+          color:#111;
+        }
+
         .market{
-          margin:12px 16px;
+          margin:14px 18px;
           background:white;
           border:1px solid #ddd;
-          border-radius:20px;
-          padding:16px;
+          border-radius:22px;
+          padding:18px;
           display:flex;
           align-items:center;
           justify-content:space-between;
@@ -226,7 +288,7 @@ export default function App() {
         }
 
         .market h1{
-          font-size:22px;
+          font-size:24px;
           line-height:1.1;
           font-weight:900;
         }
@@ -234,35 +296,35 @@ export default function App() {
         .market p{
           margin-top:6px;
           color:#19b8aa;
-          font-size:16px;
+          font-size:17px;
           font-weight:900;
         }
 
         .last{
-          width:56px;
-          height:56px;
-          min-width:56px;
+          width:62px;
+          height:62px;
+          min-width:62px;
           border-radius:50%;
           background:#19b8aa;
           color:white;
           display:flex;
           align-items:center;
           justify-content:center;
-          font-size:28px;
+          font-size:31px;
           font-weight:900;
         }
 
         .digits{
-          margin:0 22px 12px;
+          margin:0 22px 16px;
           display:grid;
           grid-template-columns:repeat(5,1fr);
-          gap:12px 16px;
+          gap:13px 16px;
           justify-items:center;
         }
 
         .digit{
-          width:54px;
-          height:54px;
+          width:56px;
+          height:56px;
           border-radius:50%;
           border:6px solid #e9edf3;
           background:white;
@@ -271,13 +333,12 @@ export default function App() {
           align-items:center;
           justify-content:center;
           font-weight:900;
-          font-size:22px;
+          font-size:23px;
         }
 
         .digit span{
           font-size:11px;
           color:#8c95a1;
-          margin-top:1px;
         }
 
         .digit.active{
@@ -286,15 +347,15 @@ export default function App() {
 
         .panel{
           background:white;
-          margin:0 16px 12px;
-          padding:16px 14px;
-          border-radius:20px;
+          margin:0 18px 14px;
+          padding:18px 15px;
+          border-radius:22px;
         }
 
         .panelTitle{
           color:#9aa3ae;
-          font-size:16px;
-          margin-bottom:12px;
+          font-size:17px;
+          margin-bottom:14px;
         }
 
         .contractGrid{
@@ -304,8 +365,8 @@ export default function App() {
         }
 
         .contractGrid button{
-          height:52px;
-          border-radius:14px;
+          height:54px;
+          border-radius:15px;
           border:1px solid #ddd;
           background:#f8f8f8;
           color:#111;
@@ -321,9 +382,9 @@ export default function App() {
 
         .prediction{
           background:white;
-          margin:0 16px 12px;
-          padding:14px;
-          border-radius:20px;
+          margin:0 18px 14px;
+          padding:15px;
+          border-radius:22px;
         }
 
         .prediction h3{
@@ -338,7 +399,7 @@ export default function App() {
         }
 
         .predictionGrid button{
-          height:40px;
+          height:42px;
           border-radius:50%;
           border:1px solid #ddd;
           background:#f2f4f7;
@@ -353,37 +414,37 @@ export default function App() {
         }
 
         .control{
-          height:62px;
-          margin:0 16px 10px;
-          padding:0 18px;
+          height:66px;
+          margin:0 18px 12px;
+          padding:0 20px;
           background:white;
-          border-radius:18px;
+          border-radius:19px;
           display:flex;
           align-items:center;
           justify-content:space-between;
         }
 
         .control h2{
-          font-size:19px;
+          font-size:20px;
           font-weight:900;
         }
 
         .stepper{
           display:flex;
           align-items:center;
-          gap:12px;
-          font-size:20px;
+          gap:13px;
+          font-size:21px;
           font-weight:900;
         }
 
         .stepper button{
-          width:36px;
-          height:36px;
+          width:38px;
+          height:38px;
           border:none;
           border-radius:50%;
           background:#edf0f4;
           color:#111;
-          font-size:24px;
+          font-size:25px;
           font-weight:900;
           display:flex;
           align-items:center;
@@ -391,18 +452,18 @@ export default function App() {
         }
 
         .buyGrid{
-          margin:14px 16px 10px;
+          margin:16px 18px 14px;
           display:grid;
           grid-template-columns:1fr 1fr;
-          gap:12px;
+          gap:13px;
         }
 
         .buyBtn{
-          height:88px;
+          height:94px;
           border:none;
-          border-radius:20px;
+          border-radius:21px;
           color:white;
-          font-size:28px;
+          font-size:30px;
           font-weight:900;
         }
 
@@ -422,12 +483,12 @@ export default function App() {
         }
 
         .positions{
-          padding:8px 16px 24px;
+          padding:10px 18px 28px;
         }
 
         .positions h2{
-          font-size:20px;
-          margin:10px 0 8px;
+          font-size:21px;
+          margin:12px 0 8px;
         }
 
         .empty{
@@ -463,14 +524,13 @@ export default function App() {
             padding:0 12px;
           }
 
-          .wallet{
-            min-width:96px;
-            font-size:20px;
+          .accountBox{
+            min-width:122px;
           }
 
-          .account{
-            width:96px;
-            font-size:17px;
+          .wallet{
+            min-width:102px;
+            font-size:21px;
           }
 
           .tabs button{
@@ -478,17 +538,13 @@ export default function App() {
           }
 
           .market h1{
-            font-size:20px;
+            font-size:21px;
           }
 
           .digit{
-            width:48px;
-            height:48px;
+            width:49px;
+            height:49px;
             font-size:20px;
-          }
-
-          .control{
-            padding:0 14px;
           }
 
           .stepper{
@@ -502,14 +558,31 @@ export default function App() {
         }
       `}</style>
 
+      <div className="drawerOverlay" onClick={() => setMenuOpen(false)}></div>
+
+      <div className="drawer">
+        <h2>MetaBinary</h2>
+        <button onClick={() => setMenuOpen(false)}>Trade</button>
+        <button onClick={() => setMenuOpen(false)}>Deposit</button>
+        <button onClick={() => setMenuOpen(false)}>Withdraw</button>
+        <button onClick={() => setMenuOpen(false)}>Transactions</button>
+        <button onClick={() => setMenuOpen(false)}>Settings</button>
+        <button onClick={() => setMenuOpen(false)}>Logout</button>
+      </div>
+
       <div className="app">
         <div className="top">
-          <div className="menu">☰</div>
+          <button className="menuBtn" onClick={() => setMenuOpen(true)}>
+            ☰
+          </button>
 
-          <select className="account" value={account} onChange={(e) => setAccount(e.target.value)}>
-            <option>Real</option>
-            <option>Demo</option>
-          </select>
+          <div className="accountBox">
+            <span className="flag">🇺🇸</span>
+            <select className="account" value={account} onChange={(e) => setAccount(e.target.value)}>
+              <option>Real</option>
+              <option>Demo</option>
+            </select>
+          </div>
 
           <div className="wallet">${balance.toFixed(2)}</div>
         </div>
@@ -526,7 +599,6 @@ export default function App() {
             <h1>Volatility 100 (1s) Index</h1>
             <p>{price.toFixed(2)} - 0.02 (0.00%)</p>
           </div>
-
           <div className="last">{lastDigit}</div>
         </div>
 
@@ -577,7 +649,6 @@ export default function App() {
 
         <div className="control">
           <h2>Duration</h2>
-
           <div className="stepper">
             <button onClick={() => setDuration(Math.max(1, duration - 1))}>−</button>
             <b>{duration} ticks</b>
@@ -587,7 +658,6 @@ export default function App() {
 
         <div className="control">
           <h2>Stake</h2>
-
           <div className="stepper">
             <button onClick={() => setStake(Math.max(1, stake - 1))}>−</button>
             <b>{stake} USD</b>
