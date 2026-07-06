@@ -68,7 +68,7 @@ font-weight:900;
 .mainTabs{
 height:56px;
 display:grid;
-grid-template-columns:repeat(3,1fr);
+grid-template-columns:repeat(4,1fr);
 background:#061426;
 }
 
@@ -76,7 +76,7 @@ background:#061426;
 border:none;
 background:#061426;
 color:white;
-font-size:13px;
+font-size:12px;
 font-weight:900;
 }
 
@@ -496,9 +496,7 @@ color:white;
 font-size:15px;
 }
 
-.lastDigitBadge{
-display:none;
-}
+.lastDigitBadge{display:none}
 
 .chart{
 display:block;
