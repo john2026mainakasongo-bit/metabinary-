@@ -1,567 +1,306 @@
-/* MOBILE */
+/* =========================
+   PHONE VIEW FIX
+========================= */
 
-@media(max-width:900px){
+@media (max-width: 900px){
 
 html,body,#root{
-height:auto!important;
-min-height:100%!important;
-overflow:auto!important;
-font-family:Arial,Helvetica,sans-serif!important;
+  width:100%;
+  min-height:100%;
+  overflow-x:hidden;
+  background:#07111d;
 }
 
 .platform{
-height:auto!important;
-min-height:100vh!important;
-overflow:auto!important;
-background:#f6f7f8!important;
+  min-height:100vh;
+  background:#07111d;
+  color:white;
+  overflow-x:hidden;
 }
 
 .topbar{
-height:auto!important;
-background:#07111d!important;
-display:flex!important;
-flex-direction:column!important;
-align-items:flex-start!important;
-padding:14px!important;
-gap:10px!important;
+  height:auto;
+  padding:16px;
+  display:flex;
+  flex-direction:column;
+  gap:14px;
+  background:#07111d;
 }
 
 .brand{
-font-size:34px!important;
-line-height:1!important;
-color:white!important;
-font-family:Arial,Helvetica,sans-serif!important;
-font-weight:900!important;
+  font-size:34px;
+  font-weight:900;
+  color:white;
 }
 
 .nav{
-width:100%!important;
-display:flex!important;
-overflow-x:auto!important;
-gap:8px!important;
-padding-bottom:4px!important;
+  width:100%;
+  display:flex;
+  gap:10px;
+  overflow-x:auto;
 }
 
-.nav::-webkit-scrollbar{display:none!important}
+.nav::-webkit-scrollbar{display:none;}
 
 .nav button{
-height:46px!important;
-padding:0 14px!important;
-font-size:14px!important;
-border-radius:8px!important;
-background:#101b2d!important;
-color:white!important;
-border:1px solid #26364d!important;
-font-family:Arial,Helvetica,sans-serif!important;
-flex:0 0 auto!important;
+  flex:0 0 auto;
+  height:48px;
+  padding:0 16px;
+  border-radius:10px;
+  border:1px solid #1f3148;
+  background:#101b2d;
+  color:white;
+  font-weight:700;
 }
 
 .accountBox{
-width:100%!important;
-display:grid!important;
-grid-template-columns:1fr 1fr 1fr!important;
-gap:8px!important;
+  width:100%;
+  display:grid;
+  grid-template-columns:1fr 1fr 1fr;
+  gap:10px;
+  align-items:center;
 }
 
-.accountBox select{
-height:46px!important;
-font-size:14px!important;
-background:#101b2d!important;
-color:white!important;
-border:1px solid #26364d!important;
-border-radius:8px!important;
+.accountBox select,
+.depositBtn{
+  height:48px;
+  border-radius:10px;
+  border:1px solid #1f3148;
 }
 
 .balance{
-font-size:20px!important;
-color:white!important;
-text-align:center!important;
-font-weight:900!important;
-}
-
-.depositBtn{
-height:46px!important;
-font-size:14px!important;
-border-radius:8px!important;
-background:#ff4d73!important;
-color:white!important;
+  text-align:center;
+  font-size:22px;
+  font-weight:900;
 }
 
 .layout{
-display:flex!important;
-flex-direction:column!important;
-overflow:visible!important;
+  display:flex;
+  flex-direction:column;
 }
 
 .leftPanel{
-display:none!important;
+  display:none;
 }
 
-/* CHART */
+/* MARKET CARD + DIGITS */
 
 .chartWrap{
-width:100%!important;
-height:420px!important;
-background:white!important;
-overflow:hidden!important;
+  width:100%;
+  height:auto;
+  background:#07111d;
+  padding:14px;
 }
 
 .chartCard{
-height:420px!important;
-min-height:420px!important;
-overflow:hidden!important;
-position:relative!important;
-}
-
-.chart{
-height:420px!important;
-background-size:110px 100%,100% 90px!important;
-overflow:hidden!important;
+  position:relative;
+  height:auto;
+  min-height:0;
+  padding-bottom:24px;
+  background:#07111d;
+  overflow:visible;
 }
 
 .chartHeader{
-top:14px!important;
-left:14px!important;
-right:14px!important;
-width:auto!important;
-min-width:0!important;
-padding:16px!important;
-border-radius:10px!important;
-background:white!important;
-box-shadow:0 4px 18px rgba(0,0,0,.08)!important;
+  position:relative;
+  top:auto;
+  left:auto;
+  right:auto;
+  width:100%;
+  padding:18px;
+  border-radius:12px;
+  background:#101b2d;
+  border:1px solid #20314d;
+  box-shadow:none;
+  margin-bottom:26px;
 }
 
 .chartHeader h1{
-font-size:20px!important;
-font-family:Arial,Helvetica,sans-serif!important;
-font-weight:900!important;
+  font-size:21px;
+  font-weight:900;
+  color:white;
 }
 
 .chartHeader p{
-font-size:14px!important;
-font-family:Arial,Helvetica,sans-serif!important;
-color:#707780!important;
-}
-
-.chart svg{
-height:100%!important;
-width:100%!important;
-margin-top:0!important;
-}
-
-.chart svg polyline{
-stroke-width:3.4!important;
-}
-
-.chart svg polygon{
-transform:none!important;
-opacity:.7!important;
-}
-
-.priceTag{
-right:12px!important;
-top:54%!important;
-font-size:14px!important;
-padding:7px 10px!important;
-border-radius:6px!important;
-}
-
-.priceTag:before{
-width:80px!important;
-}
-
-.priceTag:after{
-right:calc(100% + 76px)!important;
-width:8px!important;
-height:8px!important;
-}
-
-.chartCard::before,
-.chartCard::after{
-display:none!important;
-}
-
-/* DIGITS LIKE DERIV */
-
-.digits{
-position:absolute!important;
-left:0!important;
-right:0!important;
-bottom:10px!important;
-transform:none!important;
-display:flex!important;
-gap:10px!important;
-overflow-x:auto!important;
-justify-content:flex-start!important;
-padding:0 12px 6px!important;
-scrollbar-width:none!important;
-}
-
-.digits::-webkit-scrollbar{
-display:none!important;
-}
-
-.digit{
-width:64px!important;
-height:64px!important;
-min-width:64px!important;
-border-radius:50%!important;
-border:5px solid #e8e8e8!important;
-background:white!important;
-box-shadow:0 3px 10px rgba(0,0,0,.08)!important;
-}
-
-.digit b{
-font-size:20px!important;
-font-family:Arial,Helvetica,sans-serif!important;
-font-weight:900!important;
-}
-
-.digit span{
-font-size:11px!important;
-font-family:Arial,Helvetica,sans-serif!important;
-color:#7d858d!important;
-}
-
-.selected{
-border-color:#29c6c2!important;
-box-shadow:0 0 0 4px rgba(41,198,194,.15)!important;
-}
-
-/* TRADE PANEL LIKE IMAGE */
-
-.tradePanel{
-order:2!important;
-width:100%!important;
-border-left:none!important;
-border-top:1px solid #dfe3e8!important;
-background:#f1f2f4!important;
-padding:12px!important;
-overflow:visible!important;
-}
-
-.learn{
-font-size:13px!important;
-margin-bottom:10px!important;
-font-family:Arial,Helvetica,sans-serif!important;
-color:#333!important;
-}
-
-.tradeTitle{
-height:58px!important;
-min-height:58px!important;
-font-size:18px!important;
-padding:14px!important;
-border-radius:8px!important;
-background:white!important;
-font-family:Arial,Helvetica,sans-serif!important;
-font-weight:900!important;
-}
-
-.tradeTitle::before{
-font-size:18px!important;
-margin-right:10px!important;
-}
-
-.contractTabs{
-display:grid!important;
-grid-template-columns:repeat(5,1fr)!important;
-gap:8px!important;
-background:white!important;
-padding:10px!important;
-border-radius:8px!important;
-}
-
-.contractTabs button{
-height:48px!important;
-padding:0!important;
-font-size:18px!important;
-border-radius:7px!important;
-font-family:Arial,Helvetica,sans-serif!important;
-font-weight:500!important;
-background:#f4f5f6!important;
-color:#333!important;
-}
-
-.contractTabs button:last-child{
-grid-column:auto!important;
-}
-
-.contractTabs .active{
-background:#d7dcdd!important;
-color:#111!important;
-border-color:#d7dcdd!important;
-font-weight:900!important;
-}
-
-.tradeMode{
-height:58px!important;
-font-size:16px!important;
-border-radius:8px!important;
-background:white!important;
-align-items:center!important;
-font-family:Arial,Helvetica,sans-serif!important;
-}
-
-.choice{
-display:grid!important;
-grid-template-columns:1fr 1fr!important;
-gap:10px!important;
-}
-
-.choice button{
-height:78px!important;
-font-size:22px!important;
-border-radius:8px!important;
-text-align:center!important;
-padding:0!important;
-font-family:Arial,Helvetica,sans-serif!important;
-font-weight:900!important;
-}
-
-.green{
-background:#4fb8b5!important;
-color:white!important;
-}
-
-.white{
-background:#f63339!important;
-color:white!important;
-}
-
-.tradePanel label{
-font-size:14px!important;
-font-family:Arial,Helvetica,sans-serif!important;
-}
-
-.tradePanel input{
-height:54px!important;
-font-size:17px!important;
-border-radius:8px!important;
-font-family:Arial,Helvetica,sans-serif!important;
-}
-
-.buyEven{
-height:80px!important;
-font-size:28px!important;
-border-radius:8px!important;
-font-family:Arial,Helvetica,sans-serif!important;
-background:#1ec280!important;
-}
-
-.buyEven span{
-font-size:14px!important;
-}
-
-}
-@media screen and (max-width:900px){
-
-.topbar{
-
-display:flex!important;
-
-flex-direction:column!important;
-
-align-items:flex-start!important;
-
-padding:16px!important;
-
-gap:14px!important;
-
-height:auto!important;
-
-}
-
-.brand{
-
-font-size:60px!important;
-
-font-weight:900!important;
-
-font-family:Arial!important;
-
-color:white!important;
-
-}
-
-.nav{
-
-display:flex!important;
-
-overflow-x:auto!important;
-
-width:100%!important;
-
-gap:10px!important;
-
-padding-bottom:5px!important;
-
-}
-
-.nav button{
-
-min-width:150px!important;
-
-height:56px!important;
-
-font-size:16px!important;
-
-border-radius:10px!important;
-
-background:#0f1a2d!important;
-
-color:white!important;
-
-border:1px solid #20314d!important;
-
-}
-
-.accountBox{
-
-display:grid!important;
-
-grid-template-columns:
-
-1fr 1fr 1fr!important;
-
-width:100%!important;
-
-gap:12px!important;
-
-align-items:center!important;
-
-}
-
-.accountBox select{
-
-height:56px!important;
-
-font-size:18px!important;
-
-background:#0f1a2d!important;
-
-color:white!important;
-
-border-radius:10px!important;
-
-}
-
-.balance{
-
-font-size:32px!important;
-
-text-align:center!important;
-
-color:white!important;
-
-font-weight:900!important;
-
-}
-
-.depositBtn{
-
-height:56px!important;
-
-font-size:18px!important;
-
-border-radius:10px!important;
-
-background:#ff4d73!important;
-
-}
-
-.chartCard{
-
-height:520px!important;
-
-min-height:520px!important;
-
+  font-size:15px;
+  color:#b9c0ca;
 }
 
 .chart{
-
-height:520px!important;
-
+  display:none;
 }
 
+/* IMPORTANT: 10 numbers fixed 2 rows of 5 */
+
 .digits{
+  position:relative !important;
+  left:auto !important;
+  right:auto !important;
+  bottom:auto !important;
+  transform:none !important;
 
-bottom:18px!important;
+  display:grid !important;
+  grid-template-columns:repeat(5, 1fr) !important;
+  gap:28px 16px !important;
 
-overflow-x:auto!important;
-
-padding-left:12px!important;
-
-gap:10px!important;
-
+  width:100% !important;
+  padding:10px 8px 30px !important;
+  overflow:visible !important;
 }
 
 .digit{
+  width:72px !important;
+  height:72px !important;
+  min-width:72px !important;
+  margin:auto !important;
+  border-radius:50% !important;
 
-width:70px!important;
+  background:#07111d !important;
+  border:6px solid #2b384a !important;
+  color:white !important;
 
-height:70px!important;
+  display:flex !important;
+  flex-direction:column !important;
+  align-items:center !important;
+  justify-content:center !important;
 
-min-width:70px!important;
-
+  position:relative !important;
 }
 
+.digit b{
+  font-size:25px !important;
+  line-height:1 !important;
+  font-weight:900 !important;
+}
+
+.digit span{
+  font-size:15px !important;
+  margin-top:4px !important;
+  color:#d8dde5 !important;
+}
+
+.digit.selected{
+  border-color:#10cdb1 !important;
+  background:#0b2a35 !important;
+  box-shadow:0 0 0 6px rgba(16,205,177,.12) !important;
+}
+
+/* red cursor style for selected digit */
+.digit.selected::after{
+  content:"";
+  position:absolute;
+  bottom:-20px;
+  left:50%;
+  transform:translateX(-50%);
+  width:0;
+  height:0;
+  border-left:8px solid transparent;
+  border-right:8px solid transparent;
+  border-bottom:12px solid #ff4048;
+}
+
+/* TRADE PANEL */
+
 .tradePanel{
+  width:100%;
+  padding:14px;
+  background:#07111d;
+  border-left:none;
+  color:white;
+}
 
-width:100%!important;
+.learn{
+  color:#d7dde7;
+  font-size:14px;
+}
 
-padding:14px!important;
-
-background:#f5f5f7!important;
-
+.tradeTitle{
+  height:62px;
+  padding:16px;
+  border-radius:12px;
+  background:#101b2d;
+  border:1px solid #20314d;
+  color:white;
+  font-size:22px;
 }
 
 .contractTabs{
-
-display:grid!important;
-
-grid-template-columns:
-
-repeat(5,1fr)!important;
-
-gap:8px!important;
-
+  display:grid;
+  grid-template-columns:repeat(5,1fr);
+  gap:10px;
+  padding:12px;
+  border-radius:12px;
+  background:#101b2d;
+  border:1px solid #20314d;
 }
 
 .contractTabs button{
+  height:58px;
+  border-radius:10px;
+  background:#172338;
+  color:white;
+  border:1px solid #26364d;
+  font-size:22px;
+}
 
-height:46px!important;
+.contractTabs .active{
+  background:#007c67;
+  border-color:#10cdb1;
+}
 
-font-size:14px!important;
-
+.tradeMode{
+  display:none;
 }
 
 .choice{
-
-display:grid!important;
-
-grid-template-columns:
-
-1fr 1fr!important;
-
-gap:10px!important;
-
+  display:grid;
+  grid-template-columns:1fr 1fr;
+  gap:12px;
 }
 
 .choice button{
+  height:82px;
+  border-radius:10px;
+  font-size:24px;
+  font-weight:900;
+}
 
-height:72px!important;
+.green{
+  background:#079b78 !important;
+  color:white !important;
+}
 
-font-size:22px!important;
+.white{
+  background:#ef343d !important;
+  color:white !important;
+}
 
+.tradePanel label{
+  margin-top:14px;
+  font-size:15px;
+  color:#cdd4df;
+}
+
+.tradePanel input{
+  height:56px;
+  border-radius:10px;
+  background:#101b2d;
+  color:white;
+  border:1px solid #20314d;
+  font-size:20px;
 }
 
 .buyEven{
-
-height:82px!important;
-
-font-size:28px!important;
-
+  height:82px;
+  margin-top:16px;
+  border-radius:12px;
+  background:#10c07f;
+  color:white;
+  font-size:28px;
+  font-weight:900;
 }
 
+.buyEven span{
+  font-size:14px;
+}
 }
