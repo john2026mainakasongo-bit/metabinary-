@@ -46,14 +46,14 @@ export default function App() {
   const [balance, setBalance] = useState({ demo: 10000, real: 0 });
 
   const [stake, setStake] = useState(10);
-  const [duration, setDuration] = useState(1);
+  const [duration, setDuration] = useState(5);
 
-  const [lastDigit, setLastDigit] = useState(8);
   const [previousDigit, setPreviousDigit] = useState(8);
+  const [lastDigit, setLastDigit] = useState(8);
   const [selectedDigit, setSelectedDigit] = useState(8);
 
-  const [contractType, setContractType] = useState("Even/Odd");
-  const [choice, setChoice] = useState("Even");
+  const [contractType, setContractType] = useState("Rise/Fall");
+  const [choice, setChoice] = useState("Rise");
 
   const [openTrades, setOpenTrades] = useState([]);
   const [closedTrades, setClosedTrades] = useState([]);
@@ -137,7 +137,6 @@ export default function App() {
     const timer = setInterval(() => {
       const d = Math.floor(Math.random() * 10);
 
-      setPreviousDigit((old) => old);
       setLastDigit((old) => {
         setPreviousDigit(old);
         return d;
@@ -210,7 +209,7 @@ export default function App() {
 
       setScreen("app");
     } catch {
-      alert("Backend is not connected. Start backend or set VITE_API_URL on Vercel.");
+      alert("Backend is not connected. Start backend or set VITE_API_URL.");
     }
   }
 
@@ -320,7 +319,7 @@ export default function App() {
         return;
       }
 
-      alert("Deposit added. Real balance updated.");
+      alert("STK Push sent. Wait for M-Pesa confirmation.");
       refreshBalance();
     } catch {
       alert("Deposit failed. Backend is not connected.");
@@ -467,21 +466,17 @@ export default function App() {
               <svg viewBox="0 0 1300 450" preserveAspectRatio="none">
                 <defs>
                   <linearGradient id="areaFill" x1="0" y1="0" x2="0" y2="1">
-                    <stop offset="0%" stopColor="#333333" stopOpacity="0.16" />
-                    <stop offset="100%" stopColor="#333333" stopOpacity="0" />
+                    <stop offset="0%" stopColor="#12d6b3" stopOpacity="0.2" />
+                    <stop offset="100%" stopColor="#12d6b3" stopOpacity="0" />
                   </linearGradient>
                 </defs>
 
-                <polygon
-                  points={`40,430 ${points} 1260,430`}
-                  fill="url(#areaFill)"
-                />
+                <polygon points={`40,430 ${points} 1260,430`} />
 
                 <polyline
                   points={points}
                   fill="none"
-                  stroke="#3a3a3a"
-                  strokeWidth="2.8"
+                  strokeWidth="3"
                   strokeLinecap="round"
                   strokeLinejoin="round"
                 />
@@ -529,31 +524,41 @@ export default function App() {
             <b>Manual</b>
           </div>
 
-          <div className="choice">
-            {choicesByContract[contractType].map((item) => (
-              <button
-                key={item}
-                type="button"
-                onClick={() => setChoice(item)}
-                className={choice === item ? "green activeChoice" : "white"}
-              >
-                {item}
-              </button>
-            ))}
+          <div className="tradeRow">
+            <span>Duration</span>
+            <b>{duration} ticks</b>
           </div>
 
-          <label>Duration ticks</label>
           <input
             value={duration}
             onChange={(e) => setDuration(e.target.value)}
           />
 
-          <label>Stake</label>
+          <div className="tradeRow">
+            <span>Stake</span>
+            <b>{stake} USD</b>
+          </div>
+
           <input value={stake} onChange={(e) => setStake(e.target.value)} />
+
+          <div className="choice">
+            {choicesByContract[contractType].map((item, index) => (
+              <button
+                key={item}
+                type="button"
+                onClick={() => setChoice(item)}
+                className={index === 0 ? "green" : "white"}
+              >
+                {item}
+                <small>Payout</small>
+                <strong>{(Number(stake) * (index === 0 ? 2.22 : 1.82)).toFixed(2)} USD</strong>
+              </button>
+            ))}
+          </div>
 
           <button type="button" className="buyEven" onClick={trade}>
             Buy {choice}
-            <span>Payout {(Number(stake) * 1.9).toFixed(2)} USD</span>
+            <span>{(Number(stake) * 1.9).toFixed(2)} USD payout</span>
           </button>
         </aside>
       </div>
