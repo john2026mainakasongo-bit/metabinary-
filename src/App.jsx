@@ -33,7 +33,7 @@ export default function App() {
   const [mode, setMode] = useState(localStorage.getItem("mode") || "Demo");
   const [balance, setBalance] = useState({ demo: 10000, real: 0 });
 
-  const [mainTab, setMainTab] = useState("Manual Trader");
+  const [mainTab, setMainTab] = useState("Trade");
 
   const [contractType, setContractType] = useState("Rise/Fall");
   const [stake, setStake] = useState(10);
@@ -231,6 +231,7 @@ export default function App() {
 
     setTimeout(() => {
       const finalDigit = Math.floor(Math.random() * 10);
+
       setPreviousDigit(lastDigit);
       setLastDigit(finalDigit);
       setSelectedDigit(finalDigit);
@@ -295,6 +296,7 @@ export default function App() {
       <div className="authPage">
         <div className="authCard">
           <h1>MetaBinary</h1>
+
           <p>
             {screen === "login"
               ? "Login to continue trading"
@@ -347,7 +349,7 @@ export default function App() {
         </div>
 
         <div className="mainTabs">
-          {["Bot Builder", "Manual Trader", "Bulk Trader"].map((tab) => (
+          {["Trade", "Charts", "Free Bot", "Copy Trading"].map((tab) => (
             <button
               type="button"
               key={tab}
@@ -440,7 +442,7 @@ export default function App() {
         </main>
 
         <aside className="tradePanel">
-          {mainTab === "Manual Trader" && (
+          {mainTab === "Trade" && (
             <>
               <div className="tradeBox">
                 <p className="learn">ⓘ Select contract type</p>
@@ -528,6 +530,7 @@ export default function App() {
                     className={index === 0 ? "riseAction" : "fallAction"}
                   >
                     <strong>{item}</strong>
+
                     <small>
                       Payout <b>{(Number(stake) * 1.9).toFixed(2)} USD</b>
                     </small>
@@ -537,12 +540,24 @@ export default function App() {
             </>
           )}
 
-          {mainTab === "Bot Builder" && (
+          {mainTab === "Charts" && (
+            <div className="toolBox">
+              <h2>Charts</h2>
+              <p>Live synthetic movement is displayed in the market area.</p>
+
+              <button type="button" className="mainBuy" onClick={() => setMainTab("Trade")}>
+                Back to Trade
+              </button>
+            </div>
+          )}
+
+          {mainTab === "Free Bot" && (
             <div className="toolBox">
               <h2>Free Bot</h2>
               <p>Run automatic trades using your current selected contract.</p>
 
               <label>Bot Runs</label>
+
               <input
                 value={botRuns}
                 onChange={(e) => setBotRuns(e.target.value)}
@@ -554,17 +569,17 @@ export default function App() {
             </div>
           )}
 
-          {mainTab === "Bulk Trader" && (
+          {mainTab === "Copy Trading" && (
             <div className="toolBox">
-              <h2>Bulk Trader</h2>
-              <p>Bulk trading is coming soon on MetaBinary.</p>
+              <h2>Copy Trading</h2>
+              <p>Copy trading is coming soon on MetaBinary.</p>
 
               <button
                 type="button"
                 className="mainBuy"
-                onClick={() => setMainTab("Manual Trader")}
+                onClick={() => setMainTab("Trade")}
               >
-                Back to Manual Trader
+                Back to Trade
               </button>
             </div>
           )}
