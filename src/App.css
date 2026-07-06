@@ -1338,3 +1338,17 @@ select {
     height: 96px !important;
   }
 }
+@media (max-width: 1023px) {
+  .nav button:nth-child(2),
+  .nav button:nth-child(3) {
+    display: none !important;
+  }
+
+  .nav {
+    justify-content: flex-start !important;
+  }
+
+  .nav button:nth-child(1) {
+    min-width: 100% !important;
+  }
+}
