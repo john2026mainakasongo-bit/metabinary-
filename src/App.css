@@ -4,16 +4,20 @@ padding:0;
 box-sizing:border-box;
 }
 
-html,body,#root{
+html,
+body,
+#root{
 width:100%;
-min-height:100%;
+height:100%;
 font-family:Arial,Helvetica,sans-serif;
 background:#07111d;
 color:white;
-overflow-x:hidden;
+overflow:hidden;
 }
 
-button,input,select{
+button,
+input,
+select{
 font-family:inherit;
 }
 
@@ -23,15 +27,18 @@ border:none;
 }
 
 .platform{
-min-height:100vh;
+width:100%;
+height:100%;
 background:#07111d;
 color:white;
+overflow:hidden;
 }
 
 /* AUTH */
 
 .authPage{
-min-height:100vh;
+width:100%;
+height:100%;
 display:flex;
 align-items:center;
 justify-content:center;
@@ -108,6 +115,7 @@ border-bottom:1px solid #17263a;
 font-size:32px;
 font-weight:900;
 color:white;
+white-space:nowrap;
 }
 
 .brand::first-letter{
@@ -128,6 +136,7 @@ background:#101b2d;
 border:1px solid #20314d;
 color:white;
 font-weight:700;
+white-space:nowrap;
 }
 
 .accountBox{
@@ -152,6 +161,7 @@ font-size:18px;
 font-weight:900;
 color:#13c9a8;
 text-align:right;
+white-space:nowrap;
 }
 
 .depositBtn{
@@ -162,20 +172,23 @@ background:#10b981;
 color:white;
 font-size:16px;
 font-weight:900;
+white-space:nowrap;
 }
 
 /* LAYOUT */
 
 .layout{
+height:calc(100% - 76px);
 display:grid;
 grid-template-columns:260px 1fr 360px;
-min-height:calc(100vh - 76px);
+overflow:hidden;
 }
 
 .leftPanel{
 background:#091827;
 border-right:1px solid #17263a;
 padding:18px;
+overflow:hidden;
 }
 
 .tabs{
@@ -254,7 +267,6 @@ overflow:hidden;
 
 .chartCard{
 height:100%;
-min-height:650px;
 position:relative;
 background:#091827;
 border:1px solid #17263a;
@@ -418,6 +430,7 @@ display:flex;
 flex-direction:column;
 gap:14px;
 color:white;
+overflow:hidden;
 }
 
 .learn{
@@ -626,46 +639,51 @@ font-size:18px;
 
 @media(max-width:900px){
 
-html,body,#root{
+html,
+body,
+#root{
 width:100%;
-height:auto;
-overflow-x:hidden;
+height:100%;
+overflow:hidden;
 background:#f4f5f6;
 }
 
 .platform{
-width:100%;
+width:100vw;
+height:100vh;
 background:#f4f5f6;
 color:#202020;
-overflow-x:hidden;
+overflow:hidden;
 }
 
 /* PHONE TOPBAR */
 
 .topbar{
-height:auto;
+height:122px;
 background:white;
-display:flex;
-flex-direction:column;
-align-items:stretch;
-gap:10px;
-padding:12px;
+display:grid;
+grid-template-columns:1fr;
+gap:6px;
+padding:8px;
 border-bottom:1px solid #e3e6ea;
+overflow:hidden;
 }
 
 .brand{
-font-size:26px;
+font-size:24px;
+line-height:1;
 color:#08796c;
 }
 
 .nav{
+width:100%;
 display:flex;
-gap:8px;
+gap:6px;
 overflow-x:auto;
-padding:9px 12px;
+overflow-y:hidden;
+padding:7px;
 background:linear-gradient(90deg,#00482f,#09b8aa);
-margin-left:-12px;
-margin-right:-12px;
+border-radius:10px;
 }
 
 .nav::-webkit-scrollbar{
@@ -673,87 +691,102 @@ display:none;
 }
 
 .nav button{
-height:40px;
-padding:0 12px;
+height:34px;
+padding:0 10px;
 flex:0 0 auto;
-border-radius:8px;
+border-radius:7px;
 background:rgba(0,0,0,.25);
 border:1px solid rgba(255,255,255,.14);
 color:white;
-font-size:13px;
+font-size:12px;
 font-weight:900;
 }
 
 .accountBox{
+width:100%;
 display:grid;
-grid-template-columns:1fr 1fr;
-gap:8px;
+grid-template-columns:82px 1fr 84px;
+gap:6px;
+align-items:center;
 }
 
 .accountBox select{
-height:42px;
+width:100%;
+height:36px;
 background:#f3f5f7;
 color:#222;
 border:1px solid #dce1e6;
-border-radius:10px;
-font-size:14px;
-font-weight:800;
+border-radius:9px;
+font-size:12px;
+font-weight:900;
+padding:0 5px;
 }
 
 .balance{
-height:42px;
+width:100%;
+height:36px;
+min-width:0;
 display:flex;
 align-items:center;
 justify-content:center;
-font-size:15px;
-color:#111;
 background:#f3f5f7;
-border-radius:10px;
+border:1px solid #dce1e6;
+border-radius:9px;
+font-size:12px;
+font-weight:900;
+color:#111;
 text-align:center;
-min-width:0;
+padding:0 4px;
+overflow:hidden;
+text-overflow:ellipsis;
+white-space:nowrap;
 }
 
 .depositBtn{
-grid-column:1 / -1;
-height:44px;
-border-radius:10px;
+width:100%;
+height:36px;
+border-radius:9px;
 background:#0dbb8f;
 color:white;
-font-size:15px;
+font-size:12px;
 font-weight:900;
+padding:0;
 }
 
 /* PHONE LAYOUT */
 
 .layout{
-display:flex;
-flex-direction:column;
 width:100%;
-min-height:auto;
+height:calc(100vh - 122px);
+display:grid;
+grid-template-columns:1fr;
+grid-template-rows:42% 58%;
+overflow:hidden;
 }
 
 .leftPanel{
 display:none;
 }
 
-/* PHONE CHART */
+/* PHONE CHART AREA */
 
 .chartWrap{
 width:100%;
+height:100%;
 background:#f4f5f6;
-padding:12px 10px 0;
-overflow:visible;
+padding:6px 8px 0;
+overflow:hidden;
 }
 
 .chartCard{
 width:100%;
-height:auto;
+height:100%;
 min-height:0;
 padding:0;
 background:#f4f5f6;
 border:none;
 border-radius:0;
-overflow:visible;
+overflow:hidden;
 position:relative;
 }
 
@@ -765,40 +798,40 @@ right:auto;
 width:100%;
 background:white;
 border:1px solid #edf0f2;
-border-radius:11px;
-padding:14px;
-box-shadow:0 4px 16px rgba(0,0,0,.06);
-margin-bottom:22px;
+border-radius:10px;
+padding:10px 12px;
+box-shadow:0 3px 10px rgba(0,0,0,.05);
+margin-bottom:8px;
 }
 
 .chartHeader::before{
-content:"100  1s";
+content:"100 1s";
 display:inline-flex;
 align-items:center;
 justify-content:center;
-height:22px;
-padding:0 7px;
+height:20px;
+padding:0 6px;
 background:#161616;
 color:white;
 border-radius:4px;
-font-size:11px;
+font-size:10px;
 font-weight:900;
-margin-right:8px;
+margin-right:6px;
 vertical-align:top;
 }
 
 .chartHeader h1{
-font-size:22px;
+font-size:19px;
 font-weight:900;
 color:#252525;
 display:inline;
 }
 
 .chartHeader p{
-font-size:17px;
-color:#9a9a9a;
-margin-top:8px;
-padding-left:70px;
+font-size:14px;
+color:#8b8b8b;
+margin-top:5px;
+padding-left:58px;
 }
 
 .chartHeader p::after{
@@ -822,22 +855,23 @@ top:auto !important;
 left:auto !important;
 right:auto !important;
 bottom:auto !important;
+width:100% !important;
 display:grid !important;
 grid-template-columns:repeat(5,1fr) !important;
-gap:28px 4px !important;
-width:100% !important;
-padding:0 0 48px !important;
+gap:18px 2px !important;
+padding:0 0 22px !important;
+margin:0 !important;
 overflow:visible !important;
 z-index:2 !important;
 }
 
 .digit{
-width:54px !important;
-height:54px !important;
-min-width:54px !important;
+width:46px !important;
+height:46px !important;
+min-width:46px !important;
 border-radius:50% !important;
 background:white !important;
-border:6px solid #e6e8eb !important;
+border:5px solid #e6e8eb !important;
 box-shadow:none !important;
 color:#2a2a2a !important;
 display:flex !important;
@@ -849,16 +883,16 @@ position:relative !important;
 }
 
 .digit b{
-font-size:19px !important;
+font-size:16px !important;
 line-height:1 !important;
 font-weight:900 !important;
 color:#2a2a2a !important;
 }
 
 .digit span{
-font-size:11px !important;
-line-height:1.05 !important;
-margin-top:3px !important;
+font-size:9px !important;
+line-height:1 !important;
+margin-top:2px !important;
 color:#3d3d3d !important;
 }
 
@@ -883,22 +917,22 @@ border-bottom-color:#ef3e42 !important;
 .digit:nth-child(10)::after{
 content:"";
 position:absolute;
-bottom:-24px;
+bottom:-18px;
 left:50%;
 transform:translateX(-50%);
 width:0;
 height:0;
-border-left:9px solid transparent;
-border-right:9px solid transparent;
-border-bottom:14px solid #ff5a45;
+border-left:7px solid transparent;
+border-right:7px solid transparent;
+border-bottom:10px solid #ff5a45;
 }
 
 .chartCard::before{
 content:"≪";
 position:absolute;
-left:4px;
-bottom:12px;
-font-size:34px;
+left:2px;
+bottom:2px;
+font-size:24px;
 color:#909090;
 font-weight:300;
 z-index:5;
@@ -907,9 +941,9 @@ z-index:5;
 .chartCard::after{
 content:"≫";
 position:absolute;
-right:4px;
-bottom:12px;
-font-size:34px;
+right:2px;
+bottom:2px;
+font-size:24px;
 color:#222;
 font-weight:300;
 z-index:5;
@@ -919,75 +953,77 @@ z-index:5;
 
 .tradePanel{
 width:100%;
+height:100%;
 background:#f1f2f4;
 border:none;
-padding:14px 10px 18px;
+padding:8px;
 display:flex;
 flex-direction:column;
-gap:10px;
+gap:6px;
 color:#222;
 position:relative;
+overflow:hidden;
 }
 
 .tradePanel::before{
 content:"";
-width:70px;
-height:6px;
+width:58px;
+height:5px;
 border-radius:20px;
 background:#cfd4d5;
 align-self:center;
-margin:0 0 8px;
+margin:0 0 3px;
 }
 
 .learn{
-font-size:14px;
+font-size:12px;
 color:#333;
 text-decoration:underline dotted;
-margin-bottom:2px;
+line-height:1;
 }
 
 .tradeTitle{
-height:60px;
+height:44px;
 background:white;
 border:none;
-border-radius:10px;
-box-shadow:0 1px 8px rgba(0,0,0,.04);
+border-radius:9px;
+box-shadow:0 1px 6px rgba(0,0,0,.04);
 color:#222;
-font-size:20px;
+font-size:16px;
 font-weight:900;
-padding:0 12px;
+padding:0 10px;
 }
 
 .tradeTitle::before{
 content:"↗ ↘";
 color:#ef3e42;
 background:#f1f3f5;
-padding:7px;
-border-radius:7px;
-margin-right:10px;
-font-size:18px;
+padding:5px;
+border-radius:6px;
+margin-right:8px;
+font-size:15px;
 }
 
 .tradeTitle::after{
 content:"›";
 margin-left:auto;
-font-size:34px;
+font-size:28px;
 font-weight:300;
 }
 
 .contractTabs{
 display:grid;
 grid-template-columns:repeat(5,1fr);
-gap:7px;
+gap:5px;
 background:white;
 border:none;
-border-radius:10px;
-padding:10px;
+border-radius:9px;
+padding:7px;
 }
 
 .contractTabs button{
-height:48px;
-border-radius:8px;
+height:34px;
+border-radius:7px;
 background:#f1f2f4;
 border:none;
 color:#2b2b2b;
@@ -1003,7 +1039,7 @@ inset:0;
 display:flex;
 align-items:center;
 justify-content:center;
-font-size:20px;
+font-size:16px;
 color:#333;
 }
 
@@ -1024,13 +1060,13 @@ display:none;
 }
 
 .tradeRow{
-height:54px;
+height:38px;
 background:white;
 border:none;
-border-radius:9px;
+border-radius:8px;
 color:#222;
-padding:0 14px;
-font-size:17px;
+padding:0 10px;
+font-size:13px;
 font-weight:900;
 display:flex;
 align-items:center;
@@ -1038,39 +1074,40 @@ justify-content:space-between;
 }
 
 .tradeRow span{
-font-size:14px;
+font-size:12px;
 color:#555;
 font-weight:600;
 }
 
 .tradeRow b{
 color:#222;
-font-size:18px;
+font-size:14px;
 }
 
 .tradePanel input{
 width:100%;
-height:54px;
+height:38px;
 background:white;
 border:none;
-border-radius:9px;
+border-radius:8px;
 color:#222;
-font-size:19px;
+font-size:15px;
 font-weight:900;
 text-align:center;
+padding:0 10px;
 }
 
 .choice{
 display:grid;
 grid-template-columns:1fr 1fr;
-gap:8px;
+gap:6px;
 order:20;
 }
 
 .choice button{
-height:88px;
-border-radius:9px;
-font-size:22px;
+height:58px;
+border-radius:8px;
+font-size:16px;
 font-weight:900;
 position:relative;
 overflow:hidden;
@@ -1078,24 +1115,24 @@ display:flex;
 flex-direction:column;
 align-items:flex-start;
 justify-content:flex-start;
-padding:13px;
+padding:9px;
 text-align:left;
 }
 
 .choice button small{
 position:absolute;
-left:13px;
-bottom:14px;
-font-size:13px;
+left:9px;
+bottom:9px;
+font-size:10px;
 font-weight:400;
 opacity:.95;
 }
 
 .choice button strong{
 position:absolute;
-right:13px;
-bottom:14px;
-font-size:13px;
+right:9px;
+bottom:9px;
+font-size:10px;
 font-weight:900;
 }
 
@@ -1139,150 +1176,103 @@ color:#222;
 
 }
 
-/* VERY SMALL PHONES */
+/* SMALL PHONES */
 
 @media(max-width:360px){
 
-.brand{
-font-size:23px;
-}
-
-.chartHeader h1{
-font-size:20px;
-}
-
-.chartHeader p{
-font-size:15px;
-padding-left:64px;
-}
-
-.digit{
-width:48px !important;
-height:48px !important;
-min-width:48px !important;
-border-width:5px !important;
-}
-
-.digit b{
-font-size:17px !important;
-}
-
-.digit span{
-font-size:10px !important;
-}
-
-.digits{
-gap:26px 2px !important;
-}
-
-.choice button{
-height:82px;
-font-size:20px;
-}
-
-.tradeTitle{
-font-size:18px;
-}
-
-}
-/* FINAL MOBILE TIGHT FIX */
-
-@media(max-width:900px){
-
-.chartWrap{
-padding:8px 8px 0;
-}
-
-.chartHeader{
-margin-bottom:12px;
-}
-
-.digits{
-gap:18px 4px!important;
-padding-bottom:20px!important;
-margin-top:10px!important;
-}
-
-.digit{
-width:48px!important;
-height:48px!important;
-min-width:48px!important;
-border-width:5px!important;
-}
-
-.digit b{
-font-size:17px!important;
-}
-
-.digit span{
-font-size:10px!important;
-}
-
-.chartCard::before{
-left:-2px;
-bottom:48px;
-font-size:26px;
-}
-
-.chartCard::after{
-right:-2px;
-bottom:48px;
-font-size:26px;
-}
-
-.tradePanel{
-padding:10px!important;
-gap:8px!important;
-}
-
-.tradeTitle{
-height:54px;
-font-size:18px;
-}
-
-.contractTabs{
-padding:8px;
-gap:5px;
-}
-
-.contractTabs button{
-height:42px;
-}
-
-.tradeRow{
-height:48px;
-font-size:15px;
-}
-
-.tradePanel input{
-height:48px;
-font-size:17px;
-}
-
-.choice button{
-height:74px;
-font-size:18px;
-}
-
 .topbar{
-padding:10px;
+height:116px;
+padding:6px;
 }
 
-.accountBox{
-display:flex;
-gap:6px;
-align-items:center;
+.brand{
+font-size:21px;
 }
 
-.balance{
-font-size:14px;
+.nav button{
+height:31px;
+font-size:11px;
 padding:0 8px;
 }
 
+.accountBox{
+grid-template-columns:74px 1fr 76px;
+gap:5px;
+}
+
+.accountBox select,
+.balance,
 .depositBtn{
+height:33px;
+font-size:11px;
+}
+
+.layout{
+height:calc(100vh - 116px);
+grid-template-rows:40% 60%;
+}
+
+.chartWrap{
+padding:5px 6px 0;
+}
+
+.chartHeader{
+padding:8px 10px;
+margin-bottom:6px;
+}
+
+.chartHeader h1{
+font-size:17px;
+}
+
+.chartHeader p{
+font-size:12px;
+padding-left:52px;
+}
+
+.digits{
+gap:14px 1px !important;
+padding-bottom:18px !important;
+}
+
+.digit{
+width:40px !important;
+height:40px !important;
+min-width:40px !important;
+border-width:4px !important;
+}
+
+.digit b{
+font-size:14px !important;
+}
+
+.digit span{
+font-size:8px !important;
+}
+
+.tradePanel{
+padding:6px;
+gap:5px;
+}
+
+.tradeTitle{
 height:40px;
-font-size:13px;
-padding:0 10px;
+font-size:15px;
+}
+
+.contractTabs button{
+height:30px;
+}
+
+.tradeRow,
+.tradePanel input{
+height:34px;
+font-size:12px;
+}
+
+.choice button{
+height:52px;
+font-size:14px;
 }
 
 }
