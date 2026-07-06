@@ -1,653 +1,219 @@
-import { useEffect, useMemo, useState } from "react";
+import { useEffect, useState } from "react";
 import "./App.css";
 
-const API = import.meta.env.VITE_API_URL || "http://localhost:5000";
-
-const CONTRACTS = ["Rise/Fall", "Even/Odd", "Matches/Differs", "Over/Under"];
-
-const CHOICES = {
-  "Rise/Fall": ["Rise", "Fall"],
-  "Even/Odd": ["Even", "Odd"],
-  "Matches/Differs": ["Matches", "Differs"],
-  "Over/Under": ["Over", "Under"],
-};
-
-function createChartData() {
-  let y = 250;
-
-  return Array.from({ length: 90 }, (_, i) => {
-    y += (Math.random() - 0.48) * 28;
-    y = Math.max(115, Math.min(360, y));
-    return { x: 40 + i * 14, y };
-  });
-}
+const PAYOUT = 1.95;
 
 export default function App() {
-  const [screen, setScreen] = useState(
-    localStorage.getItem("token") ? "app" : "login"
-  );
+  const [balance, setBalance] = useState(10000);
+  const [price, setPrice] = useState(1000);
+  const [digit, setDigit] = useState(0);
 
-  const [email, setEmail] = useState(localStorage.getItem("email") || "");
-  const [password, setPassword] = useState("");
-
-  const [mode, setMode] = useState(localStorage.getItem("mode") || "Demo");
-  const [balance, setBalance] = useState({ demo: 10000, real: 0 });
-
-  const [mainTab, setMainTab] = useState("Trade");
-
-  const [contractType, setContractType] = useState("Rise/Fall");
+  const [contract, setContract] = useState("even");
+  const [prediction, setPrediction] = useState(5);
   const [stake, setStake] = useState(10);
   const [duration, setDuration] = useState(5);
-  const [botRuns, setBotRuns] = useState(3);
-
-  const [previousDigit, setPreviousDigit] = useState(8);
-  const [lastDigit, setLastDigit] = useState(8);
-  const [selectedDigit, setSelectedDigit] = useState(8);
-
-  const [chartData, setChartData] = useState(createChartData);
 
   const [openTrades, setOpenTrades] = useState([]);
-  const [closedTrades, setClosedTrades] = useState([]);
-
-  const [menuOpen, setMenuOpen] = useState(false);
-  const [depositOpen, setDepositOpen] = useState(false);
-  const [phone, setPhone] = useState("");
-  const [depositAmount, setDepositAmount] = useState(10);
-
-  const currentBalance = mode === "Demo" ? balance.demo : balance.real;
-
-  const price = useMemo(() => {
-    return (819 + lastDigit / 10 + Math.random() * 0.15).toFixed(2);
-  }, [lastDigit]);
-
-  const points = useMemo(() => {
-    return chartData.map((p) => `${p.x},${p.y.toFixed(1)}`).join(" ");
-  }, [chartData]);
-
-  const digitStats = useMemo(() => {
-    return Array.from({ length: 10 }, (_, d) => ({
-      d,
-      percent: (8 + Math.random() * 4).toFixed(1),
-    }));
-  }, [lastDigit]);
-
-  async function refreshBalance() {
-    if (!email) return;
-
-    try {
-      const res = await fetch(`${API}/api/user/${email}`);
-      const data = await res.json();
-
-      if (data.success && data.user) {
-        setBalance({
-          demo: Number(data.user.demoBalance || 10000),
-          real: Number(data.user.realBalance || 0),
-        });
-      }
-    } catch {
-      console.log("Backend not reachable");
-    }
-  }
+  const [history, setHistory] = useState([]);
 
   useEffect(() => {
-    if (screen === "app") refreshBalance();
-
     const timer = setInterval(() => {
-      const d = Math.floor(Math.random() * 10);
-
-      setLastDigit((old) => {
-        setPreviousDigit(old);
-        return d;
-      });
-
-      setSelectedDigit(d);
-
-      setChartData((old) => {
-        const lastY = old[old.length - 1]?.y || 250;
-        let nextY = lastY + (Math.random() - 0.48) * 32;
-        nextY = Math.max(115, Math.min(360, nextY));
-
-        const next = old.slice(1).map((p, i) => ({
-          x: 40 + i * 14,
-          y: p.y,
-        }));
-
-        next.push({
-          x: 40 + (old.length - 1) * 14,
-          y: nextY,
-        });
-
+      setPrice((p) => {
+        const next = +(p + (Math.random() - 0.5) * 4).toFixed(2);
+        const lastDigit = Number(String(next.toFixed(2)).slice(-1));
+        setDigit(lastDigit);
         return next;
       });
+
+      setOpenTrades((trades) =>
+        trades.map((t) => ({ ...t, ticksLeft: t.ticksLeft - 1 }))
+      );
     }, 1000);
 
     return () => clearInterval(timer);
-  }, [screen, email]);
+  }, []);
 
   useEffect(() => {
-    if (screen !== "app") return;
+    const finished = openTrades.filter((t) => t.ticksLeft <= 0);
+    if (!finished.length) return;
 
-    const timer = setInterval(refreshBalance, 3000);
-    return () => clearInterval(timer);
-  }, [screen, email]);
+    finished.forEach((trade) => settleTrade(trade));
 
-  async function auth(type) {
-    if (!email || !password) return alert("Enter email and password");
+    setOpenTrades((trades) => trades.filter((t) => t.ticksLeft > 0));
+  }, [openTrades]);
 
-    try {
-      const res = await fetch(`${API}/api/${type}`, {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ email, password }),
-      });
+  function checkWin(trade) {
+    if (trade.type === "even") return digit % 2 === 0;
+    if (trade.type === "odd") return digit % 2 !== 0;
 
-      const data = await res.json();
+    if (trade.type === "matches") return digit === trade.prediction;
+    if (trade.type === "differs") return digit !== trade.prediction;
 
-      if (!data.success) return alert(data.message || "Auth failed");
+    if (trade.type === "over") return digit > trade.prediction;
+    if (trade.type === "under") return digit < trade.prediction;
 
-      localStorage.setItem("token", data.token);
-      localStorage.setItem("email", data.user.email);
-      localStorage.setItem("mode", "Demo");
-
-      setEmail(data.user.email);
-      setMode("Demo");
-
-      setBalance({
-        demo: Number(data.user.demoBalance || 10000),
-        real: Number(data.user.realBalance || 0),
-      });
-
-      setScreen("app");
-    } catch {
-      alert("Backend is not connected. Start backend or set VITE_API_URL.");
-    }
-  }
-
-  function logout() {
-    localStorage.clear();
-    setScreen("login");
-    setPassword("");
-    setMenuOpen(false);
-  }
-
-  function changeMode(value) {
-    setMode(value);
-    localStorage.setItem("mode", value);
-  }
-
-  function checkWin(type, choice, targetDigit, startDigit, finalDigit) {
-    if (type === "Even/Odd") {
-      return choice === "Even" ? finalDigit % 2 === 0 : finalDigit % 2 !== 0;
-    }
-
-    if (type === "Matches/Differs") {
-      return choice === "Matches"
-        ? finalDigit === targetDigit
-        : finalDigit !== targetDigit;
-    }
-
-    if (type === "Over/Under") {
-      return choice === "Over" ? finalDigit > targetDigit : finalDigit < targetDigit;
-    }
-
-    if (type === "Rise/Fall") {
-      return choice === "Rise" ? finalDigit > startDigit : finalDigit < startDigit;
-    }
+    if (trade.type === "rise") return price > trade.entryPrice;
+    if (trade.type === "fall") return price < trade.entryPrice;
 
     return false;
   }
 
-  function trade({ type, choice }) {
-    const tradeStake = Number(stake);
-    const tradeDuration = Number(duration);
+  function settleTrade(trade) {
+    const won = checkWin(trade);
+    const payout = won ? +(trade.stake * PAYOUT).toFixed(2) : 0;
+    const profit = won ? +(payout - trade.stake).toFixed(2) : -trade.stake;
 
-    if (tradeStake <= 0) return alert("Enter stake");
-    if (tradeDuration <= 0) return alert("Enter duration");
-    if (currentBalance < tradeStake) return alert("Insufficient balance");
+    if (won) {
+      setBalance((b) => +(b + payout).toFixed(2));
+    }
 
-    const id = Date.now() + Math.random();
-    const targetDigit = selectedDigit;
-    const startDigit = previousDigit;
+    setHistory((h) => [
+      {
+        ...trade,
+        exitPrice: price,
+        exitDigit: digit,
+        result: won ? "WON" : "LOST",
+        profit,
+      },
+      ...h,
+    ]);
+  }
 
-    const item = {
-      id,
-      contractType: type,
-      choice,
-      stake: tradeStake,
-      target: targetDigit,
-      startDigit,
-      duration: tradeDuration,
-      mode,
-      status: "Running",
+  function placeTrade() {
+    const amount = Number(stake);
+
+    if (!amount || amount <= 0) {
+      alert("Enter valid stake");
+      return;
+    }
+
+    if (amount > balance) {
+      alert("Insufficient balance");
+      return;
+    }
+
+    const trade = {
+      id: Date.now(),
+      type: contract,
+      prediction,
+      stake: amount,
+      entryPrice: price,
+      entryDigit: digit,
+      ticksLeft: Number(duration),
     };
 
-    setOpenTrades((x) => [item, ...x]);
-
-    setBalance((b) =>
-      mode === "Demo"
-        ? { ...b, demo: b.demo - tradeStake }
-        : { ...b, real: b.real - tradeStake }
-    );
-
-    setTimeout(() => {
-      const finalDigit = Math.floor(Math.random() * 10);
-
-      setPreviousDigit(lastDigit);
-      setLastDigit(finalDigit);
-      setSelectedDigit(finalDigit);
-
-      const win = checkWin(type, choice, targetDigit, startDigit, finalDigit);
-      const payout = win ? tradeStake * 1.9 : 0;
-
-      setOpenTrades((x) => x.filter((t) => t.id !== id));
-      setClosedTrades((x) => [{ ...item, result: finalDigit, win, payout }, ...x]);
-
-      if (win) {
-        setBalance((b) =>
-          mode === "Demo"
-            ? { ...b, demo: b.demo + payout }
-            : { ...b, real: b.real + payout }
-        );
-      }
-    }, tradeDuration * 1000);
-  }
-
-  function runFreeBot() {
-    const runs = Number(botRuns);
-    if (runs <= 0) return alert("Enter bot runs");
-
-    for (let i = 0; i < runs; i++) {
-      setTimeout(() => {
-        trade({
-          type: contractType,
-          choice: CHOICES[contractType][0],
-        });
-      }, i * 1400);
-    }
-  }
-
-  async function deposit() {
-    if (!phone || !depositAmount) return alert("Enter phone and amount");
-
-    try {
-      const res = await fetch(`${API}/api/deposit`, {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({
-          email,
-          phone,
-          amount: Number(depositAmount),
-        }),
-      });
-
-      const data = await res.json();
-
-      if (!data.success) return alert(data.message || "Deposit failed");
-
-      alert("STK Push sent. Wait for M-Pesa confirmation.");
-      refreshBalance();
-    } catch {
-      alert("Deposit failed. Backend is not connected.");
-    }
-  }
-
-  if (screen === "login" || screen === "register") {
-    return (
-      <div className="authPage">
-        <div className="authCard">
-          <h1>MetaBinary</h1>
-
-          <p>
-            {screen === "login"
-              ? "Login to continue trading"
-              : "Create your trading account"}
-          </p>
-
-          <input
-            placeholder="Email"
-            value={email}
-            onChange={(e) => setEmail(e.target.value)}
-          />
-
-          <input
-            placeholder="Password"
-            type="password"
-            value={password}
-            onChange={(e) => setPassword(e.target.value)}
-          />
-
-          <button type="button" onClick={() => auth(screen)}>
-            {screen === "login" ? "Login" : "Register"}
-          </button>
-
-          <span onClick={() => setScreen(screen === "login" ? "register" : "login")}>
-            {screen === "login" ? "Create account" : "Already have account? Login"}
-          </span>
-        </div>
-      </div>
-    );
+    setBalance((b) => +(b - amount).toFixed(2));
+    setOpenTrades((t) => [trade, ...t]);
   }
 
   return (
-    <div className="platform">
+    <div className="app">
       <header className="topbar">
-        <div className="topLine">
-          <button className="topMenuBtn" type="button" onClick={() => setMenuOpen(true)}>
-            ☰
-          </button>
-
-          <select
-            className="topAccount"
-            value={mode}
-            onChange={(e) => changeMode(e.target.value)}
-          >
-            <option>Demo</option>
-            <option>Real</option>
-          </select>
-
-          <div className="topBalance">${currentBalance.toFixed(2)}</div>
-        </div>
-
-        <div className="mainTabs">
-          {["Trade", "Charts", "Free Bot", "Copy Trading"].map((tab) => (
-            <button
-              type="button"
-              key={tab}
-              className={mainTab === tab ? "active" : ""}
-              onClick={() => setMainTab(tab)}
-            >
-              {tab}
-            </button>
-          ))}
-        </div>
+        <h2>MetaBinary</h2>
+        <div className="wallet">USD {balance.toFixed(2)}</div>
       </header>
 
-      <div className="layout">
-        <aside className="leftPanel">
-          <div className="tabs">
-            <span className="active">Open ({openTrades.length})</span>
-            <span>Closed ({closedTrades.length})</span>
-          </div>
+      <main className="layout">
+        <section className="chart">
+          <h3>Volatility 100 Index</h3>
 
-          <div className="positions">
-            {openTrades.length === 0 && closedTrades.length === 0 && (
-              <>
-                <div className="avatar">MB</div>
-                <h2>No positions</h2>
-                <p>Your trades will appear here</p>
-              </>
-            )}
+          <div className="price">{price.toFixed(2)}</div>
 
-            {openTrades.map((t) => (
-              <div className="tradeCard" key={t.id}>
-                <b>{t.contractType}</b>
-                <span>
-                  {t.choice} • {t.mode} • ${t.stake}
-                </span>
-                <small>Target digit {t.target}</small>
-              </div>
-            ))}
-
-            {closedTrades.slice(0, 8).map((t) => (
-              <div className={`tradeCard ${t.win ? "win" : "loss"}`} key={t.id}>
-                <b>{t.win ? "WIN" : "LOSS"} • {t.choice}</b>
-                <span>Result digit: {t.result}</span>
-                <small>Payout ${t.payout.toFixed(2)}</small>
+          <div className="digits">
+            {[0,1,2,3,4,5,6,7,8,9].map((n) => (
+              <div key={n} className={digit === n ? "digit active" : "digit"}>
+                {n}
               </div>
             ))}
           </div>
-        </aside>
 
-        <main className="chartWrap">
-          <section className="chartCard">
-            <div className="chartHeader">
-              <div>
-                <h1>Volatility 100 (1s) Index</h1>
-                <p>{price} - 0.02 (0.00%)</p>
-              </div>
-
-              <div className="lastDigitBadge">{lastDigit}</div>
-            </div>
-
-            <div className="chart">
-              <svg viewBox="0 0 1300 450" preserveAspectRatio="none">
-                <polyline
-                  points={points}
-                  fill="none"
-                  stroke="#12d6b3"
-                  strokeWidth="4"
-                  strokeLinecap="round"
-                  strokeLinejoin="round"
-                />
-              </svg>
-
-              <div className="priceTag">{price}</div>
-              <div className="cursorDigit">{lastDigit}</div>
-            </div>
-
-            <div className="digits">
-              {digitStats.map(({ d, percent }) => (
-                <button
-                  type="button"
-                  key={d}
-                  onClick={() => setSelectedDigit(d)}
-                  className={`digit ${selectedDigit === d ? "selected" : ""}`}
-                >
-                  <b>{d}</b>
-                  <span>{percent}%</span>
-                </button>
-              ))}
-            </div>
-          </section>
-        </main>
+          <div className="fakeChart">
+            <div className="line"></div>
+          </div>
+        </section>
 
         <aside className="tradePanel">
-          {mainTab === "Trade" && (
+          <h3>Trade</h3>
+
+          <label>Contract type</label>
+          <select value={contract} onChange={(e) => setContract(e.target.value)}>
+            <option value="rise">Rise</option>
+            <option value="fall">Fall</option>
+            <option value="even">Even</option>
+            <option value="odd">Odd</option>
+            <option value="matches">Matches</option>
+            <option value="differs">Differs</option>
+            <option value="over">Over</option>
+            <option value="under">Under</option>
+          </select>
+
+          {["matches", "differs", "over", "under"].includes(contract) && (
             <>
-              <div className="tradeBox">
-                <p className="learn">ⓘ Select contract type</p>
-
-                <div className="tradeSelector">
-                  {CONTRACTS.map((item) => (
-                    <button
-                      type="button"
-                      key={item}
-                      className={contractType === item ? "active" : ""}
-                      onClick={() => setContractType(item)}
-                    >
-                      {item}
-                    </button>
-                  ))}
-                </div>
-              </div>
-
-              {(contractType === "Matches/Differs" || contractType === "Over/Under") && (
-                <div className="tradeBox">
-                  <h3>Select digit</h3>
-
-                  <div className="selectDigits">
-                    {[0, 1, 2, 3, 4, 5, 6, 7, 8, 9].map((digit) => (
-                      <button
-                        type="button"
-                        key={digit}
-                        onClick={() => setSelectedDigit(digit)}
-                        className={selectedDigit === digit ? "active" : ""}
-                      >
-                        {digit}
-                      </button>
-                    ))}
-                  </div>
-                </div>
-              )}
-
-              <div className="tradeRowNew">
-                <span>Duration</span>
-
-                <div className="stepper">
+              <label>Prediction digit</label>
+              <div className="predictDigits">
+                {[0,1,2,3,4,5,6,7,8,9].map((n) => (
                   <button
-                    type="button"
-                    onClick={() => setDuration(Math.max(1, Number(duration) - 1))}
+                    key={n}
+                    className={prediction === n ? "selected" : ""}
+                    onClick={() => setPrediction(n)}
                   >
-                    −
-                  </button>
-
-                  <b>{duration} ticks</b>
-
-                  <button
-                    type="button"
-                    onClick={() => setDuration(Number(duration) + 1)}
-                  >
-                    +
-                  </button>
-                </div>
-              </div>
-
-              <div className="tradeRowNew">
-                <span>Stake</span>
-
-                <div className="stepper">
-                  <button
-                    type="button"
-                    onClick={() => setStake(Math.max(1, Number(stake) - 1))}
-                  >
-                    −
-                  </button>
-
-                  <b>{stake} USD</b>
-
-                  <button type="button" onClick={() => setStake(Number(stake) + 1)}>
-                    +
-                  </button>
-                </div>
-              </div>
-
-              <div className="tradeActions">
-                {CHOICES[contractType].map((item, index) => (
-                  <button
-                    key={item}
-                    type="button"
-                    onClick={() => trade({ type: contractType, choice: item })}
-                    className={index === 0 ? "riseAction" : "fallAction"}
-                  >
-                    <strong>{item}</strong>
-
-                    <small>
-                      Payout <b>{(Number(stake) * 1.9).toFixed(2)} USD</b>
-                    </small>
+                    {n}
                   </button>
                 ))}
               </div>
             </>
           )}
 
-          {mainTab === "Charts" && (
-            <div className="toolBox">
-              <h2>Charts</h2>
-              <p>Live synthetic movement is displayed in the market area.</p>
+          <label>Duration ticks</label>
+          <input
+            type="number"
+            value={duration}
+            min="1"
+            onChange={(e) => setDuration(e.target.value)}
+          />
 
-              <button type="button" className="mainBuy" onClick={() => setMainTab("Trade")}>
-                Back to Trade
-              </button>
-            </div>
-          )}
+          <label>Stake</label>
+          <input
+            type="number"
+            value={stake}
+            min="1"
+            onChange={(e) => setStake(e.target.value)}
+          />
 
-          {mainTab === "Free Bot" && (
-            <div className="toolBox">
-              <h2>Free Bot</h2>
-              <p>Run automatic trades using your current selected contract.</p>
+          <button className="buyBtn" onClick={placeTrade}>
+            Buy contract
+          </button>
 
-              <label>Bot Runs</label>
-
-              <input
-                value={botRuns}
-                onChange={(e) => setBotRuns(e.target.value)}
-              />
-
-              <button type="button" className="mainBuy" onClick={runFreeBot}>
-                Start Free Bot
-              </button>
-            </div>
-          )}
-
-          {mainTab === "Copy Trading" && (
-            <div className="toolBox">
-              <h2>Copy Trading</h2>
-              <p>Copy trading is coming soon on MetaBinary.</p>
-
-              <button
-                type="button"
-                className="mainBuy"
-                onClick={() => setMainTab("Trade")}
-              >
-                Back to Trade
-              </button>
-            </div>
-          )}
+          <p className="returns">
+            Possible payout: USD {(stake * PAYOUT).toFixed(2)}
+          </p>
         </aside>
-      </div>
+      </main>
 
-      {menuOpen && (
-        <div className="sideMenu" onClick={() => setMenuOpen(false)}>
-          <div className="menuContent" onClick={(e) => e.stopPropagation()}>
-            <button type="button" className="closeMenu" onClick={() => setMenuOpen(false)}>
-              ×
-            </button>
-
-            <button
-              type="button"
-              onClick={() => {
-                setDepositOpen(true);
-                setMenuOpen(false);
-              }}
-            >
-              Deposit
-            </button>
-
-            <button
-              type="button"
-              onClick={() => {
-                alert("Withdraw coming soon");
-                setMenuOpen(false);
-              }}
-            >
-              Withdraw
-            </button>
-
-            <button type="button">History</button>
-            <button type="button">Settings</button>
-            <button type="button" onClick={logout}>Logout</button>
-          </div>
+      <section className="positions">
+        <div>
+          <h3>Open trades</h3>
+          {openTrades.map((t) => (
+            <div className="trade open" key={t.id}>
+              <b>{t.type.toUpperCase()}</b>
+              <span>Stake: {t.stake}</span>
+              <span>Ticks left: {t.ticksLeft}</span>
+            </div>
+          ))}
         </div>
-      )}
 
-      {depositOpen && (
-        <div className="modal">
-          <div className="modalBox">
-            <button type="button" className="x" onClick={() => setDepositOpen(false)}>
-              ×
-            </button>
-
-            <h2>Deposit</h2>
-            <p>Send M-Pesa STK Push to your phone</p>
-
-            <input
-              placeholder="2547XXXXXXXX"
-              value={phone}
-              onChange={(e) => setPhone(e.target.value)}
-            />
-
-            <input
-              placeholder="Amount"
-              value={depositAmount}
-              onChange={(e) => setDepositAmount(e.target.value)}
-            />
-
-            <button type="button" onClick={deposit}>
-              Send STK Push
-            </button>
-          </div>
+        <div>
+          <h3>Trade history</h3>
+          {history.map((t) => (
+            <div className={t.result === "WON" ? "trade won" : "trade lost"} key={t.id}>
+              <b>{t.type.toUpperCase()} — {t.result}</b>
+              <span>Entry digit: {t.entryDigit}</span>
+              <span>Exit digit: {t.exitDigit}</span>
+              <span>Profit: USD {t.profit.toFixed(2)}</span>
+            </div>
+          ))}
         </div>
-      )}
+      </section>
     </div>
   );
 }
