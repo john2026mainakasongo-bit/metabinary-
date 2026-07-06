@@ -850,3 +850,177 @@ cursor:pointer;
 cursor:pointer;
 }
 }
+.tradeBox{
+background:white;
+border-radius:18px;
+padding:20px;
+margin-bottom:14px;
+}
+
+.tradeBox h2{
+color:#111;
+font-size:30px;
+font-weight:900;
+margin-bottom:16px;
+}
+
+.tradeBox h3{
+color:#111;
+font-size:20px;
+margin-bottom:14px;
+}
+
+.tradeSelector{
+display:grid;
+grid-template-columns:1fr 1fr;
+gap:10px;
+}
+
+.tradeSelector button{
+height:48px;
+border-radius:12px;
+border:1px solid #ddd;
+background:#f5f6f7;
+color:#111;
+font-size:15px;
+font-weight:900;
+}
+
+.tradeSelector button.active{
+background:#12b8a6;
+color:white;
+border-color:#12b8a6;
+}
+
+.selectDigits{
+display:grid;
+grid-template-columns:repeat(5,1fr);
+gap:10px;
+}
+
+.selectDigits button{
+height:44px;
+border-radius:12px;
+border:1px solid #ddd;
+background:#f5f6f7;
+font-size:20px;
+font-weight:900;
+}
+
+.selectDigits button.active{
+background:#12b8a6;
+color:white;
+border-color:#12b8a6;
+}
+
+.tradeRowNew{
+background:white;
+border-radius:16px;
+padding:18px;
+margin-bottom:14px;
+display:flex;
+align-items:center;
+justify-content:space-between;
+color:#111;
+}
+
+.tradeRowNew span{
+font-size:22px;
+}
+
+.stepper{
+display:flex;
+align-items:center;
+gap:10px;
+}
+
+.stepper button{
+width:34px;
+height:34px;
+border-radius:50%;
+border:none;
+background:#e9ecef;
+font-size:22px;
+font-weight:900;
+color:#111;
+}
+
+.stepper b{
+font-size:20px;
+color:#111;
+}
+
+.tradeActions{
+display:grid;
+grid-template-columns:1fr 1fr;
+gap:16px;
+}
+
+.tradeActions button{
+height:120px;
+border:none;
+border-radius:18px;
+color:white;
+font-weight:900;
+display:flex;
+flex-direction:column;
+align-items:center;
+justify-content:center;
+gap:18px;
+}
+
+.tradeActions strong{
+font-size:36px;
+}
+
+.tradeActions small{
+width:100%;
+display:flex;
+justify-content:space-around;
+font-size:15px;
+}
+
+.riseAction{
+background:#12b8a6;
+}
+
+.fallAction{
+background:#ff4658;
+}
+
+.tradeMessage{
+margin-top:14px;
+background:white;
+color:#111;
+padding:14px;
+border-radius:12px;
+font-weight:800;
+text-align:center;
+}
+
+@media(max-width:1023px){
+.contractTabs,
+.tradeTitle,
+.choice,
+.inputRow,
+.tradeRow{
+display:none!important;
+}
+
+.tradePanel{
+background:#f4f4f4;
+padding:20px 24px 100px;
+}
+
+.tradeSelector{
+grid-template-columns:1fr 1fr;
+}
+
+.tradeActions button{
+height:116px;
+}
+
+.tradeActions strong{
+font-size:34px;
+}
+}
