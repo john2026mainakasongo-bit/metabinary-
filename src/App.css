@@ -765,3 +765,25 @@ height:112px;
 }
 
 }
+.tradeBox{
+margin-left:0;
+margin-right:0;
+}
+
+.tradeSelector{
+display:grid;
+grid-template-columns:1fr 1fr;
+gap:10px;
+overflow:visible;
+}
+
+.tradeSelector button{
+min-width:0;
+width:100%;
+height:46px;
+font-size:14px;
+}
+
+.tradePanel{
+padding-top:10px;
+}
