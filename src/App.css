@@ -1,638 +1,631 @@
-import { useEffect, useMemo, useState } from "react";
-import "./App.css";
+*{margin:0;padding:0;box-sizing:border-box;font-family:Arial,Helvetica,sans-serif}
 
-const API = import.meta.env.VITE_API_URL || "http://localhost:5000";
-
-const CONTRACTS = ["Rise/Fall", "Even/Odd", "Matches/Differs", "Over/Under"];
-
-const CHOICES = {
-  "Rise/Fall": ["Rise", "Fall"],
-  "Even/Odd": ["Even", "Odd"],
-  "Matches/Differs": ["Matches", "Differs"],
-  "Over/Under": ["Over", "Under"],
-};
-
-function createChartData() {
-  let y = 250;
-
-  return Array.from({ length: 90 }, (_, i) => {
-    y += (Math.random() - 0.48) * 28;
-    y = Math.max(115, Math.min(360, y));
-    return { x: 40 + i * 14, y };
-  });
+html,body,#root{
+width:100%;
+height:100%;
+overflow:hidden;
+background:#07111d;
 }
 
-export default function App() {
-  const [screen, setScreen] = useState(
-    localStorage.getItem("token") ? "app" : "login"
-  );
-
-  const [email, setEmail] = useState(localStorage.getItem("email") || "");
-  const [password, setPassword] = useState("");
-
-  const [mode, setMode] = useState(localStorage.getItem("mode") || "Demo");
-  const [balance, setBalance] = useState({ demo: 10000, real: 0 });
-
-  const [mainTab, setMainTab] = useState("Manual Trader");
-
-  const [contractType, setContractType] = useState("Rise/Fall");
-  const [stake, setStake] = useState(10);
-  const [duration, setDuration] = useState(5);
-  const [botRuns, setBotRuns] = useState(3);
-
-  const [previousDigit, setPreviousDigit] = useState(8);
-  const [lastDigit, setLastDigit] = useState(8);
-  const [selectedDigit, setSelectedDigit] = useState(8);
-
-  const [chartData, setChartData] = useState(createChartData);
-
-  const [openTrades, setOpenTrades] = useState([]);
-  const [closedTrades, setClosedTrades] = useState([]);
-
-  const [menuOpen, setMenuOpen] = useState(false);
-  const [depositOpen, setDepositOpen] = useState(false);
-  const [phone, setPhone] = useState("");
-  const [depositAmount, setDepositAmount] = useState(10);
-
-  const currentBalance = mode === "Demo" ? balance.demo : balance.real;
-
-  const price = useMemo(() => {
-    return (819 + lastDigit / 10 + Math.random() * 0.15).toFixed(2);
-  }, [lastDigit]);
-
-  const points = useMemo(() => {
-    return chartData.map((p) => `${p.x},${p.y.toFixed(1)}`).join(" ");
-  }, [chartData]);
-
-  const digitStats = useMemo(() => {
-    return Array.from({ length: 10 }, (_, d) => ({
-      d,
-      percent: (8 + Math.random() * 4).toFixed(1),
-    }));
-  }, [lastDigit]);
-
-  async function refreshBalance() {
-    if (!email) return;
-
-    try {
-      const res = await fetch(`${API}/api/user/${email}`);
-      const data = await res.json();
-
-      if (data.success && data.user) {
-        setBalance({
-          demo: Number(data.user.demoBalance || 10000),
-          real: Number(data.user.realBalance || 0),
-        });
-      }
-    } catch {
-      console.log("Backend not reachable");
-    }
-  }
-
-  useEffect(() => {
-    if (screen === "app") refreshBalance();
-
-    const timer = setInterval(() => {
-      const d = Math.floor(Math.random() * 10);
-
-      setLastDigit((old) => {
-        setPreviousDigit(old);
-        return d;
-      });
-
-      setSelectedDigit(d);
-
-      setChartData((old) => {
-        const lastY = old[old.length - 1]?.y || 250;
-        let nextY = lastY + (Math.random() - 0.48) * 32;
-        nextY = Math.max(115, Math.min(360, nextY));
-
-        const next = old.slice(1).map((p, i) => ({
-          x: 40 + i * 14,
-          y: p.y,
-        }));
-
-        next.push({
-          x: 40 + (old.length - 1) * 14,
-          y: nextY,
-        });
-
-        return next;
-      });
-    }, 1000);
-
-    return () => clearInterval(timer);
-  }, [screen, email]);
-
-  useEffect(() => {
-    if (screen !== "app") return;
-
-    const timer = setInterval(refreshBalance, 3000);
-    return () => clearInterval(timer);
-  }, [screen, email]);
-
-  async function auth(type) {
-    if (!email || !password) return alert("Enter email and password");
-
-    try {
-      const res = await fetch(`${API}/api/${type}`, {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ email, password }),
-      });
-
-      const data = await res.json();
-
-      if (!data.success) return alert(data.message || "Auth failed");
-
-      localStorage.setItem("token", data.token);
-      localStorage.setItem("email", data.user.email);
-      localStorage.setItem("mode", "Demo");
-
-      setEmail(data.user.email);
-      setMode("Demo");
-
-      setBalance({
-        demo: Number(data.user.demoBalance || 10000),
-        real: Number(data.user.realBalance || 0),
-      });
-
-      setScreen("app");
-    } catch {
-      alert("Backend is not connected. Start backend or set VITE_API_URL.");
-    }
-  }
-
-  function logout() {
-    localStorage.clear();
-    setScreen("login");
-    setPassword("");
-    setMenuOpen(false);
-  }
-
-  function changeMode(value) {
-    setMode(value);
-    localStorage.setItem("mode", value);
-  }
-
-  function checkWin(type, choice, targetDigit, startDigit, finalDigit) {
-    if (type === "Even/Odd") {
-      return choice === "Even" ? finalDigit % 2 === 0 : finalDigit % 2 !== 0;
-    }
-
-    if (type === "Matches/Differs") {
-      return choice === "Matches"
-        ? finalDigit === targetDigit
-        : finalDigit !== targetDigit;
-    }
-
-    if (type === "Over/Under") {
-      return choice === "Over" ? finalDigit > targetDigit : finalDigit < targetDigit;
-    }
-
-    if (type === "Rise/Fall") {
-      return choice === "Rise" ? finalDigit > startDigit : finalDigit < startDigit;
-    }
-
-    return false;
-  }
-
-  function trade({ type, choice }) {
-    const tradeStake = Number(stake);
-    const tradeDuration = Number(duration);
-
-    if (tradeStake <= 0) return alert("Enter stake");
-    if (tradeDuration <= 0) return alert("Enter duration");
-    if (currentBalance < tradeStake) return alert("Insufficient balance");
-
-    const id = Date.now() + Math.random();
-    const targetDigit = selectedDigit;
-    const startDigit = previousDigit;
-
-    const item = {
-      id,
-      contractType: type,
-      choice,
-      stake: tradeStake,
-      target: targetDigit,
-      startDigit,
-      duration: tradeDuration,
-      mode,
-      status: "Running",
-    };
-
-    setOpenTrades((x) => [item, ...x]);
-
-    setBalance((b) =>
-      mode === "Demo"
-        ? { ...b, demo: b.demo - tradeStake }
-        : { ...b, real: b.real - tradeStake }
-    );
-
-    setTimeout(() => {
-      const finalDigit = Math.floor(Math.random() * 10);
-      setPreviousDigit(lastDigit);
-      setLastDigit(finalDigit);
-      setSelectedDigit(finalDigit);
-
-      const win = checkWin(type, choice, targetDigit, startDigit, finalDigit);
-      const payout = win ? tradeStake * 1.9 : 0;
-
-      setOpenTrades((x) => x.filter((t) => t.id !== id));
-      setClosedTrades((x) => [{ ...item, result: finalDigit, win, payout }, ...x]);
-
-      if (win) {
-        setBalance((b) =>
-          mode === "Demo"
-            ? { ...b, demo: b.demo + payout }
-            : { ...b, real: b.real + payout }
-        );
-      }
-    }, tradeDuration * 1000);
-  }
-
-  function runFreeBot() {
-    const runs = Number(botRuns);
-    if (runs <= 0) return alert("Enter bot runs");
-
-    for (let i = 0; i < runs; i++) {
-      setTimeout(() => {
-        trade({
-          type: contractType,
-          choice: CHOICES[contractType][0],
-        });
-      }, i * 1400);
-    }
-  }
-
-  async function deposit() {
-    if (!phone || !depositAmount) return alert("Enter phone and amount");
-
-    try {
-      const res = await fetch(`${API}/api/deposit`, {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({
-          email,
-          phone,
-          amount: Number(depositAmount),
-        }),
-      });
-
-      const data = await res.json();
-
-      if (!data.success) return alert(data.message || "Deposit failed");
-
-      alert("STK Push sent. Wait for M-Pesa confirmation.");
-      refreshBalance();
-    } catch {
-      alert("Deposit failed. Backend is not connected.");
-    }
-  }
-
-  if (screen === "login" || screen === "register") {
-    return (
-      <div className="authPage">
-        <div className="authCard">
-          <h1>MetaBinary</h1>
-          <p>
-            {screen === "login"
-              ? "Login to continue trading"
-              : "Create your trading account"}
-          </p>
-
-          <input
-            placeholder="Email"
-            value={email}
-            onChange={(e) => setEmail(e.target.value)}
-          />
-
-          <input
-            placeholder="Password"
-            type="password"
-            value={password}
-            onChange={(e) => setPassword(e.target.value)}
-          />
-
-          <button type="button" onClick={() => auth(screen)}>
-            {screen === "login" ? "Login" : "Register"}
-          </button>
-
-          <span onClick={() => setScreen(screen === "login" ? "register" : "login")}>
-            {screen === "login" ? "Create account" : "Already have account? Login"}
-          </span>
-        </div>
-      </div>
-    );
-  }
-
-  return (
-    <div className="platform">
-      <header className="topbar">
-        <div className="topLine">
-          <button className="topMenuBtn" type="button" onClick={() => setMenuOpen(true)}>
-            ☰
-          </button>
-
-          <select
-            className="topAccount"
-            value={mode}
-            onChange={(e) => changeMode(e.target.value)}
-          >
-            <option>Demo</option>
-            <option>Real</option>
-          </select>
-
-          <div className="topBalance">${currentBalance.toFixed(2)}</div>
-        </div>
-
-        <div className="mainTabs">
-          {["Bot Builder", "Manual Trader", "Bulk Trader"].map((tab) => (
-            <button
-              type="button"
-              key={tab}
-              className={mainTab === tab ? "active" : ""}
-              onClick={() => setMainTab(tab)}
-            >
-              {tab}
-            </button>
-          ))}
-        </div>
-      </header>
-
-      <div className="layout">
-        <aside className="leftPanel">
-          <div className="tabs">
-            <span className="active">Open ({openTrades.length})</span>
-            <span>Closed ({closedTrades.length})</span>
-          </div>
-
-          <div className="positions">
-            {openTrades.length === 0 && closedTrades.length === 0 && (
-              <>
-                <div className="avatar">MB</div>
-                <h2>No positions</h2>
-                <p>Your trades will appear here</p>
-              </>
-            )}
-
-            {openTrades.map((t) => (
-              <div className="tradeCard" key={t.id}>
-                <b>{t.contractType}</b>
-                <span>
-                  {t.choice} • {t.mode} • ${t.stake}
-                </span>
-                <small>Target digit {t.target}</small>
-              </div>
-            ))}
-
-            {closedTrades.slice(0, 8).map((t) => (
-              <div className={`tradeCard ${t.win ? "win" : "loss"}`} key={t.id}>
-                <b>{t.win ? "WIN" : "LOSS"} • {t.choice}</b>
-                <span>Result digit: {t.result}</span>
-                <small>Payout ${t.payout.toFixed(2)}</small>
-              </div>
-            ))}
-          </div>
-        </aside>
-
-        <main className="chartWrap">
-          <section className="chartCard">
-            <div className="chartHeader">
-              <div>
-                <h1>Volatility 100 (1s) Index</h1>
-                <p>{price} - 0.02 (0.00%)</p>
-              </div>
-
-              <div className="lastDigitBadge">{lastDigit}</div>
-            </div>
-
-            <div className="chart">
-              <svg viewBox="0 0 1300 450" preserveAspectRatio="none">
-                <polyline
-                  points={points}
-                  fill="none"
-                  stroke="#12d6b3"
-                  strokeWidth="4"
-                  strokeLinecap="round"
-                  strokeLinejoin="round"
-                />
-              </svg>
-
-              <div className="priceTag">{price}</div>
-              <div className="cursorDigit">{lastDigit}</div>
-            </div>
-
-            <div className="digits">
-              {digitStats.map(({ d, percent }) => (
-                <button
-                  type="button"
-                  key={d}
-                  onClick={() => setSelectedDigit(d)}
-                  className={`digit ${selectedDigit === d ? "selected" : ""}`}
-                >
-                  <b>{d}</b>
-                  <span>{percent}%</span>
-                </button>
-              ))}
-            </div>
-          </section>
-        </main>
-
-        <aside className="tradePanel">
-          {mainTab === "Manual Trader" && (
-            <>
-              <div className="tradeBox">
-                <p className="learn">ⓘ Select contract type</p>
-
-                <div className="tradeSelector">
-                  {CONTRACTS.map((item) => (
-                    <button
-                      type="button"
-                      key={item}
-                      className={contractType === item ? "active" : ""}
-                      onClick={() => setContractType(item)}
-                    >
-                      {item}
-                    </button>
-                  ))}
-                </div>
-              </div>
-
-              {(contractType === "Matches/Differs" || contractType === "Over/Under") && (
-                <div className="tradeBox">
-                  <h3>Select digit</h3>
-
-                  <div className="selectDigits">
-                    {[0, 1, 2, 3, 4, 5, 6, 7, 8, 9].map((digit) => (
-                      <button
-                        type="button"
-                        key={digit}
-                        onClick={() => setSelectedDigit(digit)}
-                        className={selectedDigit === digit ? "active" : ""}
-                      >
-                        {digit}
-                      </button>
-                    ))}
-                  </div>
-                </div>
-              )}
-
-              <div className="tradeRowNew">
-                <span>Duration</span>
-
-                <div className="stepper">
-                  <button
-                    type="button"
-                    onClick={() => setDuration(Math.max(1, Number(duration) - 1))}
-                  >
-                    −
-                  </button>
-
-                  <b>{duration} ticks</b>
-
-                  <button
-                    type="button"
-                    onClick={() => setDuration(Number(duration) + 1)}
-                  >
-                    +
-                  </button>
-                </div>
-              </div>
-
-              <div className="tradeRowNew">
-                <span>Stake</span>
-
-                <div className="stepper">
-                  <button
-                    type="button"
-                    onClick={() => setStake(Math.max(1, Number(stake) - 1))}
-                  >
-                    −
-                  </button>
-
-                  <b>{stake} USD</b>
-
-                  <button type="button" onClick={() => setStake(Number(stake) + 1)}>
-                    +
-                  </button>
-                </div>
-              </div>
-
-              <div className="tradeActions">
-                {CHOICES[contractType].map((item, index) => (
-                  <button
-                    key={item}
-                    type="button"
-                    onClick={() => trade({ type: contractType, choice: item })}
-                    className={index === 0 ? "riseAction" : "fallAction"}
-                  >
-                    <strong>{item}</strong>
-                    <small>
-                      Payout <b>{(Number(stake) * 1.9).toFixed(2)} USD</b>
-                    </small>
-                  </button>
-                ))}
-              </div>
-            </>
-          )}
-
-          {mainTab === "Bot Builder" && (
-            <div className="toolBox">
-              <h2>Free Bot</h2>
-              <p>Run automatic trades using your current selected contract.</p>
-
-              <label>Bot Runs</label>
-              <input
-                value={botRuns}
-                onChange={(e) => setBotRuns(e.target.value)}
-              />
-
-              <button type="button" className="mainBuy" onClick={runFreeBot}>
-                Start Free Bot
-              </button>
-            </div>
-          )}
-
-          {mainTab === "Bulk Trader" && (
-            <div className="toolBox">
-              <h2>Bulk Trader</h2>
-              <p>Bulk trading is coming soon on MetaBinary.</p>
-
-              <button
-                type="button"
-                className="mainBuy"
-                onClick={() => setMainTab("Manual Trader")}
-              >
-                Back to Manual Trader
-              </button>
-            </div>
-          )}
-        </aside>
-      </div>
-
-      {menuOpen && (
-        <div className="sideMenu" onClick={() => setMenuOpen(false)}>
-          <div className="menuContent" onClick={(e) => e.stopPropagation()}>
-            <button type="button" className="closeMenu" onClick={() => setMenuOpen(false)}>
-              ×
-            </button>
-
-            <button
-              type="button"
-              onClick={() => {
-                setDepositOpen(true);
-                setMenuOpen(false);
-              }}
-            >
-              Deposit
-            </button>
-
-            <button
-              type="button"
-              onClick={() => {
-                alert("Withdraw coming soon");
-                setMenuOpen(false);
-              }}
-            >
-              Withdraw
-            </button>
-
-            <button type="button">History</button>
-            <button type="button">Settings</button>
-            <button type="button" onClick={logout}>Logout</button>
-          </div>
-        </div>
-      )}
-
-      {depositOpen && (
-        <div className="modal">
-          <div className="modalBox">
-            <button type="button" className="x" onClick={() => setDepositOpen(false)}>
-              ×
-            </button>
-
-            <h2>Deposit</h2>
-            <p>Send M-Pesa STK Push to your phone</p>
-
-            <input
-              placeholder="2547XXXXXXXX"
-              value={phone}
-              onChange={(e) => setPhone(e.target.value)}
-            />
-
-            <input
-              placeholder="Amount"
-              value={depositAmount}
-              onChange={(e) => setDepositAmount(e.target.value)}
-            />
-
-            <button type="button" onClick={deposit}>
-              Send STK Push
-            </button>
-          </div>
-        </div>
-      )}
-    </div>
-  );
+button,select,input{font-family:inherit}
+
+.platform{
+width:100vw;
+height:100dvh;
+display:flex;
+flex-direction:column;
+background:#07111d;
+overflow:hidden;
+}
+
+/* TOP */
+.topbar{
+height:112px;
+background:white;
+display:flex;
+flex-direction:column;
+}
+
+.topLine{
+height:56px;
+display:flex;
+align-items:center;
+gap:10px;
+padding:0 12px;
+}
+
+.topMenuBtn{
+border:none;
+background:none;
+font-size:32px;
+font-weight:900;
+color:#111;
+}
+
+.topAccount{
+height:40px;
+border:2px solid #111;
+border-radius:10px;
+background:white;
+padding:0 12px;
+font-size:16px;
+font-weight:800;
+}
+
+.topBalance{
+margin-left:auto;
+height:40px;
+display:flex;
+align-items:center;
+padding:0 14px;
+border:1px solid #ddd;
+border-radius:10px;
+color:#12b8a6;
+font-size:20px;
+font-weight:900;
+}
+
+.mainTabs{
+height:56px;
+display:grid;
+grid-template-columns:repeat(4,1fr);
+background:#061426;
+}
+
+.mainTabs button{
+border:none;
+background:#061426;
+color:white;
+font-size:13px;
+font-weight:900;
+}
+
+.mainTabs button.active{background:#12b8a6}
+
+/* LAYOUT */
+.layout{
+height:calc(100dvh - 112px);
+display:grid;
+grid-template-columns:1fr;
+grid-template-rows:37% 63%;
+overflow:hidden;
+}
+
+.leftPanel{display:none}
+
+/* CHART AREA */
+.chartWrap{
+background:white;
+padding:10px;
+overflow:hidden;
+}
+
+.chartCard{
+height:100%;
+background:white;
+display:flex;
+flex-direction:column;
+overflow:hidden;
+}
+
+.chartHeader{
+height:64px;
+background:white;
+border:1px solid #ddd;
+border-radius:16px;
+padding:8px 14px;
+margin-bottom:8px;
+display:flex;
+align-items:center;
+}
+
+.chartHeader h1{
+font-size:18px;
+color:#111;
+}
+
+.chartHeader p{
+font-size:13px;
+color:#12b8a6;
+font-weight:900;
+margin-top:2px;
+}
+
+.chart{display:none}
+
+.digits{
+display:grid;
+grid-template-columns:repeat(5,1fr);
+gap:8px;
+padding:0 6px;
+}
+
+.digit{
+width:44px;
+height:44px;
+margin:auto;
+border-radius:50%;
+background:white;
+border:4px solid #e9ecef;
+color:#111;
+display:flex;
+flex-direction:column;
+align-items:center;
+justify-content:center;
+}
+
+.digit.selected{
+border:2px solid #12b8a6;
+}
+
+.digit b{
+font-size:20px;
+line-height:18px;
+}
+
+.digit span{
+font-size:9px;
+color:#8b95a3;
+}
+
+/* TRADE PANEL */
+.tradePanel{
+height:100%;
+background:#f4f4f4;
+padding:8px 10px;
+overflow:hidden;
+}
+
+.learn{
+font-size:13px;
+color:#8d9aab;
+margin-bottom:6px;
+}
+
+.tradeBox{
+background:white;
+border-radius:13px;
+padding:10px;
+margin-bottom:8px;
+}
+
+.tradeBox h2{
+font-size:21px;
+font-weight:900;
+color:#111;
+margin-bottom:8px;
+}
+
+.tradeBox h3{
+font-size:15px;
+color:#111;
+margin-bottom:8px;
+}
+
+.tradeSelector{
+display:grid;
+grid-template-columns:1fr 1fr;
+gap:6px;
+}
+
+.tradeSelector button{
+height:34px;
+border-radius:8px;
+border:1px solid #ddd;
+background:#f5f6f7;
+color:#111;
+font-size:11px;
+font-weight:900;
+}
+
+.tradeSelector button.active{
+background:#12b8a6;
+color:white;
+border-color:#12b8a6;
+}
+
+.selectDigits{
+display:grid;
+grid-template-columns:repeat(5,1fr);
+gap:5px;
+}
+
+.selectDigits button{
+height:28px;
+border-radius:8px;
+border:1px solid #ddd;
+background:#f5f6f7;
+font-size:14px;
+font-weight:900;
+}
+
+.selectDigits button.active{
+background:#12b8a6;
+color:white;
+border-color:#12b8a6;
+}
+
+.tradeRowNew{
+height:48px;
+background:white;
+border-radius:12px;
+padding:0 12px;
+margin-bottom:8px;
+display:flex;
+align-items:center;
+justify-content:space-between;
+color:#111;
+}
+
+.tradeRowNew span{
+font-size:15px;
+font-weight:500;
+}
+
+.stepper{
+display:flex;
+align-items:center;
+gap:6px;
+}
+
+.stepper button{
+width:26px;
+height:26px;
+border:none;
+border-radius:50%;
+background:#e9ecef;
+font-size:18px;
+font-weight:900;
+color:#111;
+}
+
+.stepper b{
+font-size:14px;
+color:#111;
+}
+
+.tradeActions{
+display:grid;
+grid-template-columns:1fr 1fr;
+gap:8px;
+}
+
+.tradeActions button{
+height:76px;
+border:none;
+border-radius:12px;
+color:white;
+font-weight:900;
+display:flex;
+flex-direction:column;
+align-items:center;
+justify-content:center;
+gap:5px;
+}
+
+.tradeActions strong{
+font-size:24px;
+}
+
+.tradeActions small{
+font-size:11px;
+}
+
+.riseAction{background:#12b8a6}
+.fallAction{background:#ff4658}
+
+/* TOOLS */
+.toolBox{
+background:white;
+padding:18px;
+border-radius:18px;
+}
+
+.toolBox h2{margin-bottom:8px}
+
+.toolBox p{
+color:#667085;
+margin-bottom:14px;
+}
+
+.toolBox input{
+width:100%;
+height:48px;
+border:1px solid #ddd;
+border-radius:10px;
+padding:0 12px;
+margin:8px 0 12px;
+}
+
+.mainBuy{
+width:100%;
+height:52px;
+border:none;
+border-radius:12px;
+background:#12b8a6;
+font-size:17px;
+font-weight:900;
+color:white;
+}
+
+/* MENU */
+.sideMenu{
+position:fixed;
+inset:0;
+background:rgba(0,0,0,.45);
+z-index:9999;
+}
+
+.menuContent{
+width:280px;
+height:100%;
+background:white;
+padding:24px;
+display:flex;
+flex-direction:column;
+gap:12px;
+}
+
+.menuContent button{
+height:50px;
+border:none;
+border-radius:10px;
+background:#f3f4f6;
+font-weight:800;
+}
+
+.closeMenu{
+align-self:flex-end;
+background:none!important;
+font-size:30px;
+height:auto!important;
+}
+
+/* MODAL */
+.modal{
+position:fixed;
+inset:0;
+background:rgba(0,0,0,.6);
+display:flex;
+align-items:center;
+justify-content:center;
+z-index:99999;
+}
+
+.modalBox{
+width:420px;
+max-width:92%;
+background:#0e1a2a;
+color:white;
+border-radius:18px;
+padding:24px;
+position:relative;
+}
+
+.modalBox p{
+color:#96a4ba;
+margin:8px 0 16px;
+}
+
+.modalBox input{
+width:100%;
+height:50px;
+border-radius:10px;
+border:1px solid #22324a;
+background:#07111d;
+color:white;
+padding:0 14px;
+margin-bottom:12px;
+}
+
+.modalBox button:last-child{
+width:100%;
+height:52px;
+border:none;
+border-radius:10px;
+background:#12d6b3;
+font-weight:900;
+}
+
+.x{
+position:absolute;
+right:16px;
+top:12px;
+background:none;
+border:none;
+font-size:28px;
+color:white;
+}
+
+/* DESKTOP */
+@media(min-width:1024px){
+.layout{
+flex:1;
+height:auto;
+grid-template-columns:300px 1fr 360px;
+grid-template-rows:1fr;
+}
+
+.leftPanel{
+display:block;
+background:#0b1625;
+color:white;
+overflow:auto;
+}
+
+.chartWrap{
+background:#07111d;
+padding:16px;
+}
+
+.chartCard{
+background:#0b1625;
+border-radius:18px;
+padding:18px;
+}
+
+.chartHeader{
+height:88px;
+background:#101e31;
+border:none;
+border-radius:14px;
+padding:16px;
+margin-bottom:16px;
+}
+
+.chartHeader h1{
+font-size:24px;
+color:white;
+}
+
+.chartHeader p{
+font-size:15px;
+}
+
+.chart{
+display:block;
+flex:1;
+background:#07111d;
+border-radius:18px;
+position:relative;
+}
+
+.chart svg{
+width:100%;
+height:100%;
+}
+
+.priceTag{
+position:absolute;
+right:16px;
+top:45%;
+background:#12d6b3;
+padding:8px 12px;
+border-radius:10px;
+font-weight:900;
+color:#061426;
+}
+
+.digits{
+grid-template-columns:repeat(10,1fr);
+gap:8px;
+padding-top:18px;
+}
+
+.digit{
+width:auto;
+height:78px;
+border-radius:14px;
+background:#101e31;
+border:1px solid #23334d;
+color:white;
+}
+
+.digit b{font-size:26px}
+.digit span{font-size:12px}
+
+.tradePanel{
+background:#f4f4f4;
+padding:18px;
+overflow:auto;
+}
+
+.tradeBox{
+padding:18px;
+border-radius:18px;
+margin-bottom:12px;
+}
+
+.tradeBox h2{
+font-size:30px;
+margin-bottom:14px;
+}
+
+.tradeSelector button{
+height:46px;
+font-size:15px;
+border-radius:12px;
+}
+
+.tradeRowNew{
+height:62px;
+border-radius:16px;
+padding:0 18px;
+margin-bottom:12px;
+}
+
+.tradeRowNew span{font-size:20px}
+
+.stepper button{
+width:32px;
+height:32px;
+font-size:22px;
+}
+
+.stepper b{font-size:18px}
+
+.tradeActions{
+gap:14px;
+}
+
+.tradeActions button{
+height:112px;
+border-radius:18px;
+gap:12px;
+}
+
+.tradeActions strong{font-size:34px}
+.tradeActions small{font-size:14px}
+
+.tabs{
+height:54px;
+display:grid;
+grid-template-columns:1fr 1fr;
+border-bottom:1px solid rgba(255,255,255,.08);
+}
+
+.tabs span{
+display:flex;
+align-items:center;
+justify-content:center;
+color:#8b9ab1;
+font-weight:800;
+}
+
+.tabs span.active{
+color:#12d6b3;
+border-bottom:3px solid #12d6b3;
+}
+
+.positions{padding:18px}
+
+.avatar{
+width:70px;
+height:70px;
+border-radius:50%;
+background:#12d6b3;
+color:#061426;
+display:flex;
+align-items:center;
+justify-content:center;
+font-weight:900;
+margin:0 auto 16px;
+}
+
+.positions h2{
+text-align:center;
+margin-bottom:8px;
+}
+
+.positions p{
+text-align:center;
+color:#8b9ab1;
+}
+
+.tradeCard{
+background:#101e31;
+padding:14px;
+border-radius:12px;
+margin-bottom:12px;
+}
 }
