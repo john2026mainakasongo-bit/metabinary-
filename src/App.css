@@ -1024,3 +1024,104 @@ height:116px;
 font-size:34px;
 }
 }
+.tradePanel{
+display:block!important;
+background:#f4f4f4!important;
+padding:20px 24px 100px!important;
+overflow-y:auto!important;
+}
+
+.tradeBox{
+display:block!important;
+background:white!important;
+border-radius:18px!important;
+padding:20px!important;
+margin-bottom:14px!important;
+}
+
+.tradeBox h2{
+display:block!important;
+color:#111!important;
+font-size:30px!important;
+font-weight:900!important;
+margin-bottom:16px!important;
+}
+
+.tradeSelector{
+display:grid!important;
+grid-template-columns:1fr 1fr!important;
+gap:10px!important;
+}
+
+.tradeSelector button{
+display:block!important;
+height:48px!important;
+border-radius:12px!important;
+border:1px solid #ddd!important;
+background:#f5f6f7!important;
+color:#111!important;
+font-size:15px!important;
+font-weight:900!important;
+}
+
+.tradeSelector button.active{
+background:#12b8a6!important;
+color:white!important;
+border-color:#12b8a6!important;
+}
+
+.tradeRowNew{
+display:flex!important;
+align-items:center!important;
+justify-content:space-between!important;
+background:white!important;
+border-radius:16px!important;
+padding:18px!important;
+margin-bottom:14px!important;
+color:#111!important;
+}
+
+.stepper{
+display:flex!important;
+align-items:center!important;
+gap:10px!important;
+}
+
+.stepper button{
+display:block!important;
+width:34px!important;
+height:34px!important;
+border-radius:50%!important;
+border:none!important;
+background:#e9ecef!important;
+font-size:22px!important;
+font-weight:900!important;
+color:#111!important;
+}
+
+.tradeActions{
+display:grid!important;
+grid-template-columns:1fr 1fr!important;
+gap:16px!important;
+}
+
+.tradeActions button{
+display:flex!important;
+height:116px!important;
+border:none!important;
+border-radius:18px!important;
+color:white!important;
+font-weight:900!important;
+flex-direction:column!important;
+align-items:center!important;
+justify-content:center!important;
+gap:18px!important;
+}
+
+.riseAction{
+background:#12b8a6!important;
+}
+
+.fallAction{
+background:#ff4658!important;
+}
