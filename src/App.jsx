@@ -12,38 +12,38 @@ const PAYOUTS = {
 };
 
 export default function App() {
-  const [balance, setBalance] = useState(10000);
-  const [price, setPrice] = useState(1000.25);
-  const [lastDigit, setLastDigit] = useState(0);
-  const [digitHistory, setDigitHistory] = useState([0, 1, 2, 3, 4, 5, 6, 7, 8, 9]);
+  const [account, setAccount] = useState("Real");
+  const [balance, setBalance] = useState(40);
+  const [price, setPrice] = useState(819.75);
+  const [lastDigit, setLastDigit] = useState(7);
 
-  const [contract, setContract] = useState("even");
-  const [prediction, setPrediction] = useState(5);
+  const [mode, setMode] = useState("risefall");
+  const [side, setSide] = useState("rise");
+  const [prediction, setPrediction] = useState(7);
   const [duration, setDuration] = useState(5);
   const [stake, setStake] = useState(10);
 
   const [openTrades, setOpenTrades] = useState([]);
-  const [tradeHistory, setTradeHistory] = useState([]);
+  const [history, setHistory] = useState([]);
 
   useEffect(() => {
     const timer = setInterval(() => {
-      setPrice((oldPrice) => {
-        const nextPrice = Number((oldPrice + (Math.random() - 0.5) * 4).toFixed(2));
-        const digit = Number(nextPrice.toFixed(2).slice(-1));
+      setPrice((old) => {
+        const next = Number((old + (Math.random() - 0.5) * 2).toFixed(2));
+        const digit = Number(next.toFixed(2).slice(-1));
 
         setLastDigit(digit);
-        setDigitHistory((old) => [digit, ...old].slice(0, 20));
 
-        setOpenTrades((old) =>
-          old.map((trade) => ({
-            ...trade,
-            ticksLeft: trade.ticksLeft - 1,
-            exitPrice: nextPrice,
+        setOpenTrades((trades) =>
+          trades.map((t) => ({
+            ...t,
+            ticksLeft: t.ticksLeft - 1,
+            exitPrice: next,
             exitDigit: digit,
           }))
         );
 
-        return nextPrice;
+        return next;
       });
     }, 1000);
 
@@ -51,761 +51,537 @@ export default function App() {
   }, []);
 
   useEffect(() => {
-    const finishedTrades = openTrades.filter((trade) => trade.ticksLeft <= 0);
-    if (!finishedTrades.length) return;
+    const finished = openTrades.filter((t) => t.ticksLeft <= 0);
+    if (!finished.length) return;
 
-    finishedTrades.forEach((trade) => settleTrade(trade));
-    setOpenTrades((old) => old.filter((trade) => trade.ticksLeft > 0));
+    finished.forEach(closeTrade);
+    setOpenTrades((old) => old.filter((t) => t.ticksLeft > 0));
   }, [openTrades]);
 
-  function checkWin(trade) {
-    if (trade.type === "rise") return trade.exitPrice > trade.entryPrice;
-    if (trade.type === "fall") return trade.exitPrice < trade.entryPrice;
-    if (trade.type === "even") return trade.exitDigit % 2 === 0;
-    if (trade.type === "odd") return trade.exitDigit % 2 !== 0;
-    if (trade.type === "matches") return trade.exitDigit === trade.prediction;
-    if (trade.type === "differs") return trade.exitDigit !== trade.prediction;
-    if (trade.type === "over") return trade.exitDigit > trade.prediction;
-    if (trade.type === "under") return trade.exitDigit < trade.prediction;
-
+  function checkWin(t) {
+    if (t.type === "rise") return t.exitPrice > t.entryPrice;
+    if (t.type === "fall") return t.exitPrice < t.entryPrice;
+    if (t.type === "even") return t.exitDigit % 2 === 0;
+    if (t.type === "odd") return t.exitDigit % 2 !== 0;
+    if (t.type === "matches") return t.exitDigit === t.prediction;
+    if (t.type === "differs") return t.exitDigit !== t.prediction;
+    if (t.type === "over") return t.exitDigit > t.prediction;
+    if (t.type === "under") return t.exitDigit < t.prediction;
     return false;
   }
 
-  function settleTrade(trade) {
+  function closeTrade(trade) {
     const won = checkWin(trade);
-    const returnAmount = won ? Number((trade.stake * trade.payout).toFixed(2)) : 0;
-    const profit = won ? Number((returnAmount - trade.stake).toFixed(2)) : -trade.stake;
+    const returned = won ? Number((trade.stake * trade.payout).toFixed(2)) : 0;
+    const profit = won ? Number((returned - trade.stake).toFixed(2)) : -trade.stake;
 
     if (won) {
-      setBalance((old) => Number((old + returnAmount).toFixed(2)));
+      setBalance((b) => Number((b + returned).toFixed(2)));
     }
 
-    setTradeHistory((old) => [
+    setHistory((h) => [
       {
         ...trade,
         result: won ? "WON" : "LOST",
-        returnAmount,
+        returned,
         profit,
       },
-      ...old,
+      ...h,
     ]);
   }
 
-  function buyContract() {
-    const amount = Number(stake);
-    const ticks = Number(duration);
-
-    if (!amount || amount <= 0) {
-      alert("Enter valid stake");
-      return;
-    }
-
-    if (!ticks || ticks <= 0) {
-      alert("Enter valid duration");
-      return;
-    }
-
-    if (amount > balance) {
-      alert("Insufficient balance");
-      return;
-    }
+  function buy(type) {
+    if (stake <= 0) return alert("Enter valid stake");
+    if (duration <= 0) return alert("Enter valid duration");
+    if (stake > balance) return alert("Insufficient balance");
 
     const trade = {
       id: Date.now(),
-      type: contract,
-      prediction: Number(prediction),
-      stake: amount,
-      payout: PAYOUTS[contract],
+      type,
+      prediction,
+      stake,
+      payout: PAYOUTS[type],
       entryPrice: price,
       entryDigit: lastDigit,
       exitPrice: price,
       exitDigit: lastDigit,
-      ticksLeft: ticks,
-      duration: ticks,
+      ticksLeft: duration,
     };
 
-    setBalance((old) => Number((old - amount).toFixed(2)));
-    setOpenTrades((old) => [trade, ...old]);
+    setBalance((b) => Number((b - stake).toFixed(2)));
+    setOpenTrades((t) => [trade, ...t]);
   }
 
-  const possiblePayout = Number(stake || 0) * PAYOUTS[contract];
-  const possibleProfit = possiblePayout - Number(stake || 0);
+  function buttons() {
+    if (mode === "risefall") return ["rise", "fall"];
+    if (mode === "evenodd") return ["even", "odd"];
+    if (mode === "matchesdiffers") return ["matches", "differs"];
+    if (mode === "overunder") return ["over", "under"];
+    return ["rise", "fall"];
+  }
 
   return (
     <>
       <style>{`
-        * {
-          margin: 0;
-          padding: 0;
-          box-sizing: border-box;
-          font-family: Arial, Helvetica, sans-serif;
+        *{
+          margin:0;
+          padding:0;
+          box-sizing:border-box;
+          font-family:Arial,Helvetica,sans-serif;
         }
 
-        html,
-        body,
-        #root {
-          width: 100%;
-          min-height: 100%;
-          background: #07111d;
+        html,body,#root{
+          width:100%;
+          min-height:100%;
+          background:#f3f3f3;
         }
 
-        body {
-          color: white;
+        body{
+          color:#111;
         }
 
-        button,
-        input,
-        select {
-          font: inherit;
+        button,select,input{
+          font:inherit;
         }
 
-        .app {
-          min-height: 100vh;
-          background: #07111d;
-          color: white;
+        .app{
+          max-width:460px;
+          min-height:100vh;
+          margin:0 auto;
+          background:#f2f2f2;
         }
 
-        .topbar {
-          background: white;
-          color: #111;
-          padding: 18px 22px;
+        .top{
+          height:96px;
+          background:white;
+          display:flex;
+          align-items:center;
+          justify-content:space-between;
+          padding:0 20px;
+          border-bottom:1px solid #eee;
         }
 
-        .topbar h1 {
-          font-size: 38px;
-          font-weight: 900;
-          line-height: 1;
+        .menu{
+          font-size:44px;
+          font-weight:900;
         }
 
-        .topbar p {
-          font-size: 26px;
-          margin-top: 14px;
+        .account{
+          height:58px;
+          width:125px;
+          border:3px solid #111;
+          border-radius:18px;
+          padding:0 15px;
+          font-size:22px;
+          font-weight:900;
+          background:white;
         }
 
-        .main {
-          display: grid;
-          grid-template-columns: 1fr 380px;
-          gap: 16px;
-          padding: 16px;
+        .wallet{
+          border:1px solid #ddd;
+          border-radius:18px;
+          padding:15px 22px;
+          color:#17b7a6;
+          font-size:28px;
+          font-weight:900;
+          background:white;
         }
 
-        .chartSection {
-          background: #07111d;
-          overflow: hidden;
+        .tabs{
+          height:66px;
+          display:grid;
+          grid-template-columns:repeat(4,1fr);
+          background:#07111d;
         }
 
-        .marketCard {
-          background: #101d31;
-          padding: 24px 28px;
-          border-radius: 20px 20px 0 0;
+        .tabs button{
+          border:none;
+          background:#07111d;
+          color:white;
+          font-weight:900;
+          font-size:15px;
         }
 
-        .marketCard h2 {
-          font-size: 38px;
-          font-weight: 900;
-          line-height: 1.1;
+        .tabs button.active{
+          background:#18b8aa;
         }
 
-        .marketCard strong {
-          display: block;
-          margin-top: 14px;
-          color: #2ef2a2;
-          font-size: 40px;
-          font-weight: 900;
+        .marketCard{
+          margin:18px 20px;
+          background:white;
+          border:1px solid #ddd;
+          border-radius:22px;
+          padding:20px;
+          display:flex;
+          align-items:center;
+          justify-content:space-between;
         }
 
-        .digitsStrip {
-          background: #101d31;
-          display: flex;
-          flex-direction: row;
-          gap: 14px;
-          overflow-x: auto;
-          padding: 18px 14px 20px;
-          scrollbar-width: thin;
+        .marketCard h1{
+          font-size:26px;
+          line-height:1.1;
         }
 
-        .digit {
-          width: 78px;
-          height: 78px;
-          min-width: 78px;
-          border-radius: 50%;
-          border: 1px solid #334761;
-          background: #172943;
-          color: white;
-          display: flex;
-          align-items: center;
-          justify-content: center;
-          font-size: 34px;
-          font-weight: 900;
+        .marketCard p{
+          margin-top:8px;
+          color:#18b8aa;
+          font-size:19px;
+          font-weight:900;
         }
 
-        .digit.active {
-          background: #ff444f;
-          border-color: #ff444f;
-          box-shadow: 0 0 25px rgba(255, 68, 79, 0.8);
+        .lastBubble{
+          width:70px;
+          height:70px;
+          border-radius:50%;
+          background:#18b8aa;
+          color:white;
+          display:grid;
+          place-items:center;
+          font-size:34px;
+          font-weight:900;
         }
 
-        .chartBox {
-          height: 280px;
-          background: linear-gradient(180deg, #10213a, #07111d);
-          position: relative;
-          overflow: hidden;
-          border-top: 1px solid rgba(255,255,255,.08);
-          border-bottom: 1px solid rgba(255,255,255,.08);
+        .digits{
+          margin:0 20px 18px;
+          display:grid;
+          grid-template-columns:repeat(5,1fr);
+          gap:18px 22px;
         }
 
-        .chartLine {
-          position: absolute;
-          left: -20%;
-          top: 52%;
-          width: 140%;
-          height: 5px;
-          background: #2ef2a2;
-          box-shadow: 0 0 22px #2ef2a2;
-          animation: moveLine 2s infinite ease-in-out;
+        .digit{
+          width:62px;
+          height:62px;
+          border-radius:50%;
+          border:8px solid #edf0f4;
+          background:white;
+          display:flex;
+          flex-direction:column;
+          align-items:center;
+          justify-content:center;
+          font-weight:900;
+          font-size:26px;
         }
 
-        @keyframes moveLine {
-          0% { transform: translateY(0); }
-          25% { transform: translateY(-35px); }
-          50% { transform: translateY(15px); }
-          75% { transform: translateY(-20px); }
-          100% { transform: translateY(0); }
+        .digit span{
+          font-size:13px;
+          color:#8d96a3;
+          margin-top:2px;
         }
 
-        .cursorDigit {
-          position: absolute;
-          right: 44px;
-          top: 39%;
-          width: 108px;
-          height: 108px;
-          border-radius: 50%;
-          background: #ff444f;
-          color: white;
-          display: flex;
-          align-items: center;
-          justify-content: center;
-          font-size: 52px;
-          font-weight: 900;
-          box-shadow: 0 0 30px rgba(255, 68, 79, .75);
+        .digit.active{
+          border-color:#18b8aa;
         }
 
-        .recentDigits {
-          display: flex;
-          gap: 8px;
-          overflow-x: auto;
-          padding: 14px;
-          background: #07111d;
+        .contractBox{
+          background:white;
+          margin:0 20px 20px;
+          padding:22px 16px;
+          border-radius:22px;
         }
 
-        .recentDigits span {
-          min-width: 34px;
-          height: 34px;
-          border-radius: 50%;
-          background: #172943;
-          display: flex;
-          align-items: center;
-          justify-content: center;
-          font-weight: 900;
+        .contractBox h3{
+          color:#9ba3af;
+          font-size:18px;
+          margin-bottom:14px;
         }
 
-        .tradePanel {
-          background: white;
-          color: #111;
-          border-radius: 28px;
-          padding: 28px;
-          height: max-content;
+        .contractGrid{
+          display:grid;
+          grid-template-columns:1fr 1fr;
+          gap:12px;
         }
 
-        .tradePanel h2 {
-          font-size: 42px;
-          font-weight: 900;
-          margin-bottom: 28px;
+        .contractGrid button{
+          height:62px;
+          border-radius:16px;
+          border:1px solid #ddd;
+          background:#f8f8f8;
+          font-size:18px;
+          font-weight:900;
         }
 
-        .tradePanel label {
-          display: block;
-          font-size: 22px;
-          font-weight: 900;
-          margin: 18px 0 10px;
+        .contractGrid button.active{
+          background:#18b8aa;
+          color:white;
+          border-color:#18b8aa;
         }
 
-        .tradePanel select,
-        .tradePanel input {
-          width: 100%;
-          height: 64px;
-          border-radius: 18px;
-          border: 1px solid #ddd;
-          background: white;
-          color: #111;
-          padding: 0 20px;
-          font-size: 24px;
-          outline: none;
+        .predictBox{
+          background:white;
+          margin:0 20px 20px;
+          padding:18px;
+          border-radius:22px;
         }
 
-        .predictionGrid {
-          display: grid;
-          grid-template-columns: repeat(5, 1fr);
-          gap: 10px;
-          margin-bottom: 8px;
+        .predictBox h3{
+          margin-bottom:12px;
+          font-size:18px;
         }
 
-        .predictionGrid button {
-          height: 50px;
-          border-radius: 50%;
-          border: 1px solid #ddd;
-          background: #f1f3f6;
-          color: #111;
-          font-weight: 900;
-          cursor: pointer;
+        .predictDigits{
+          display:grid;
+          grid-template-columns:repeat(5,1fr);
+          gap:10px;
         }
 
-        .predictionGrid button.selected {
-          background: #ff444f;
-          color: white;
-          border-color: #ff444f;
+        .predictDigits button{
+          height:46px;
+          border-radius:50%;
+          border:1px solid #ddd;
+          background:#f3f5f7;
+          font-weight:900;
         }
 
-        .tradeInfo {
-          margin-top: 16px;
-          background: #f3f5f7;
-          border-radius: 16px;
-          padding: 14px 16px;
-          display: flex;
-          justify-content: space-between;
-          gap: 10px;
-          font-size: 18px;
+        .predictDigits button.active{
+          background:#18b8aa;
+          color:white;
         }
 
-        .tradeInfo b {
-          color: #111;
+        .control{
+          margin:0 20px 16px;
+          height:76px;
+          background:white;
+          border-radius:18px;
+          display:flex;
+          align-items:center;
+          justify-content:space-between;
+          padding:0 24px;
         }
 
-        .buyButton {
-          width: 100%;
-          height: 64px;
-          margin-top: 20px;
-          border: none;
-          border-radius: 18px;
-          background: #ff444f;
-          color: white;
-          font-size: 24px;
-          font-weight: 900;
-          cursor: pointer;
+        .control h2{
+          font-size:22px;
         }
 
-        .bottom {
-          display: grid;
-          grid-template-columns: 1fr 1fr;
-          gap: 16px;
-          padding: 0 16px 16px;
+        .stepper{
+          display:flex;
+          align-items:center;
+          gap:18px;
+          font-size:24px;
+          font-weight:900;
         }
 
-        .box {
-          background: #0d1a2b;
-          border-radius: 18px;
-          padding: 18px;
+        .stepper button{
+          width:44px;
+          height:44px;
+          border:none;
+          border-radius:50%;
+          background:#edf0f4;
+          font-size:28px;
+          font-weight:900;
         }
 
-        .box h2 {
-          font-size: 30px;
-          margin-bottom: 12px;
+        .buyGrid{
+          margin:22px 20px 12px;
+          display:grid;
+          grid-template-columns:1fr 1fr;
+          gap:16px;
         }
 
-        .empty {
-          color: #9da8b8;
-          font-size: 18px;
+        .buyBtn{
+          height:112px;
+          border:none;
+          border-radius:22px;
+          color:white;
+          font-weight:900;
+          font-size:34px;
         }
 
-        .tradeCard {
-          margin-top: 12px;
-          background: #101f35;
-          border-radius: 14px;
-          padding: 14px;
-          display: flex;
-          flex-direction: column;
-          gap: 5px;
+        .buyBtn span{
+          display:block;
+          font-size:15px;
+          margin-top:8px;
         }
 
-        .tradeCard b {
-          font-size: 17px;
+        .green{
+          background:#18b8aa;
         }
 
-        .tradeCard span {
-          color: #c6d0dd;
+        .red{
+          background:#ff4057;
         }
 
-        .open {
-          border-left: 5px solid #ffc107;
+        .positions{
+          margin:20px;
         }
 
-        .won {
-          border-left: 5px solid #2ef2a2;
+        .positions h2{
+          font-size:22px;
+          margin:12px 0;
         }
 
-        .lost {
-          border-left: 5px solid #ff444f;
+        .tradeCard{
+          background:white;
+          border-radius:14px;
+          padding:12px;
+          margin-bottom:10px;
+          display:flex;
+          flex-direction:column;
+          gap:4px;
         }
 
-        @media (max-width: 850px) {
-          .topbar {
-            padding: 20px 28px 28px;
+        .won{
+          border-left:5px solid #18b8aa;
+        }
+
+        .lost{
+          border-left:5px solid #ff4057;
+        }
+
+        .open{
+          border-left:5px solid #ffc107;
+        }
+
+        @media(min-width:800px){
+          .app{
+            max-width:100%;
           }
 
-          .topbar h1 {
-            font-size: 48px;
-          }
-
-          .topbar p {
-            font-size: 30px;
-          }
-
-          .main {
-            display: flex;
-            flex-direction: column;
-            padding: 0;
-            gap: 0;
-          }
-
-          .marketCard {
-            border-radius: 0;
-            padding: 28px;
-          }
-
-          .marketCard h2 {
-            font-size: 42px;
-          }
-
-          .marketCard strong {
-            font-size: 44px;
-          }
-
-          .digitsStrip {
-            padding: 18px 14px 22px;
-            gap: 14px;
-          }
-
-          .digit {
-            width: 78px;
-            height: 78px;
-            min-width: 78px;
-            font-size: 34px;
-          }
-
-          .chartBox {
-            height: 230px;
-          }
-
-          .cursorDigit {
-            width: 108px;
-            height: 108px;
-            right: 42px;
-            font-size: 52px;
-          }
-
-          .tradePanel {
-            width: 100%;
-            border-radius: 34px 34px 0 0;
-            padding: 40px 52px 36px;
-            margin-top: 32px;
-          }
-
-          .tradePanel h2 {
-            font-size: 46px;
-            margin-bottom: 32px;
-          }
-
-          .tradePanel label {
-            font-size: 28px;
-            margin-top: 26px;
-            margin-bottom: 14px;
-          }
-
-          .tradePanel select,
-          .tradePanel input {
-            height: 76px;
-            font-size: 30px;
-            border-radius: 22px;
-          }
-
-          .buyButton {
-            height: 76px;
-            font-size: 30px;
-            margin-top: 28px;
-          }
-
-          .tradeInfo {
-            font-size: 22px;
-            padding: 18px;
-          }
-
-          .bottom {
-            display: flex;
-            flex-direction: column;
-            padding: 0;
-            gap: 0;
-          }
-
-          .box {
-            border-radius: 0;
-            padding: 24px 28px;
-          }
-        }
-
-        @media (max-width: 430px) {
-          .topbar {
-            padding: 18px 20px 26px;
-          }
-
-          .topbar h1 {
-            font-size: 42px;
-          }
-
-          .topbar p {
-            font-size: 28px;
-          }
-
-          .marketCard {
-            padding: 24px 28px;
-          }
-
-          .marketCard h2 {
-            font-size: 38px;
-          }
-
-          .marketCard strong {
-            font-size: 42px;
-          }
-
-          .digit {
-            width: 76px;
-            height: 76px;
-            min-width: 76px;
-          }
-
-          .chartBox {
-            height: 220px;
-          }
-
-          .tradePanel {
-            padding: 36px 52px 34px;
-            margin-top: 30px;
-          }
-
-          .tradePanel h2 {
-            font-size: 44px;
-          }
-
-          .tradePanel label {
-            font-size: 26px;
-          }
-
-          .tradePanel select,
-          .tradePanel input,
-          .buyButton {
-            height: 72px;
-            font-size: 28px;
+          .content{
+            max-width:460px;
+            margin:0 auto;
           }
         }
       `}</style>
 
       <div className="app">
-        <header className="topbar">
-          <h1>MetaBinary</h1>
-          <p>USD {balance.toFixed(2)}</p>
-        </header>
+        <div className="top">
+          <div className="menu">☰</div>
 
-        <main className="main">
-          <section className="chartSection">
-            <div className="marketCard">
-              <h2>Volatility 100 Index</h2>
-              <strong>{price.toFixed(2)}</strong>
+          <select className="account" value={account} onChange={(e) => setAccount(e.target.value)}>
+            <option>Real</option>
+            <option>Demo</option>
+          </select>
+
+          <div className="wallet">${balance.toFixed(2)}</div>
+        </div>
+
+        <div className="tabs">
+          <button className="active">Trade</button>
+          <button>Charts</button>
+          <button>Free Bot</button>
+          <button>Copy Trading</button>
+        </div>
+
+        <div className="content">
+          <div className="marketCard">
+            <div>
+              <h1>Volatility 100 (1s) Index</h1>
+              <p>{price.toFixed(2)} - 0.02 (0.00%)</p>
             </div>
+            <div className="lastBubble">{lastDigit}</div>
+          </div>
 
-            <div className="digitsStrip">
-              {[0,1,2,3,4,5,6,7,8,9].map((num) => (
-                <button
-                  key={num}
-                  className={lastDigit === num ? "digit active" : "digit"}
-                >
-                  {num}
-                </button>
-              ))}
-            </div>
-
-            <div className="chartBox">
-              <div className="chartLine"></div>
-              <div className="cursorDigit">{lastDigit}</div>
-            </div>
-
-            <div className="recentDigits">
-              {digitHistory.map((num, index) => (
-                <span key={index}>{num}</span>
-              ))}
-            </div>
-          </section>
-
-          <section className="tradePanel">
-            <h2>Trade</h2>
-
-            <label>Contract type</label>
-            <select value={contract} onChange={(e) => setContract(e.target.value)}>
-              <option value="rise">Rise</option>
-              <option value="fall">Fall</option>
-              <option value="even">Even</option>
-              <option value="odd">Odd</option>
-              <option value="matches">Matches</option>
-              <option value="differs">Differs</option>
-              <option value="over">Over</option>
-              <option value="under">Under</option>
-            </select>
-
-            {["matches", "differs", "over", "under"].includes(contract) && (
-              <>
-                <label>Prediction</label>
-                <div className="predictionGrid">
-                  {[0,1,2,3,4,5,6,7,8,9].map((num) => (
-                    <button
-                      key={num}
-                      onClick={() => setPrediction(num)}
-                      className={prediction === num ? "selected" : ""}
-                    >
-                      {num}
-                    </button>
-                  ))}
-                </div>
-              </>
-            )}
-
-            <label>Duration ticks</label>
-            <input
-              type="number"
-              min="1"
-              value={duration}
-              onChange={(e) => setDuration(e.target.value)}
-            />
-
-            <label>Stake</label>
-            <input
-              type="number"
-              min="1"
-              value={stake}
-              onChange={(e) => setStake(e.target.value)}
-            />
-
-            <div className="tradeInfo">
-              <span>Possible payout</span>
-              <b>USD {possiblePayout.toFixed(2)}</b>
-            </div>
-
-            <div className="tradeInfo">
-              <span>Net profit</span>
-              <b>USD {possibleProfit.toFixed(2)}</b>
-            </div>
-
-            <button className="buyButton" onClick={buyContract}>
-              Buy contract
-            </button>
-          </section>
-        </main>
-
-        <section className="bottom">
-          <div className="box">
-            <h2>Open trades</h2>
-            {openTrades.length === 0 && <p className="empty">No open trades</p>}
-
-            {openTrades.map((trade) => (
-              <div className="tradeCard open" key={trade.id}>
-                <b>{trade.type.toUpperCase()}</b>
-                <span>Stake: USD {trade.stake}</span>
-                <span>Entry digit: {trade.entryDigit}</span>
-                <span>Ticks left: {trade.ticksLeft}</span>
+          <div className="digits">
+            {[0,1,2,3,4,5,6,7,8,9].map((n) => (
+              <div key={n} className={lastDigit === n ? "digit active" : "digit"}>
+                {n}
+                <span>{(8 + Math.random() * 4).toFixed(1)}%</span>
               </div>
             ))}
           </div>
 
-          <div className="box">
-            <h2>Trade history</h2>
-            {tradeHistory.length === 0 && <p className="empty">No closed trades</p>}
-
-            {tradeHistory.map((trade) => (
-              <div
-                key={trade.id}
-                className={trade.result === "WON" ? "tradeCard won" : "tradeCard lost"}
+          <div className="contractBox">
+            <h3>⌄ Select contract type</h3>
+            <div className="contractGrid">
+              <button
+                className={mode === "risefall" ? "active" : ""}
+                onClick={() => setMode("risefall")}
               >
-                <b>{trade.type.toUpperCase()} — {trade.result}</b>
-                <span>Stake: USD {trade.stake}</span>
-                <span>Exit digit: {trade.exitDigit}</span>
-                <span>Return: USD {trade.returnAmount.toFixed(2)}</span>
-                <span>Profit: USD {trade.profit.toFixed(2)}</span>
+                Rise/Fall
+              </button>
+
+              <button
+                className={mode === "evenodd" ? "active" : ""}
+                onClick={() => setMode("evenodd")}
+              >
+                Even/Odd
+              </button>
+
+              <button
+                className={mode === "matchesdiffers" ? "active" : ""}
+                onClick={() => setMode("matchesdiffers")}
+              >
+                Matches/Differs
+              </button>
+
+              <button
+                className={mode === "overunder" ? "active" : ""}
+                onClick={() => setMode("overunder")}
+              >
+                Over/Under
+              </button>
+            </div>
+          </div>
+
+          {["matchesdiffers", "overunder"].includes(mode) && (
+            <div className="predictBox">
+              <h3>Prediction digit</h3>
+              <div className="predictDigits">
+                {[0,1,2,3,4,5,6,7,8,9].map((n) => (
+                  <button
+                    key={n}
+                    className={prediction === n ? "active" : ""}
+                    onClick={() => setPrediction(n)}
+                  >
+                    {n}
+                  </button>
+                ))}
+              </div>
+            </div>
+          )}
+
+          <div className="control">
+            <h2>Duration</h2>
+            <div className="stepper">
+              <button onClick={() => setDuration(Math.max(1, duration - 1))}>−</button>
+              <b>{duration} ticks</b>
+              <button onClick={() => setDuration(duration + 1)}>+</button>
+            </div>
+          </div>
+
+          <div className="control">
+            <h2>Stake</h2>
+            <div className="stepper">
+              <button onClick={() => setStake(Math.max(1, stake - 1))}>−</button>
+              <b>{stake} USD</b>
+              <button onClick={() => setStake(stake + 1)}>+</button>
+            </div>
+          </div>
+
+          <div className="buyGrid">
+            {buttons().map((b, i) => (
+              <button
+                key={b}
+                onClick={() => buy(b)}
+                className={i === 0 ? "buyBtn green" : "buyBtn red"}
+              >
+                {b.charAt(0).toUpperCase() + b.slice(1)}
+                <span>Payout {(stake * PAYOUTS[b]).toFixed(2)} USD</span>
+              </button>
+            ))}
+          </div>
+
+          <div className="positions">
+            <h2>Open trades</h2>
+            {openTrades.map((t) => (
+              <div className="tradeCard open" key={t.id}>
+                <b>{t.type.toUpperCase()}</b>
+                <span>Stake: {t.stake} USD</span>
+                <span>Ticks left: {t.ticksLeft}</span>
+              </div>
+            ))}
+
+            <h2>Trade history</h2>
+            {history.map((t) => (
+              <div key={t.id} className={t.result === "WON" ? "tradeCard won" : "tradeCard lost"}>
+                <b>{t.type.toUpperCase()} — {t.result}</b>
+                <span>Exit digit: {t.exitDigit}</span>
+                <span>Profit: {t.profit.toFixed(2)} USD</span>
               </div>
             ))}
           </div>
-        </section>
+        </div>
       </div>
     </>
   );
-}
-@media (max-width: 600px) {
-  .topbar {
-    padding: 14px 18px;
-  }
-
-  .topbar h1 {
-    font-size: 32px;
-  }
-
-  .topbar p {
-    font-size: 22px;
-  }
-
-  .marketCard {
-    padding: 18px;
-  }
-
-  .marketCard h2 {
-    font-size: 30px;
-  }
-
-  .marketCard strong {
-    font-size: 34px;
-  }
-
-  .digit {
-    width: 58px;
-    height: 58px;
-    min-width: 58px;
-    font-size: 26px;
-  }
-
-  .chartBox {
-    height: 210px;
-  }
-
-  .cursorDigit {
-    width: 82px;
-    height: 82px;
-    font-size: 40px;
-    right: 28px;
-  }
-
-  .tradePanel {
-    margin-top: 18px;
-    padding: 28px 32px;
-  }
-
-  .tradePanel h2 {
-    font-size: 36px;
-  }
-
-  .tradePanel label {
-    font-size: 22px;
-  }
-
-  .tradePanel select,
-  .tradePanel input,
-  .buyButton {
-    height: 60px;
-    font-size: 22px;
-  }
 }
