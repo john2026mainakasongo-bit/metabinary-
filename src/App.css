@@ -1081,3 +1081,173 @@ height:96px;
 }
 
 }
+.tradePanel {
+  background: #f3f3f3;
+  padding: 26px;
+  width: 100%;
+}
+
+.learnText {
+  color: #8d9aab;
+  font-size: 18px;
+  margin-bottom: 18px;
+}
+
+.tradeTypeBox {
+  background: white;
+  border-radius: 18px;
+  padding: 22px;
+  margin-bottom: 18px;
+}
+
+.tradeTypeBox h2 {
+  font-size: 32px;
+  margin-bottom: 16px;
+}
+
+.tradeTypeButtons {
+  display: flex;
+  gap: 10px;
+  overflow-x: auto;
+  padding-bottom: 4px;
+}
+
+.tradeTypeButtons button {
+  border: 1px solid #ddd;
+  background: #f7f7f7;
+  padding: 12px 18px;
+  border-radius: 14px;
+  font-size: 15px;
+  font-weight: 800;
+  white-space: nowrap;
+}
+
+.tradeTypeButtons button.active {
+  background: #14b8a6;
+  color: white;
+  border-color: #14b8a6;
+}
+
+.inputRow,
+.digitSelectBox {
+  background: white;
+  border-radius: 16px;
+  padding: 18px 22px;
+  margin-bottom: 16px;
+}
+
+.inputRow {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+}
+
+.inputRow span,
+.digitSelectBox span {
+  font-size: 22px;
+}
+
+.inputRow strong {
+  font-size: 22px;
+  margin: 0 12px;
+}
+
+.inputRow button {
+  width: 34px;
+  height: 34px;
+  border: none;
+  border-radius: 50%;
+  background: #e9edf2;
+  font-size: 22px;
+  font-weight: 900;
+}
+
+.digitSelectGrid {
+  margin-top: 14px;
+  display: grid;
+  grid-template-columns: repeat(5, 1fr);
+  gap: 10px;
+}
+
+.digitSelectGrid button {
+  height: 48px;
+  border-radius: 12px;
+  border: 1px solid #ddd;
+  background: #f8f8f8;
+  font-size: 22px;
+  font-weight: 900;
+}
+
+.digitSelectGrid button.active {
+  background: #14b8a6;
+  color: white;
+  border-color: #14b8a6;
+}
+
+.actionButtons {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 18px;
+}
+
+.buyBtn {
+  height: 130px;
+  border: none;
+  border-radius: 18px;
+  color: white;
+  font-weight: 900;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  gap: 14px;
+}
+
+.buyBtn span {
+  font-size: 38px;
+}
+
+.buyBtn small {
+  font-size: 17px;
+  display: flex;
+  justify-content: space-around;
+}
+
+.green {
+  background: #16b8a6;
+}
+
+.red {
+  background: #ff4658;
+}
+
+@media (max-width: 768px) {
+  .tradePanel {
+    padding: 24px 26px 90px;
+  }
+
+  .tradeTypeBox h2 {
+    font-size: 28px;
+  }
+
+  .tradeTypeButtons button {
+    font-size: 14px;
+    padding: 11px 14px;
+  }
+
+  .inputRow span,
+  .digitSelectBox span {
+    font-size: 20px;
+  }
+
+  .buyBtn {
+    height: 118px;
+  }
+
+  .buyBtn span {
+    font-size: 34px;
+  }
+
+  .buyBtn small {
+    font-size: 15px;
+  }
+}
