@@ -30,11 +30,10 @@ export default function App() {
   const [password, setPassword] = useState("");
   const [balance, setBalance] = useState({ demo: 10000, real: 0 });
 
-  const [activeTab, setActiveTab] = useState("Manual Trader");
+  const [mainTab, setMainTab] = useState("Trade");
   const [stake, setStake] = useState(10);
   const [duration, setDuration] = useState(5);
   const [botRuns, setBotRuns] = useState(3);
-  const [bulkCount, setBulkCount] = useState(5);
 
   const [previousDigit, setPreviousDigit] = useState(8);
   const [lastDigit, setLastDigit] = useState(8);
@@ -86,9 +85,11 @@ export default function App() {
 
   async function refreshBalance() {
     if (!email) return;
+
     try {
       const res = await fetch(`${API}/api/user/${email}`);
       const data = await res.json();
+
       if (data.success) {
         setBalance({
           demo: Number(data.user.demoBalance || 10000),
@@ -116,6 +117,7 @@ export default function App() {
       setChartData((old) => {
         const lastY = old[old.length - 1]?.y || 250;
         let nextY = lastY + (Math.random() - 0.48) * 32;
+
         if (nextY < 115) nextY = 115;
         if (nextY > 360) nextY = 360;
 
@@ -219,6 +221,7 @@ export default function App() {
 
     setTimeout(() => {
       const finalDigit = Math.floor(Math.random() * 10);
+
       setPreviousDigit(lastDigit);
       setLastDigit(finalDigit);
       setSelectedDigit(finalDigit);
@@ -237,16 +240,10 @@ export default function App() {
     }, seconds * 1000);
   }
 
-  function runBot() {
+  function runFreeBot() {
     const runs = Number(botRuns);
     if (runs <= 0) return alert("Enter bot runs");
     for (let i = 0; i < runs; i++) setTimeout(() => trade(), i * 1400);
-  }
-
-  function runBulk() {
-    const count = Number(bulkCount);
-    if (count <= 0) return alert("Enter bulk count");
-    for (let i = 0; i < count; i++) setTimeout(() => trade(), i * 350);
   }
 
   async function deposit() {
@@ -301,48 +298,32 @@ export default function App() {
   return (
     <div className="platform">
       <header className="topbar">
-        <div className="brand">
+        <div className="topLine">
           <button type="button" className="topMenuBtn" onClick={() => setMenuOpen(true)}>
             ☰
           </button>
-          <span>MetaBinary</span>
-          <button type="button" className="refreshBtn" onClick={refreshBalance}>
-            ↻
-          </button>
-        </div>
 
-        <nav className="nav">
-          <button type="button" className="hubBtn">
-            Trader&apos;s Hub
-          </button>
-        </nav>
-
-        <div className="accountBox">
-          <select value={mode} onChange={(e) => changeMode(e.target.value)}>
+          <select className="topAccount" value={mode} onChange={(e) => changeMode(e.target.value)}>
             <option>Demo</option>
             <option>Real</option>
           </select>
 
-          <div className="balance">${currentBalance.toFixed(2)}</div>
+          <div className="topBalance">${currentBalance.toFixed(2)}</div>
+        </div>
 
-          <button type="button" className="depositBtn" onClick={() => setDepositOpen(true)}>
-            Deposit
-          </button>
+        <div className="mainTabs">
+          {["Trade", "Charts", "Free Bot", "Copy Trading"].map((tab) => (
+            <button
+              type="button"
+              key={tab}
+              onClick={() => setMainTab(tab)}
+              className={mainTab === tab ? "active" : ""}
+            >
+              {tab}
+            </button>
+          ))}
         </div>
       </header>
-
-      <div className="mobileTabs">
-        {["Bot Builder", "Manual Trader", "Bulk Trader"].map((tab) => (
-          <button
-            type="button"
-            key={tab}
-            onClick={() => setActiveTab(tab)}
-            className={activeTab === tab ? "active" : ""}
-          >
-            {tab}
-          </button>
-        ))}
-      </div>
 
       <div className="layout">
         <aside className="leftPanel">
@@ -431,55 +412,23 @@ export default function App() {
         </main>
 
         <aside className="tradePanel">
-          <div className="desktopTabs">
-            {["Bot Builder", "Manual Trader", "Bulk Trader"].map((tab) => (
-              <button
-                type="button"
-                key={tab}
-                onClick={() => setActiveTab(tab)}
-                className={activeTab === tab ? "active" : ""}
-              >
-                {tab}
-              </button>
-            ))}
-          </div>
-
-          <p className="learn">ⓘ Learn about this trade type</p>
-
-          <h1 className="tradeTitle">{contractType}</h1>
-
-          <div className="contractTabs">
-            {contracts.map((item) => (
-              <button
-                type="button"
-                key={item}
-                onClick={() => changeContract(item)}
-                className={contractType === item ? "active" : ""}
-              >
-                {item}
-              </button>
-            ))}
-          </div>
-
-          {activeTab === "Bot Builder" && (
-            <div className="toolBox">
-              <h2>Bot Builder</h2>
-              <p>Run automatic trades using your selected contract.</p>
-
-              <label>Bot Runs</label>
-              <input value={botRuns} onChange={(e) => setBotRuns(e.target.value)} />
-
-              <button type="button" className="mainBuy" onClick={runBot}>
-                Start Bot
-              </button>
-            </div>
-          )}
-
-          {activeTab === "Manual Trader" && (
+          {mainTab === "Trade" && (
             <>
-              <div className="tradeMode">
-                <span>Trade Mode</span>
-                <b>Manual</b>
+              <p className="learn">ⓘ Learn about this trade type</p>
+
+              <h1 className="tradeTitle">{contractType}</h1>
+
+              <div className="contractTabs">
+                {contracts.map((item) => (
+                  <button
+                    type="button"
+                    key={item}
+                    onClick={() => changeContract(item)}
+                    className={contractType === item ? "active" : ""}
+                  >
+                    {item}
+                  </button>
+                ))}
               </div>
 
               <div className="tradeRow">
@@ -518,19 +467,36 @@ export default function App() {
             </>
           )}
 
-          {activeTab === "Bulk Trader" && (
+          {mainTab === "Charts" && (
             <div className="toolBox">
-              <h2>Bulk Trader</h2>
-              <p>Open many trades quickly using the same settings.</p>
+              <h2>Charts</h2>
+              <p>Live synthetic movement is displayed in the market area.</p>
+              <button type="button" className="mainBuy" onClick={() => setMainTab("Trade")}>
+                Back to Trade
+              </button>
+            </div>
+          )}
 
-              <label>Number of trades</label>
-              <input value={bulkCount} onChange={(e) => setBulkCount(e.target.value)} />
+          {mainTab === "Free Bot" && (
+            <div className="toolBox">
+              <h2>Free Bot</h2>
+              <p>Run automatic trades using your selected contract.</p>
 
-              <label>Stake per trade</label>
-              <input value={stake} onChange={(e) => setStake(e.target.value)} />
+              <label>Bot Runs</label>
+              <input value={botRuns} onChange={(e) => setBotRuns(e.target.value)} />
 
-              <button type="button" className="mainBuy" onClick={runBulk}>
-                Run Bulk Trades
+              <button type="button" className="mainBuy" onClick={runFreeBot}>
+                Start Free Bot
+              </button>
+            </div>
+          )}
+
+          {mainTab === "Copy Trading" && (
+            <div className="toolBox">
+              <h2>Copy Trading</h2>
+              <p>Copy trading is coming soon on MetaBinary.</p>
+              <button type="button" className="mainBuy" onClick={() => setMainTab("Trade")}>
+                Back to Trade
               </button>
             </div>
           )}
