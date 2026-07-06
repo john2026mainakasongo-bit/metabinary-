@@ -76,9 +76,19 @@ export default function App() {
     const returned = won ? Number((trade.stake * trade.payout).toFixed(2)) : 0;
     const profit = won ? Number((returned - trade.stake).toFixed(2)) : -trade.stake;
 
-    if (won) setBalance((b) => Number((b + returned).toFixed(2)));
+    if (won) {
+      setBalance((b) => Number((b + returned).toFixed(2)));
+    }
 
-    setHistory((h) => [{ ...trade, result: won ? "WON" : "LOST", returned, profit }, ...h]);
+    setHistory((h) => [
+      {
+        ...trade,
+        result: won ? "WON" : "LOST",
+        returned,
+        profit,
+      },
+      ...h,
+    ]);
   }
 
   function buy(type) {
@@ -136,10 +146,10 @@ export default function App() {
         }
 
         .app{
-          width:100%;
-          max-width:430px;
+          width:100vw;
+          max-width:none;
           min-height:100vh;
-          margin:0 auto;
+          margin:0;
           background:#f2f2f2;
           color:#111;
           overflow-x:hidden;
@@ -451,10 +461,6 @@ export default function App() {
         }
 
         @media(max-width:380px){
-          .app{
-            max-width:100%;
-          }
-
           .top{
             padding:0 12px;
           }
@@ -494,13 +500,6 @@ export default function App() {
 
           .buyBtn{
             font-size:25px;
-          }
-        }
-
-        @media(min-width:800px){
-          .app{
-            max-width:430px;
-            box-shadow:0 0 40px rgba(0,0,0,.15);
           }
         }
       `}</style>
