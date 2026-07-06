@@ -68,7 +68,7 @@ font-weight:900;
 .mainTabs{
 height:56px;
 display:grid;
-grid-template-columns:repeat(4,1fr);
+grid-template-columns:repeat(3,1fr);
 background:#061426;
 }
 
@@ -117,6 +117,7 @@ padding:8px 14px;
 margin-bottom:8px;
 display:flex;
 align-items:center;
+justify-content:space-between;
 }
 
 .chartHeader h1{
@@ -129,6 +130,19 @@ font-size:13px;
 color:#12b8a6;
 font-weight:900;
 margin-top:2px;
+}
+
+.lastDigitBadge{
+width:38px;
+height:38px;
+border-radius:50%;
+background:#12b8a6;
+color:white;
+display:flex;
+align-items:center;
+justify-content:center;
+font-size:22px;
+font-weight:900;
 }
 
 .chart{display:none}
@@ -482,6 +496,10 @@ color:white;
 font-size:15px;
 }
 
+.lastDigitBadge{
+display:none;
+}
+
 .chart{
 display:block;
 flex:1;
@@ -504,6 +522,22 @@ padding:8px 12px;
 border-radius:10px;
 font-weight:900;
 color:#061426;
+}
+
+.cursorDigit{
+position:absolute;
+right:18px;
+top:52%;
+width:42px;
+height:42px;
+border-radius:50%;
+background:#12b8a6;
+color:white;
+display:flex;
+align-items:center;
+justify-content:center;
+font-size:24px;
+font-weight:900;
 }
 
 .digits{
