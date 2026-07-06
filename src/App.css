@@ -1182,3 +1182,59 @@ font-size:21px;
 }
 
 }
+/* FINAL PHONE FIX */
+
+@media(max-width:900px){
+
+.digit{
+width:58px !important;
+height:58px !important;
+min-width:58px !important;
+border-width:6px !important;
+}
+
+.digit b{
+font-size:20px !important;
+}
+
+.digit span{
+font-size:12px !important;
+}
+
+.digits{
+gap:34px 6px !important;
+padding-bottom:60px !important;
+}
+
+.buyEven{
+display:none !important;
+}
+
+}
+
+@media(max-width:420px){
+
+.digit{
+width:54px !important;
+height:54px !important;
+min-width:54px !important;
+border-width:6px !important;
+}
+
+.digit b{
+font-size:19px !important;
+}
+
+.digit span{
+font-size:11px !important;
+}
+
+.digits{
+gap:32px 4px !important;
+}
+
+.buyEven{
+display:none !important;
+}
+
+}
