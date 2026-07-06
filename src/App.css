@@ -1276,3 +1276,14 @@ font-size:14px;
 }
 
 }
+@media(max-width:900px){
+
+.accountBox .depositBtn{
+display:none !important;
+}
+
+.accountBox{
+grid-template-columns:90px 1fr !important;
+}
+
+}
