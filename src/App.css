@@ -1,306 +1,1151 @@
-/* =========================
-   PHONE VIEW FIX
-========================= */
-
-@media (max-width: 900px){
+*{
+margin:0;
+padding:0;
+box-sizing:border-box;
+}
 
 html,body,#root{
-  width:100%;
-  min-height:100%;
-  overflow-x:hidden;
-  background:#07111d;
+width:100%;
+min-height:100%;
+font-family:Arial,Helvetica,sans-serif;
+background:#07111d;
+color:white;
+}
+
+button,input,select{
+font-family:inherit;
+}
+
+button{
+cursor:pointer;
+border:none;
 }
 
 .platform{
-  min-height:100vh;
-  background:#07111d;
-  color:white;
-  overflow-x:hidden;
+min-height:100vh;
+background:#07111d;
+color:white;
 }
 
+/* AUTH */
+
+.authPage{
+min-height:100vh;
+display:flex;
+align-items:center;
+justify-content:center;
+background:linear-gradient(135deg,#07111d,#0b2035);
+padding:20px;
+}
+
+.authCard{
+width:100%;
+max-width:420px;
+background:#101b2d;
+border:1px solid #20314d;
+border-radius:20px;
+padding:30px;
+box-shadow:0 30px 80px rgba(0,0,0,.45);
+}
+
+.authCard h1{
+font-size:42px;
+margin-bottom:10px;
+color:#13c9a8;
+}
+
+.authCard p{
+color:#b5c0cc;
+margin-bottom:22px;
+}
+
+.authCard input{
+width:100%;
+height:54px;
+margin-bottom:14px;
+padding:0 16px;
+background:#07111d;
+border:1px solid #26364d;
+border-radius:12px;
+color:white;
+font-size:16px;
+}
+
+.authCard button{
+width:100%;
+height:54px;
+border-radius:12px;
+background:#10b981;
+color:white;
+font-size:18px;
+font-weight:900;
+margin-top:6px;
+}
+
+.authCard span{
+display:block;
+text-align:center;
+margin-top:18px;
+color:#13c9a8;
+cursor:pointer;
+}
+
+/* TOPBAR */
+
 .topbar{
-  height:auto;
-  padding:16px;
-  display:flex;
-  flex-direction:column;
-  gap:14px;
-  background:#07111d;
+height:76px;
+display:flex;
+align-items:center;
+justify-content:space-between;
+gap:20px;
+padding:0 22px;
+background:#07111d;
+border-bottom:1px solid #17263a;
 }
 
 .brand{
-  font-size:34px;
-  font-weight:900;
-  color:white;
+font-size:32px;
+font-weight:900;
+color:white;
+}
+
+.brand::first-letter{
+color:#13c9a8;
 }
 
 .nav{
-  width:100%;
-  display:flex;
-  gap:10px;
-  overflow-x:auto;
+display:flex;
+gap:10px;
+align-items:center;
 }
 
-.nav::-webkit-scrollbar{display:none;}
-
 .nav button{
-  flex:0 0 auto;
-  height:48px;
-  padding:0 16px;
-  border-radius:10px;
-  border:1px solid #1f3148;
-  background:#101b2d;
-  color:white;
-  font-weight:700;
+height:44px;
+padding:0 16px;
+border-radius:10px;
+background:#101b2d;
+border:1px solid #20314d;
+color:white;
+font-weight:700;
+}
+
+.nav button:hover{
+background:#0c937c;
 }
 
 .accountBox{
-  width:100%;
-  display:grid;
-  grid-template-columns:1fr 1fr 1fr;
-  gap:10px;
-  align-items:center;
+display:flex;
+align-items:center;
+gap:12px;
 }
 
-.accountBox select,
-.depositBtn{
-  height:48px;
-  border-radius:10px;
-  border:1px solid #1f3148;
+.accountBox select{
+height:46px;
+padding:0 14px;
+border-radius:10px;
+background:#101b2d;
+border:1px solid #20314d;
+color:white;
+font-weight:700;
 }
 
 .balance{
-  text-align:center;
-  font-size:22px;
-  font-weight:900;
+min-width:130px;
+font-size:18px;
+font-weight:900;
+color:#13c9a8;
+text-align:right;
 }
 
+.depositBtn{
+height:46px;
+padding:0 22px;
+border-radius:10px;
+background:#10b981;
+color:white;
+font-size:16px;
+font-weight:900;
+}
+
+/* DESKTOP LAYOUT */
+
 .layout{
-  display:flex;
-  flex-direction:column;
+display:grid;
+grid-template-columns:260px 1fr 340px;
+min-height:calc(100vh - 76px);
 }
 
 .leftPanel{
-  display:none;
+background:#091827;
+border-right:1px solid #17263a;
+padding:18px;
 }
 
-/* MARKET CARD + DIGITS */
+.tabs{
+display:flex;
+gap:14px;
+margin-bottom:20px;
+font-size:14px;
+color:#8fa0b5;
+}
+
+.tabs span{
+padding-bottom:8px;
+}
+
+.tabs .active{
+color:#13c9a8;
+border-bottom:2px solid #13c9a8;
+}
+
+.positions{
+display:flex;
+flex-direction:column;
+gap:12px;
+}
+
+.avatar{
+width:70px;
+height:70px;
+border-radius:50%;
+background:#13c9a8;
+color:#07111d;
+display:flex;
+align-items:center;
+justify-content:center;
+font-weight:900;
+margin:40px auto 16px;
+}
+
+.positions h2{
+text-align:center;
+font-size:20px;
+}
+
+.positions p{
+text-align:center;
+color:#9aa8b8;
+font-size:14px;
+}
+
+.tradeCard{
+background:#101b2d;
+border:1px solid #20314d;
+border-radius:14px;
+padding:14px;
+display:flex;
+flex-direction:column;
+gap:6px;
+}
+
+.tradeCard span,
+.tradeCard small{
+color:#aeb9c7;
+}
+
+.tradeCard.win{
+border-color:#10b981;
+}
+
+.tradeCard.loss{
+border-color:#ef4444;
+}
+
+/* CHART */
 
 .chartWrap{
-  width:100%;
-  height:auto;
-  background:#07111d;
-  padding:14px;
+background:#07111d;
+padding:24px;
+overflow:hidden;
 }
 
 .chartCard{
-  position:relative;
-  height:auto;
-  min-height:0;
-  padding-bottom:24px;
-  background:#07111d;
-  overflow:visible;
+height:100%;
+min-height:650px;
+position:relative;
+background:#091827;
+border:1px solid #17263a;
+border-radius:18px;
+padding:22px;
+overflow:hidden;
 }
 
 .chartHeader{
-  position:relative;
-  top:auto;
-  left:auto;
-  right:auto;
-  width:100%;
-  padding:18px;
-  border-radius:12px;
-  background:#101b2d;
-  border:1px solid #20314d;
-  box-shadow:none;
-  margin-bottom:26px;
+position:absolute;
+top:24px;
+left:24px;
+z-index:3;
+width:380px;
+background:#101b2d;
+border:1px solid #20314d;
+border-radius:14px;
+padding:18px;
+box-shadow:0 20px 50px rgba(0,0,0,.25);
 }
 
 .chartHeader h1{
-  font-size:21px;
-  font-weight:900;
-  color:white;
+font-size:22px;
+font-weight:900;
+margin-bottom:8px;
 }
 
 .chartHeader p{
-  font-size:15px;
-  color:#b9c0ca;
+font-size:16px;
+color:#b8c1cd;
 }
 
 .chart{
-  display:none;
+position:absolute;
+left:24px;
+right:24px;
+top:170px;
+bottom:40px;
+background:
+linear-gradient(rgba(255,255,255,.045) 1px,transparent 1px),
+linear-gradient(90deg,rgba(255,255,255,.045) 1px,transparent 1px);
+background-size:100% 80px,120px 100%;
+border:1px solid #17263a;
+border-radius:14px;
+overflow:hidden;
 }
 
-/* IMPORTANT: 10 numbers fixed 2 rows of 5 */
+.chart svg{
+width:100%;
+height:100%;
+}
+
+.chart svg polyline{
+stroke:#12d6b3;
+}
+
+.chart svg polygon{
+fill:rgba(18,214,179,.18);
+}
+
+.priceTag{
+position:absolute;
+right:20px;
+top:52%;
+background:#12d6b3;
+color:white;
+font-weight:900;
+padding:7px 12px;
+border-radius:8px;
+font-size:14px;
+}
+
+.priceTag:before{
+content:"";
+position:absolute;
+right:100%;
+top:50%;
+height:1px;
+width:260px;
+border-top:1px dashed #12d6b3;
+}
 
 .digits{
-  position:relative !important;
-  left:auto !important;
-  right:auto !important;
-  bottom:auto !important;
-  transform:none !important;
-
-  display:grid !important;
-  grid-template-columns:repeat(5, 1fr) !important;
-  gap:28px 16px !important;
-
-  width:100% !important;
-  padding:10px 8px 30px !important;
-  overflow:visible !important;
+position:absolute;
+left:24px;
+right:24px;
+top:112px;
+display:grid;
+grid-template-columns:repeat(10,1fr);
+gap:12px;
+z-index:4;
 }
 
 .digit{
-  width:72px !important;
-  height:72px !important;
-  min-width:72px !important;
-  margin:auto !important;
-  border-radius:50% !important;
-
-  background:#07111d !important;
-  border:6px solid #2b384a !important;
-  color:white !important;
-
-  display:flex !important;
-  flex-direction:column !important;
-  align-items:center !important;
-  justify-content:center !important;
-
-  position:relative !important;
+width:74px;
+height:74px;
+border-radius:50%;
+background:#091827;
+border:6px solid #2b384a;
+color:white;
+display:flex;
+flex-direction:column;
+align-items:center;
+justify-content:center;
+margin:auto;
+position:relative;
 }
 
 .digit b{
-  font-size:25px !important;
-  line-height:1 !important;
-  font-weight:900 !important;
+font-size:24px;
+font-weight:900;
+line-height:1;
 }
 
 .digit span{
-  font-size:15px !important;
-  margin-top:4px !important;
-  color:#d8dde5 !important;
+font-size:13px;
+color:#d6deea;
+margin-top:4px;
 }
 
 .digit.selected{
-  border-color:#10cdb1 !important;
-  background:#0b2a35 !important;
-  box-shadow:0 0 0 6px rgba(16,205,177,.12) !important;
+background:#18224d;
+border-color:#1c2e66;
 }
 
-/* red cursor style for selected digit */
-.digit.selected::after{
-  content:"";
-  position:absolute;
-  bottom:-20px;
-  left:50%;
-  transform:translateX(-50%);
-  width:0;
-  height:0;
-  border-left:8px solid transparent;
-  border-right:8px solid transparent;
-  border-bottom:12px solid #ff4048;
+.digit.selected b,
+.digit.selected span{
+color:white;
+}
+
+.digit:nth-child(2){
+border-bottom-color:#20c7bd;
+}
+
+.digit:nth-child(10){
+border-bottom-color:#ef4444;
+}
+
+.digit:nth-child(10)::after{
+content:"";
+position:absolute;
+bottom:-20px;
+left:50%;
+transform:translateX(-50%);
+width:0;
+height:0;
+border-left:9px solid transparent;
+border-right:9px solid transparent;
+border-bottom:13px solid #ef4444;
 }
 
 /* TRADE PANEL */
 
 .tradePanel{
-  width:100%;
-  padding:14px;
-  background:#07111d;
-  border-left:none;
-  color:white;
+background:#091827;
+border-left:1px solid #17263a;
+padding:22px;
+display:flex;
+flex-direction:column;
+gap:14px;
 }
 
 .learn{
-  color:#d7dde7;
-  font-size:14px;
+font-size:14px;
+color:#aeb9c7;
 }
 
 .tradeTitle{
-  height:62px;
-  padding:16px;
-  border-radius:12px;
-  background:#101b2d;
-  border:1px solid #20314d;
-  color:white;
-  font-size:22px;
+height:64px;
+display:flex;
+align-items:center;
+padding:0 16px;
+border-radius:14px;
+background:#101b2d;
+border:1px solid #20314d;
+font-size:22px;
+font-weight:900;
+}
+
+.tradeTitle::before{
+content:"↗ ↘";
+color:#ef4444;
+margin-right:14px;
+font-size:22px;
 }
 
 .contractTabs{
-  display:grid;
-  grid-template-columns:repeat(5,1fr);
-  gap:10px;
-  padding:12px;
-  border-radius:12px;
-  background:#101b2d;
-  border:1px solid #20314d;
+display:grid;
+grid-template-columns:repeat(2,1fr);
+gap:10px;
+background:#101b2d;
+border:1px solid #20314d;
+border-radius:14px;
+padding:12px;
 }
 
 .contractTabs button{
-  height:58px;
-  border-radius:10px;
-  background:#172338;
-  color:white;
-  border:1px solid #26364d;
-  font-size:22px;
+height:46px;
+border-radius:10px;
+background:#172338;
+border:1px solid #26364d;
+color:white;
+font-size:13px;
+font-weight:800;
 }
 
 .contractTabs .active{
-  background:#007c67;
-  border-color:#10cdb1;
+background:#0b8f78;
+border-color:#13c9a8;
 }
 
 .tradeMode{
-  display:none;
+height:54px;
+display:flex;
+align-items:center;
+justify-content:space-between;
+padding:0 14px;
+background:#101b2d;
+border:1px solid #20314d;
+border-radius:12px;
+color:#aeb9c7;
+}
+
+.tradeMode b{
+color:white;
 }
 
 .choice{
-  display:grid;
-  grid-template-columns:1fr 1fr;
-  gap:12px;
+display:grid;
+grid-template-columns:1fr 1fr;
+gap:12px;
 }
 
 .choice button{
-  height:82px;
-  border-radius:10px;
-  font-size:24px;
-  font-weight:900;
+height:80px;
+border-radius:14px;
+font-size:22px;
+font-weight:900;
+color:white;
 }
 
 .green{
-  background:#079b78 !important;
-  color:white !important;
+background:#0fa37f;
 }
 
 .white{
-  background:#ef343d !important;
-  color:white !important;
+background:#ef3b42;
 }
 
 .tradePanel label{
-  margin-top:14px;
-  font-size:15px;
-  color:#cdd4df;
+font-size:14px;
+color:#aeb9c7;
+margin-top:4px;
 }
 
 .tradePanel input{
-  height:56px;
-  border-radius:10px;
-  background:#101b2d;
-  color:white;
-  border:1px solid #20314d;
-  font-size:20px;
+height:54px;
+padding:0 16px;
+border-radius:12px;
+background:#101b2d;
+border:1px solid #20314d;
+color:white;
+font-size:18px;
 }
 
 .buyEven{
-  height:82px;
-  margin-top:16px;
-  border-radius:12px;
-  background:#10c07f;
-  color:white;
-  font-size:28px;
-  font-weight:900;
+height:82px;
+border-radius:14px;
+background:#10b981;
+color:white;
+font-size:24px;
+font-weight:900;
+display:flex;
+flex-direction:column;
+align-items:center;
+justify-content:center;
+gap:5px;
 }
 
 .buyEven span{
-  font-size:14px;
+font-size:13px;
+font-weight:700;
+opacity:.9;
 }
+
+/* MODAL */
+
+.modal{
+position:fixed;
+inset:0;
+background:rgba(0,0,0,.7);
+display:flex;
+align-items:center;
+justify-content:center;
+z-index:1000;
+padding:20px;
+}
+
+.modalBox{
+width:100%;
+max-width:420px;
+background:#101b2d;
+border:1px solid #20314d;
+border-radius:18px;
+padding:26px;
+position:relative;
+}
+
+.x{
+position:absolute;
+right:14px;
+top:12px;
+background:transparent;
+color:white;
+font-size:28px;
+}
+
+.modalBox h2{
+font-size:32px;
+margin-bottom:8px;
+}
+
+.modalBox p{
+color:#aeb9c7;
+margin-bottom:18px;
+}
+
+.modalBox input{
+width:100%;
+height:54px;
+margin-bottom:12px;
+padding:0 16px;
+border-radius:12px;
+background:#07111d;
+border:1px solid #26364d;
+color:white;
+font-size:16px;
+}
+
+.modalBox button:last-child{
+width:100%;
+height:54px;
+border-radius:12px;
+background:#10b981;
+color:white;
+font-weight:900;
+font-size:18px;
+}
+
+/* PHONE VIEW */
+
+@media(max-width:900px){
+
+html,body,#root{
+height:auto;
+overflow-x:hidden;
+background:#f6f7f8;
+}
+
+.platform{
+background:#f6f7f8;
+color:#202020;
+overflow-x:hidden;
+}
+
+/* top phone */
+
+.topbar{
+height:auto;
+background:white;
+display:flex;
+flex-direction:column;
+align-items:stretch;
+gap:12px;
+padding:14px;
+border-bottom:1px solid #e7e9ed;
+}
+
+.brand{
+font-size:28px;
+color:#0f7f70;
+}
+
+.nav{
+display:flex;
+gap:8px;
+overflow-x:auto;
+padding:8px 0;
+background:linear-gradient(90deg,#00432f,#08b7a7);
+margin-left:-14px;
+margin-right:-14px;
+padding-left:14px;
+padding-right:14px;
+}
+
+.nav::-webkit-scrollbar{
+display:none;
+}
+
+.nav button{
+height:44px;
+padding:0 14px;
+flex:0 0 auto;
+border-radius:8px;
+background:rgba(0,0,0,.28);
+border:1px solid rgba(255,255,255,.12);
+color:white;
+font-size:14px;
+font-weight:900;
+}
+
+.nav button:first-child{
+background:#18b8a9;
+}
+
+.accountBox{
+display:grid;
+grid-template-columns:1fr 1fr 1fr;
+gap:8px;
+}
+
+.accountBox select{
+height:44px;
+background:#f3f5f7;
+color:#222;
+border:1px solid #dce1e6;
+border-radius:10px;
+font-size:14px;
+}
+
+.balance{
+font-size:16px;
+color:#111;
+text-align:center;
+align-self:center;
+}
+
+.depositBtn{
+height:44px;
+border-radius:10px;
+background:#0dbb8f;
+color:white;
+font-size:15px;
+}
+
+.layout{
+display:flex;
+flex-direction:column;
+}
+
+.leftPanel{
+display:none;
+}
+
+/* phone market + digits */
+
+.chartWrap{
+width:100%;
+background:#f6f7f8;
+padding:18px 14px 0;
+overflow:visible;
+}
+
+.chartCard{
+height:auto;
+min-height:0;
+padding:0;
+background:#f6f7f8;
+border:none;
+border-radius:0;
+overflow:visible;
+}
+
+.chartHeader{
+position:relative;
+top:auto;
+left:auto;
+right:auto;
+width:100%;
+background:white;
+border:1px solid #eef0f3;
+border-radius:10px;
+padding:18px 18px;
+box-shadow:0 4px 16px rgba(0,0,0,.06);
+margin-bottom:84px;
+}
+
+.chartHeader::before{
+content:"100  1s";
+display:inline-flex;
+align-items:center;
+justify-content:center;
+height:20px;
+padding:0 6px;
+background:#161616;
+color:white;
+border-radius:4px;
+font-size:11px;
+font-weight:900;
+margin-right:10px;
+vertical-align:top;
+}
+
+.chartHeader h1{
+font-size:26px;
+font-weight:900;
+color:#252525;
+display:inline;
+}
+
+.chartHeader p{
+font-size:21px;
+color:#9a9a9a;
+margin-top:10px;
+padding-left:88px;
+}
+
+.chartHeader p::after{
+content:" ▲";
+color:#47bbb4;
+}
+
+.chart{
+display:none;
+}
+
+/* 10 numbers exactly 2 rows */
+
+.digits{
+position:relative !important;
+top:auto !important;
+left:auto !important;
+right:auto !important;
+bottom:auto !important;
+display:grid !important;
+grid-template-columns:repeat(5,1fr) !important;
+gap:50px 18px !important;
+width:100% !important;
+padding:0 0 82px !important;
+overflow:visible !important;
+z-index:2 !important;
+}
+
+.digit{
+width:72px !important;
+height:72px !important;
+min-width:72px !important;
+border-radius:50% !important;
+background:white !important;
+border:8px solid #e7e8ea !important;
+box-shadow:none !important;
+color:#2a2a2a !important;
+display:flex !important;
+flex-direction:column !important;
+align-items:center !important;
+justify-content:center !important;
+margin:auto !important;
+position:relative !important;
+}
+
+.digit b{
+font-size:26px !important;
+line-height:1 !important;
+font-weight:900 !important;
+color:#2a2a2a !important;
+}
+
+.digit span{
+font-size:17px !important;
+line-height:1.1 !important;
+margin-top:3px !important;
+color:#444 !important;
+}
+
+.digit.selected{
+background:#222957 !important;
+border-color:#222957 !important;
+}
+
+.digit.selected b,
+.digit.selected span{
+color:white !important;
+}
+
+.digit:nth-child(2){
+border-bottom-color:#3fc4bd !important;
+}
+
+.digit:nth-child(10){
+border-bottom-color:#ef3e42 !important;
+}
+
+.digit:nth-child(10)::after{
+content:"";
+position:absolute;
+bottom:-31px;
+left:50%;
+transform:translateX(-50%);
+width:0;
+height:0;
+border-left:12px solid transparent;
+border-right:12px solid transparent;
+border-bottom:18px solid #ff5a45;
+}
+
+/* arrows like screenshot */
+
+.chartCard::before{
+content:"≪";
+position:absolute;
+left:6px;
+bottom:24px;
+font-size:48px;
+color:#909090;
+font-weight:300;
+z-index:5;
+}
+
+.chartCard::after{
+content:"≫";
+position:absolute;
+right:6px;
+bottom:24px;
+font-size:48px;
+color:#222;
+font-weight:300;
+z-index:5;
+}
+
+/* phone trade card */
+
+.tradePanel{
+width:100%;
+background:#f2f3f4;
+border:none;
+padding:18px 14px 20px;
+display:flex;
+flex-direction:column;
+gap:10px;
+color:#222;
+position:relative;
+}
+
+.tradePanel::before{
+content:"";
+width:70px;
+height:7px;
+border-radius:20px;
+background:#cfd4d5;
+align-self:center;
+margin:-4px 0 8px;
+}
+
+.learn{
+font-size:16px;
+color:#333;
+text-decoration:underline dotted;
+margin-bottom:6px;
+}
+
+.tradeTitle{
+height:70px;
+background:white;
+border:none;
+border-radius:9px;
+box-shadow:0 1px 8px rgba(0,0,0,.04);
+color:#222;
+font-size:23px;
+font-weight:900;
+padding:0 16px;
+}
+
+.tradeTitle::before{
+content:"↗ ↘";
+color:#ef3e42;
+background:#f1f3f5;
+padding:8px;
+border-radius:7px;
+margin-right:14px;
+}
+
+.tradeTitle::after{
+content:"›";
+margin-left:auto;
+font-size:40px;
+font-weight:300;
+}
+
+.contractTabs{
+display:grid;
+grid-template-columns:repeat(5,1fr);
+gap:10px;
+background:white;
+border:none;
+border-radius:9px;
+padding:12px;
+}
+
+.contractTabs button{
+height:56px;
+border-radius:7px;
+background:#f1f2f4;
+border:none;
+color:#2b2b2b;
+font-size:23px;
+font-weight:500;
+overflow:hidden;
+text-indent:-999px;
+position:relative;
+}
+
+.contractTabs button::after{
+position:absolute;
+inset:0;
+display:flex;
+align-items:center;
+justify-content:center;
+text-indent:0;
+}
+
+.contractTabs button:nth-child(1)::after{content:"0";}
+.contractTabs button:nth-child(2)::after{content:"1";}
+.contractTabs button:nth-child(3)::after{content:"2";}
+.contractTabs button:nth-child(4)::after{content:"3";}
+.contractTabs button:nth-child(5)::after{content:"4";}
+
+.contractTabs .active{
+background:#d9dedf;
+color:#111;
+font-weight:900;
+}
+
+.tradeMode{
+display:none;
+}
+
+.tradePanel label{
+display:none;
+}
+
+.tradePanel input{
+height:62px;
+background:white;
+border:none;
+border-radius:8px;
+color:#222;
+font-size:20px;
+font-weight:800;
+text-align:center;
+}
+
+.tradePanel input:first-of-type::before{
+content:"5 ticks";
+}
+
+.choice{
+display:grid;
+grid-template-columns:1fr 1fr;
+gap:10px;
+}
+
+.choice button{
+height:92px;
+border-radius:8px;
+font-size:26px;
+font-weight:900;
+position:relative;
+overflow:hidden;
+}
+
+.choice button::after{
+content:"Payout";
+position:absolute;
+left:16px;
+bottom:16px;
+font-size:16px;
+font-weight:400;
+opacity:.95;
+}
+
+.choice button::before{
+content:"22.22 AUD";
+position:absolute;
+right:18px;
+bottom:16px;
+font-size:15px;
+font-weight:900;
+}
+
+.choice button:nth-child(2)::before{
+content:"18.18 AUD";
+}
+
+.green{
+background:#4eb8b5 !important;
+color:white !important;
+}
+
+.white{
+background:#f2383e !important;
+color:white !important;
+}
+
+.buyEven{
+display:none;
+}
+
+/* fake bottom row like screenshot */
+
+.tradePanel::after{
+content:"5 ticks                          10.00 AUD";
+white-space:pre;
+height:62px;
+background:white;
+border-radius:8px;
+display:flex;
+align-items:center;
+padding:0 20px;
+font-size:22px;
+font-weight:900;
+color:#222;
+order:3;
+}
+
+.choice{
+order:4;
+}
+
+.modal{
+align-items:flex-end;
+padding:0;
+}
+
+.modalBox{
+border-radius:20px 20px 0 0;
+background:white;
+color:#222;
+border:none;
+}
+
+.modalBox input{
+background:#f3f5f7;
+color:#222;
+border:1px solid #dce1e6;
+}
+
+.x{
+color:#222;
+}
+
+}
+
+@media(max-width:420px){
+
+.chartHeader h1{
+font-size:22px;
+}
+
+.chartHeader p{
+font-size:18px;
+padding-left:74px;
+}
+
+.digit{
+width:64px !important;
+height:64px !important;
+min-width:64px !important;
+border-width:7px !important;
+}
+
+.digit b{
+font-size:23px !important;
+}
+
+.digit span{
+font-size:15px !important;
+}
+
+.digits{
+gap:44px 10px !important;
+}
+
+.choice button{
+font-size:22px;
+}
+
 }
