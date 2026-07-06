@@ -1,5 +1,7 @@
 import { useEffect, useState } from "react";
 
+const API_URL = "https://YOUR-BACKEND-URL.onrender.com";
+
 const PAYOUTS = {
   rise: 1.9,
   fall: 1.9,
@@ -15,9 +17,15 @@ export default function App() {
   const [menuOpen, setMenuOpen] = useState(false);
   const [page, setPage] = useState("trade");
 
+  const [email, setEmail] = useState("user@metabinary.app");
   const [account, setAccount] = useState("Real");
-  const [realBalance, setRealBalance] = useState(40);
+
+  const [realBalance, setRealBalance] = useState(0);
   const [demoBalance, setDemoBalance] = useState(10000);
+
+  const [depositPhone, setDepositPhone] = useState("");
+  const [depositAmount, setDepositAmount] = useState(10);
+  const [depositLoading, setDepositLoading] = useState(false);
 
   const [price, setPrice] = useState(819.75);
   const [lastDigit, setLastDigit] = useState(7);
@@ -33,7 +41,24 @@ export default function App() {
   const percentages = [9.9, 11.3, 9.3, 11.9, 11.2, 8.1, 11.4, 10.1, 9.9, 10.7];
 
   const balance = account === "Real" ? realBalance : demoBalance;
-  const setBalance = account === "Real" ? setRealBalance : setDemoBalance;
+
+  useEffect(() => {
+    loadUser();
+  }, []);
+
+  async function loadUser() {
+    try {
+      const res = await fetch(`${API_URL}/api/user/${email}`);
+      const data = await res.json();
+
+      if (data.success) {
+        setRealBalance(Number(data.user.realBalance || 0));
+        setDemoBalance(Number(data.user.demoBalance || 10000));
+      }
+    } catch {
+      console.log("Backend not connected yet");
+    }
+  }
 
   useEffect(() => {
     const timer = setInterval(() => {
@@ -122,22 +147,61 @@ export default function App() {
       ticksLeft: duration,
     };
 
-    setBalance((b) => Number((b - stake).toFixed(2)));
+    if (account === "Real") {
+      setRealBalance((b) => Number((b - stake).toFixed(2)));
+    } else {
+      setDemoBalance((b) => Number((b - stake).toFixed(2)));
+    }
+
     setOpenTrades((t) => [trade, ...t]);
+  }
+
+  async function handleDeposit() {
+    if (!depositAmount || Number(depositAmount) <= 0) {
+      alert("Enter valid amount");
+      return;
+    }
+
+    if (!depositPhone) {
+      alert("Enter phone number");
+      return;
+    }
+
+    setDepositLoading(true);
+
+    try {
+      const res = await fetch(`${API_URL}/api/deposit`, {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({
+          email,
+          phone: depositPhone,
+          amount: Number(depositAmount),
+        }),
+      });
+
+      const data = await res.json();
+
+      if (!data.success) {
+        alert(data.message || "Deposit failed");
+        return;
+      }
+
+      setRealBalance(Number(data.user.realBalance || 0));
+      setDemoBalance(Number(data.user.demoBalance || 10000));
+      alert(data.message || "Deposit successful");
+    } catch {
+      alert("Deposit failed. Check backend URL.");
+    } finally {
+      setDepositLoading(false);
+    }
   }
 
   function menuGo(nextPage) {
     setPage(nextPage);
     setMenuOpen(false);
-  }
-
-  function fakeDeposit() {
-    if (account === "Real") {
-      setRealBalance((b) => Number((b + 10).toFixed(2)));
-    } else {
-      setDemoBalance((b) => Number((b + 1000).toFixed(2)));
-    }
-    alert(account === "Real" ? "Demo deposit test added $10." : "Demo balance added $1000.");
   }
 
   function buyButtons() {
@@ -157,122 +221,54 @@ export default function App() {
       <style>{`
         *{margin:0;padding:0;box-sizing:border-box;font-family:Arial,Helvetica,sans-serif}
         html,body,#root{width:100%;min-height:100%;background:#f2f2f2;overflow-x:hidden}
-        button,select{font:inherit}
+        button,select,input{font:inherit}
         .app{width:100%;min-height:100vh;background:#f2f2f2;color:#111;overflow-x:hidden}
 
-        .top{
-          height:82px;background:white;display:flex;align-items:center;
-          justify-content:space-between;padding:0 18px;
-        }
-
-        .accountBox{
-          height:52px;min-width:150px;border:2px solid #111;border-radius:18px;
-          display:flex;align-items:center;gap:7px;padding:0 10px;background:white;
-        }
-
+        .top{height:82px;background:white;display:flex;align-items:center;justify-content:space-between;padding:0 18px}
+        .accountBox{height:52px;min-width:150px;border:2px solid #111;border-radius:18px;display:flex;align-items:center;gap:7px;padding:0 10px;background:white}
         .flag{font-size:19px}
-        .account{
-          border:none;outline:none;background:white;font-size:18px;font-weight:900;
-          color:#111;width:100%;
-        }
+        .account{border:none;outline:none;background:white;font-size:18px;font-weight:900;color:#111;width:100%}
+        .wallet{min-width:128px;height:52px;display:flex;align-items:center;justify-content:center;border:1px solid #ddd;border-radius:18px;background:white;color:#19b8aa;font-size:24px;font-weight:900}
 
-        .wallet{
-          min-width:128px;height:52px;display:flex;align-items:center;justify-content:center;
-          border:1px solid #ddd;border-radius:18px;background:white;color:#19b8aa;
-          font-size:24px;font-weight:900;
-        }
-
-        .nav{
-          height:60px;background:#07111d;display:grid;
-          grid-template-columns:62px repeat(4,1fr);position:relative;z-index:50;
-        }
-
-        .menuBtn,.nav button{
-          border:none;background:#07111d;color:white;font-weight:900;cursor:pointer;
-        }
-
+        .nav{height:60px;background:#07111d;display:grid;grid-template-columns:62px repeat(4,1fr);position:relative;z-index:50}
+        .menuBtn,.nav button{border:none;background:#07111d;color:white;font-weight:900;cursor:pointer}
         .menuBtn{font-size:30px;display:flex;align-items:center;justify-content:center}
         .nav button{font-size:14px}
         .nav .active{background:#19b8aa}
 
         .drawerOverlay{position:fixed;inset:0;background:rgba(0,0,0,.45);z-index:500}
-        .drawer{
-          position:fixed;left:0;top:0;width:280px;height:100vh;background:white;
-          z-index:600;padding:22px;box-shadow:10px 0 30px rgba(0,0,0,.25);
-        }
-
+        .drawer{position:fixed;left:0;top:0;width:280px;height:100vh;background:white;z-index:600;padding:22px;box-shadow:10px 0 30px rgba(0,0,0,.25)}
         .drawer h2{color:#19b8aa;font-size:30px;margin-bottom:18px}
-        .drawer button{
-          width:100%;padding:14px;margin-bottom:10px;border:none;border-radius:12px;
-          background:#f2f2f2;text-align:left;font-weight:900;color:#111;
-        }
+        .drawer button{width:100%;padding:14px;margin-bottom:10px;border:none;border-radius:12px;background:#f2f2f2;text-align:left;font-weight:900;color:#111}
 
-        .market{
-          margin:14px 18px;background:white;border:1px solid #ddd;border-radius:22px;
-          padding:18px;display:flex;align-items:center;justify-content:space-between;gap:10px;
-        }
-
+        .market{margin:14px 18px;background:white;border:1px solid #ddd;border-radius:22px;padding:18px;display:flex;align-items:center;justify-content:space-between;gap:10px}
         .market h1{font-size:24px;line-height:1.1;font-weight:900}
         .market p{margin-top:6px;color:#19b8aa;font-size:17px;font-weight:900}
+        .last{width:62px;height:62px;min-width:62px;border-radius:50%;background:#19b8aa;color:white;display:flex;align-items:center;justify-content:center;font-size:31px;font-weight:900}
 
-        .last{
-          width:62px;height:62px;min-width:62px;border-radius:50%;background:#19b8aa;
-          color:white;display:flex;align-items:center;justify-content:center;
-          font-size:31px;font-weight:900;
-        }
-
-        .digits{
-          margin:0 22px 16px;display:grid;grid-template-columns:repeat(5,1fr);
-          gap:13px 16px;justify-items:center;
-        }
-
-        .digit{
-          width:56px;height:56px;border-radius:50%;border:6px solid #e9edf3;background:white;
-          display:flex;flex-direction:column;align-items:center;justify-content:center;
-          font-weight:900;font-size:23px;
-        }
-
+        .digits{margin:0 22px 16px;display:grid;grid-template-columns:repeat(5,1fr);gap:13px 16px;justify-items:center}
+        .digit{width:56px;height:56px;border-radius:50%;border:6px solid #e9edf3;background:white;display:flex;flex-direction:column;align-items:center;justify-content:center;font-weight:900;font-size:23px}
         .digit span{font-size:11px;color:#8c95a1}
         .digit.active{border-color:#19b8aa}
 
-        .panel,.prediction,.depositPage{
-          background:white;margin:0 18px 14px;padding:18px 15px;border-radius:22px;
-        }
-
+        .panel,.prediction,.pageBox{background:white;margin:0 18px 14px;padding:18px 15px;border-radius:22px}
         .panelTitle{color:#9aa3ae;font-size:17px;margin-bottom:14px}
         .contractGrid{display:grid;grid-template-columns:1fr 1fr;gap:10px}
-        .contractGrid button{
-          height:54px;border-radius:15px;border:1px solid #ddd;background:#f8f8f8;
-          color:#111;font-size:16px;font-weight:900;
-        }
-
+        .contractGrid button{height:54px;border-radius:15px;border:1px solid #ddd;background:#f8f8f8;color:#111;font-size:16px;font-weight:900}
         .contractGrid button.active{background:#19b8aa;border-color:#19b8aa;color:white}
+
         .prediction h3{font-size:17px;margin-bottom:10px}
         .predictionGrid{display:grid;grid-template-columns:repeat(5,1fr);gap:8px}
-        .predictionGrid button{
-          height:42px;border-radius:50%;border:1px solid #ddd;background:#f2f4f7;
-          font-size:16px;font-weight:900;
-        }
-
+        .predictionGrid button{height:42px;border-radius:50%;border:1px solid #ddd;background:#f2f4f7;font-size:16px;font-weight:900}
         .predictionGrid button.active{background:#19b8aa;color:white;border-color:#19b8aa}
 
-        .control{
-          height:66px;margin:0 18px 12px;padding:0 20px;background:white;border-radius:19px;
-          display:flex;align-items:center;justify-content:space-between;
-        }
-
+        .control{height:66px;margin:0 18px 12px;padding:0 20px;background:white;border-radius:19px;display:flex;align-items:center;justify-content:space-between}
         .control h2{font-size:20px;font-weight:900}
         .stepper{display:flex;align-items:center;gap:13px;font-size:21px;font-weight:900}
-        .stepper button{
-          width:38px;height:38px;border:none;border-radius:50%;background:#edf0f4;
-          color:#111;font-size:25px;font-weight:900;display:flex;align-items:center;justify-content:center;
-        }
+        .stepper button{width:38px;height:38px;border:none;border-radius:50%;background:#edf0f4;color:#111;font-size:25px;font-weight:900;display:flex;align-items:center;justify-content:center}
 
         .buyGrid{margin:16px 18px 14px;display:grid;grid-template-columns:1fr 1fr;gap:13px}
-        .buyBtn{
-          height:94px;border:none;border-radius:21px;color:white;font-size:30px;font-weight:900;
-        }
-
+        .buyBtn{height:94px;border:none;border-radius:21px;color:white;font-size:30px;font-weight:900}
         .buyBtn span{display:block;margin-top:6px;font-size:13px;font-weight:900}
         .green{background:#19b8aa}
         .red{background:#ff4057}
@@ -280,26 +276,17 @@ export default function App() {
         .positions{padding:10px 18px 28px}
         .positions h2{font-size:21px;margin:12px 0 8px}
         .empty{color:#777;font-size:14px}
-        .tradeCard{
-          background:white;border-radius:14px;padding:12px;margin-bottom:8px;
-          display:flex;flex-direction:column;gap:3px;font-size:14px;
-        }
-
+        .tradeCard{background:white;border-radius:14px;padding:12px;margin-bottom:8px;display:flex;flex-direction:column;gap:3px;font-size:14px}
         .open{border-left:5px solid #ffc107}
         .won{border-left:5px solid #19b8aa}
         .lost{border-left:5px solid #ff4057}
 
-        .depositPage h1{font-size:28px;margin-bottom:12px}
-        .depositPage p{color:#666;margin-bottom:18px}
-        .depositBtn{
-          width:100%;height:58px;border:none;border-radius:16px;background:#19b8aa;
-          color:white;font-size:20px;font-weight:900;margin-top:10px;
-        }
-
-        .backBtn{
-          width:100%;height:52px;border:none;border-radius:14px;background:#07111d;
-          color:white;font-weight:900;margin-top:12px;
-        }
+        .pageBox h1{font-size:28px;margin-bottom:12px}
+        .pageBox p{color:#666;margin-bottom:18px}
+        .pageBox label{display:block;font-weight:900;margin:12px 0 6px}
+        .pageBox input{width:100%;height:54px;border:1px solid #ddd;border-radius:14px;padding:0 14px;font-size:18px}
+        .mainBtn{width:100%;height:58px;border:none;border-radius:16px;background:#19b8aa;color:white;font-size:20px;font-weight:900;margin-top:14px}
+        .backBtn{width:100%;height:52px;border:none;border-radius:14px;background:#07111d;color:white;font-weight:900;margin-top:12px}
 
         @media(max-width:380px){
           .top{padding:0 12px}
@@ -351,12 +338,31 @@ export default function App() {
         </div>
 
         {page === "deposit" && (
-          <div className="depositPage">
+          <div className="pageBox">
             <h1>Deposit</h1>
-            <p>Add funds to your {account} account.</p>
-            <button className="depositBtn" onClick={fakeDeposit}>
-              Add test deposit
+            <p>Send deposit to your Real account.</p>
+
+            <label>Email</label>
+            <input value={email} onChange={(e) => setEmail(e.target.value)} />
+
+            <label>M-Pesa Phone</label>
+            <input
+              value={depositPhone}
+              onChange={(e) => setDepositPhone(e.target.value)}
+              placeholder="2547XXXXXXXX"
+            />
+
+            <label>Amount USD</label>
+            <input
+              type="number"
+              value={depositAmount}
+              onChange={(e) => setDepositAmount(e.target.value)}
+            />
+
+            <button className="mainBtn" onClick={handleDeposit} disabled={depositLoading}>
+              {depositLoading ? "Processing..." : "Deposit now"}
             </button>
+
             <button className="backBtn" onClick={() => setPage("trade")}>
               Back to trading
             </button>
@@ -364,7 +370,7 @@ export default function App() {
         )}
 
         {page !== "deposit" && page !== "trade" && (
-          <div className="depositPage">
+          <div className="pageBox">
             <h1>{page}</h1>
             <p>This section is coming soon.</p>
             <button className="backBtn" onClick={() => setPage("trade")}>Back to trading</button>
