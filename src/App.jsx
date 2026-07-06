@@ -18,13 +18,14 @@ export default function App() {
   const [lastDigit, setLastDigit] = useState(7);
 
   const [mode, setMode] = useState("risefall");
-  const [side, setSide] = useState("rise");
   const [prediction, setPrediction] = useState(7);
   const [duration, setDuration] = useState(5);
   const [stake, setStake] = useState(10);
 
   const [openTrades, setOpenTrades] = useState([]);
   const [history, setHistory] = useState([]);
+
+  const percentages = [9.9, 11.3, 9.3, 11.9, 11.2, 8.1, 11.4, 10.1, 9.9, 10.7];
 
   useEffect(() => {
     const timer = setInterval(() => {
@@ -54,7 +55,7 @@ export default function App() {
     const finished = openTrades.filter((t) => t.ticksLeft <= 0);
     if (!finished.length) return;
 
-    finished.forEach(closeTrade);
+    finished.forEach((trade) => closeTrade(trade));
     setOpenTrades((old) => old.filter((t) => t.ticksLeft > 0));
   }, [openTrades]);
 
@@ -112,12 +113,16 @@ export default function App() {
     setOpenTrades((t) => [trade, ...t]);
   }
 
-  function buttons() {
+  function buyButtons() {
     if (mode === "risefall") return ["rise", "fall"];
     if (mode === "evenodd") return ["even", "odd"];
     if (mode === "matchesdiffers") return ["matches", "differs"];
     if (mode === "overunder") return ["over", "under"];
     return ["rise", "fall"];
+  }
+
+  function title(type) {
+    return type.charAt(0).toUpperCase() + type.slice(1);
   }
 
   return (
@@ -133,62 +138,66 @@ export default function App() {
         html,body,#root{
           width:100%;
           min-height:100%;
-          background:#f3f3f3;
+          background:#f2f2f2;
         }
 
-        body{
-          color:#111;
-        }
-
-        button,select,input{
+        button,select{
           font:inherit;
         }
 
         .app{
-          max-width:460px;
+          width:100%;
+          max-width:480px;
           min-height:100vh;
           margin:0 auto;
           background:#f2f2f2;
+          color:#111;
+          overflow-x:hidden;
         }
 
         .top{
-          height:96px;
+          height:106px;
           background:white;
           display:flex;
           align-items:center;
           justify-content:space-between;
           padding:0 20px;
-          border-bottom:1px solid #eee;
         }
 
         .menu{
-          font-size:44px;
+          font-size:50px;
           font-weight:900;
+          line-height:1;
         }
 
         .account{
           height:58px;
-          width:125px;
+          width:130px;
           border:3px solid #111;
           border-radius:18px;
-          padding:0 15px;
+          padding:0 16px;
           font-size:22px;
           font-weight:900;
           background:white;
+          color:#111;
         }
 
         .wallet{
+          min-width:130px;
+          height:58px;
+          display:flex;
+          align-items:center;
+          justify-content:center;
           border:1px solid #ddd;
           border-radius:18px;
-          padding:15px 22px;
-          color:#17b7a6;
+          background:white;
+          color:#19b8aa;
           font-size:28px;
           font-weight:900;
-          background:white;
         }
 
         .tabs{
-          height:66px;
+          height:68px;
           display:grid;
           grid-template-columns:repeat(4,1fr);
           background:#07111d;
@@ -198,91 +207,94 @@ export default function App() {
           border:none;
           background:#07111d;
           color:white;
+          font-size:16px;
           font-weight:900;
-          font-size:15px;
         }
 
-        .tabs button.active{
-          background:#18b8aa;
+        .tabs .active{
+          background:#19b8aa;
         }
 
-        .marketCard{
+        .market{
           margin:18px 20px;
           background:white;
           border:1px solid #ddd;
-          border-radius:22px;
+          border-radius:24px;
           padding:20px;
           display:flex;
           align-items:center;
           justify-content:space-between;
         }
 
-        .marketCard h1{
-          font-size:26px;
+        .market h1{
+          font-size:27px;
           line-height:1.1;
-        }
-
-        .marketCard p{
-          margin-top:8px;
-          color:#18b8aa;
-          font-size:19px;
           font-weight:900;
         }
 
-        .lastBubble{
+        .market p{
+          margin-top:8px;
+          color:#19b8aa;
+          font-size:20px;
+          font-weight:900;
+        }
+
+        .last{
           width:70px;
           height:70px;
           border-radius:50%;
-          background:#18b8aa;
+          background:#19b8aa;
           color:white;
-          display:grid;
-          place-items:center;
+          display:flex;
+          align-items:center;
+          justify-content:center;
           font-size:34px;
           font-weight:900;
         }
 
         .digits{
-          margin:0 20px 18px;
+          margin:0 26px 20px;
           display:grid;
           grid-template-columns:repeat(5,1fr);
           gap:18px 22px;
+          justify-items:center;
         }
 
         .digit{
-          width:62px;
-          height:62px;
+          width:66px;
+          height:66px;
           border-radius:50%;
-          border:8px solid #edf0f4;
+          border:8px solid #e9edf3;
           background:white;
           display:flex;
           flex-direction:column;
           align-items:center;
           justify-content:center;
           font-weight:900;
-          font-size:26px;
+          font-size:27px;
         }
 
         .digit span{
           font-size:13px;
-          color:#8d96a3;
+          color:#8c95a1;
           margin-top:2px;
         }
 
         .digit.active{
-          border-color:#18b8aa;
+          border-color:#19b8aa;
         }
 
-        .contractBox{
+        .panel{
           background:white;
           margin:0 20px 20px;
           padding:22px 16px;
-          border-radius:22px;
+          border-radius:24px;
         }
 
-        .contractBox h3{
-          color:#9ba3af;
-          font-size:18px;
-          margin-bottom:14px;
+        .panelTitle{
+          color:#9aa3ae;
+          font-size:19px;
+          margin-bottom:16px;
         }
 
         .contractGrid{
@@ -292,64 +304,68 @@ export default function App() {
         }
 
         .contractGrid button{
-          height:62px;
+          height:64px;
           border-radius:16px;
           border:1px solid #ddd;
           background:#f8f8f8;
+          color:#111;
           font-size:18px;
           font-weight:900;
         }
 
         .contractGrid button.active{
-          background:#18b8aa;
+          background:#19b8aa;
+          border-color:#19b8aa;
           color:white;
-          border-color:#18b8aa;
         }
 
-        .predictBox{
+        .prediction{
           background:white;
           margin:0 20px 20px;
           padding:18px;
-          border-radius:22px;
+          border-radius:24px;
         }
 
-        .predictBox h3{
-          margin-bottom:12px;
-          font-size:18px;
+        .prediction h3{
+          font-size:20px;
+          margin-bottom:14px;
         }
 
-        .predictDigits{
+        .predictionGrid{
           display:grid;
           grid-template-columns:repeat(5,1fr);
           gap:10px;
         }
 
-        .predictDigits button{
-          height:46px;
+        .predictionGrid button{
+          height:48px;
           border-radius:50%;
           border:1px solid #ddd;
-          background:#f3f5f7;
+          background:#f2f4f7;
+          font-size:18px;
           font-weight:900;
         }
 
-        .predictDigits button.active{
-          background:#18b8aa;
+        .predictionGrid button.active{
+          background:#19b8aa;
           color:white;
+          border-color:#19b8aa;
         }
 
         .control{
-          margin:0 20px 16px;
           height:76px;
+          margin:0 20px 16px;
+          padding:0 24px;
           background:white;
-          border-radius:18px;
+          border-radius:20px;
           display:flex;
           align-items:center;
           justify-content:space-between;
-          padding:0 24px;
         }
 
         .control h2{
-          font-size:22px;
+          font-size:23px;
+          font-weight:900;
         }
 
         .stepper{
@@ -366,12 +382,16 @@ export default function App() {
           border:none;
           border-radius:50%;
           background:#edf0f4;
-          font-size:28px;
+          color:#111;
+          font-size:30px;
           font-weight:900;
+          display:flex;
+          align-items:center;
+          justify-content:center;
         }
 
         .buyGrid{
-          margin:22px 20px 12px;
+          margin:22px 20px 14px;
           display:grid;
           grid-template-columns:1fr 1fr;
           gap:16px;
@@ -382,18 +402,19 @@ export default function App() {
           border:none;
           border-radius:22px;
           color:white;
-          font-weight:900;
           font-size:34px;
+          font-weight:900;
         }
 
         .buyBtn span{
           display:block;
-          font-size:15px;
           margin-top:8px;
+          font-size:15px;
+          font-weight:900;
         }
 
         .green{
-          background:#18b8aa;
+          background:#19b8aa;
         }
 
         .red{
@@ -401,44 +422,71 @@ export default function App() {
         }
 
         .positions{
-          margin:20px;
+          padding:12px 20px 30px;
         }
 
         .positions h2{
-          font-size:22px;
-          margin:12px 0;
+          font-size:23px;
+          margin:14px 0 10px;
+        }
+
+        .empty{
+          color:#777;
+          font-size:15px;
         }
 
         .tradeCard{
           background:white;
           border-radius:14px;
-          padding:12px;
+          padding:13px;
           margin-bottom:10px;
           display:flex;
           flex-direction:column;
           gap:4px;
-        }
-
-        .won{
-          border-left:5px solid #18b8aa;
-        }
-
-        .lost{
-          border-left:5px solid #ff4057;
+          font-size:15px;
         }
 
         .open{
           border-left:5px solid #ffc107;
         }
 
-        @media(min-width:800px){
-          .app{
-            max-width:100%;
+        .won{
+          border-left:5px solid #19b8aa;
+        }
+
+        .lost{
+          border-left:5px solid #ff4057;
+        }
+
+        @media(max-width:390px){
+          .wallet{
+            min-width:115px;
+            font-size:24px;
           }
 
-          .content{
-            max-width:460px;
-            margin:0 auto;
+          .account{
+            width:115px;
+            font-size:20px;
+          }
+
+          .market h1{
+            font-size:24px;
+          }
+
+          .digit{
+            width:60px;
+            height:60px;
+          }
+
+          .buyBtn{
+            font-size:30px;
+          }
+        }
+
+        @media(min-width:800px){
+          .app{
+            max-width:480px;
+            box-shadow:0 0 40px rgba(0,0,0,.15);
           }
         }
       `}</style>
@@ -462,124 +510,135 @@ export default function App() {
           <button>Copy Trading</button>
         </div>
 
-        <div className="content">
-          <div className="marketCard">
-            <div>
-              <h1>Volatility 100 (1s) Index</h1>
-              <p>{price.toFixed(2)} - 0.02 (0.00%)</p>
-            </div>
-            <div className="lastBubble">{lastDigit}</div>
+        <div className="market">
+          <div>
+            <h1>Volatility 100 (1s) Index</h1>
+            <p>{price.toFixed(2)} - 0.02 (0.00%)</p>
           </div>
 
-          <div className="digits">
-            {[0,1,2,3,4,5,6,7,8,9].map((n) => (
-              <div key={n} className={lastDigit === n ? "digit active" : "digit"}>
-                {n}
-                <span>{(8 + Math.random() * 4).toFixed(1)}%</span>
-              </div>
-            ))}
-          </div>
+          <div className="last">{lastDigit}</div>
+        </div>
 
-          <div className="contractBox">
-            <h3>⌄ Select contract type</h3>
-            <div className="contractGrid">
-              <button
-                className={mode === "risefall" ? "active" : ""}
-                onClick={() => setMode("risefall")}
-              >
-                Rise/Fall
-              </button>
-
-              <button
-                className={mode === "evenodd" ? "active" : ""}
-                onClick={() => setMode("evenodd")}
-              >
-                Even/Odd
-              </button>
-
-              <button
-                className={mode === "matchesdiffers" ? "active" : ""}
-                onClick={() => setMode("matchesdiffers")}
-              >
-                Matches/Differs
-              </button>
-
-              <button
-                className={mode === "overunder" ? "active" : ""}
-                onClick={() => setMode("overunder")}
-              >
-                Over/Under
-              </button>
+        <div className="digits">
+          {[0,1,2,3,4,5,6,7,8,9].map((n) => (
+            <div key={n} className={lastDigit === n ? "digit active" : "digit"}>
+              {n}
+              <span>{percentages[n]}%</span>
             </div>
+          ))}
+        </div>
+
+        <div className="panel">
+          <div className="panelTitle">⌄ Select contract type</div>
+
+          <div className="contractGrid">
+            <button
+              className={mode === "risefall" ? "active" : ""}
+              onClick={() => setMode("risefall")}
+            >
+              Rise/Fall
+            </button>
+
+            <button
+              className={mode === "evenodd" ? "active" : ""}
+              onClick={() => setMode("evenodd")}
+            >
+              Even/Odd
+            </button>
+
+            <button
+              className={mode === "matchesdiffers" ? "active" : ""}
+              onClick={() => setMode("matchesdiffers")}
+            >
+              Matches/Differs
+            </button>
+
+            <button
+              className={mode === "overunder" ? "active" : ""}
+              onClick={() => setMode("overunder")}
+            >
+              Over/Under
+            </button>
           </div>
+        </div>
 
-          {["matchesdiffers", "overunder"].includes(mode) && (
-            <div className="predictBox">
-              <h3>Prediction digit</h3>
-              <div className="predictDigits">
-                {[0,1,2,3,4,5,6,7,8,9].map((n) => (
-                  <button
-                    key={n}
-                    className={prediction === n ? "active" : ""}
-                    onClick={() => setPrediction(n)}
-                  >
-                    {n}
-                  </button>
-                ))}
-              </div>
-            </div>
-          )}
+        {["matchesdiffers", "overunder"].includes(mode) && (
+          <div className="prediction">
+            <h3>Prediction digit</h3>
 
-          <div className="control">
-            <h2>Duration</h2>
-            <div className="stepper">
-              <button onClick={() => setDuration(Math.max(1, duration - 1))}>−</button>
-              <b>{duration} ticks</b>
-              <button onClick={() => setDuration(duration + 1)}>+</button>
+            <div className="predictionGrid">
+              {[0,1,2,3,4,5,6,7,8,9].map((n) => (
+                <button
+                  key={n}
+                  onClick={() => setPrediction(n)}
+                  className={prediction === n ? "active" : ""}
+                >
+                  {n}
+                </button>
+              ))}
             </div>
           </div>
+        )}
 
-          <div className="control">
-            <h2>Stake</h2>
-            <div className="stepper">
-              <button onClick={() => setStake(Math.max(1, stake - 1))}>−</button>
-              <b>{stake} USD</b>
-              <button onClick={() => setStake(stake + 1)}>+</button>
+        <div className="control">
+          <h2>Duration</h2>
+
+          <div className="stepper">
+            <button onClick={() => setDuration(Math.max(1, duration - 1))}>−</button>
+            <b>{duration} ticks</b>
+            <button onClick={() => setDuration(duration + 1)}>+</button>
+          </div>
+        </div>
+
+        <div className="control">
+          <h2>Stake</h2>
+
+          <div className="stepper">
+            <button onClick={() => setStake(Math.max(1, stake - 1))}>−</button>
+            <b>{stake} USD</b>
+            <button onClick={() => setStake(stake + 1)}>+</button>
+          </div>
+        </div>
+
+        <div className="buyGrid">
+          {buyButtons().map((b, index) => (
+            <button
+              key={b}
+              onClick={() => buy(b)}
+              className={index === 0 ? "buyBtn green" : "buyBtn red"}
+            >
+              {title(b)}
+              <span>Payout {(stake * PAYOUTS[b]).toFixed(2)} USD</span>
+            </button>
+          ))}
+        </div>
+
+        <div className="positions">
+          <h2>Open trades</h2>
+
+          {openTrades.length === 0 && <p className="empty">No open trades</p>}
+
+          {openTrades.map((t) => (
+            <div className="tradeCard open" key={t.id}>
+              <b>{t.type.toUpperCase()}</b>
+              <span>Stake: {t.stake} USD</span>
+              <span>Entry digit: {t.entryDigit}</span>
+              <span>Ticks left: {t.ticksLeft}</span>
             </div>
-          </div>
+          ))}
 
-          <div className="buyGrid">
-            {buttons().map((b, i) => (
-              <button
-                key={b}
-                onClick={() => buy(b)}
-                className={i === 0 ? "buyBtn green" : "buyBtn red"}
-              >
-                {b.charAt(0).toUpperCase() + b.slice(1)}
-                <span>Payout {(stake * PAYOUTS[b]).toFixed(2)} USD</span>
-              </button>
-            ))}
-          </div>
+          <h2>Trade history</h2>
 
-          <div className="positions">
-            <h2>Open trades</h2>
-            {openTrades.map((t) => (
-              <div className="tradeCard open" key={t.id}>
-                <b>{t.type.toUpperCase()}</b>
-                <span>Stake: {t.stake} USD</span>
-                <span>Ticks left: {t.ticksLeft}</span>
-              </div>
-            ))}
+          {history.length === 0 && <p className="empty">No closed trades</p>}
 
-            <h2>Trade history</h2>
-            {history.map((t) => (
-              <div key={t.id} className={t.result === "WON" ? "tradeCard won" : "tradeCard lost"}>
-                <b>{t.type.toUpperCase()} — {t.result}</b>
-                <span>Exit digit: {t.exitDigit}</span>
-                <span>Profit: {t.profit.toFixed(2)} USD</span>
-              </div>
-            ))}
-          </div>
+          {history.map((t) => (
+            <div key={t.id} className={t.result === "WON" ? "tradeCard won" : "tradeCard lost"}>
+              <b>{t.type.toUpperCase()} — {t.result}</b>
+              <span>Exit digit: {t.exitDigit}</span>
+              <span>Return: {t.returned.toFixed(2)} USD</span>
+              <span>Profit: {t.profit.toFixed(2)} USD</span>
+            </div>
+          ))}
         </div>
       </div>
     </>
