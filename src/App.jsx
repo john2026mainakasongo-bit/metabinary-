@@ -21,10 +21,13 @@ const choicesByContract = {
 
 function createChartData() {
   let y = 255;
+
   return Array.from({ length: 95 }, (_, i) => {
     y += (Math.random() - 0.48) * 28;
+
     if (y < 115) y = 115;
     if (y > 360) y = 360;
+
     return { x: 40 + i * 13, y };
   });
 }
@@ -55,31 +58,30 @@ export default function App() {
   const [openTrades, setOpenTrades] = useState([]);
   const [closedTrades, setClosedTrades] = useState([]);
 
-  const [depositOpen, setDepositOpen] = useState(false); const [menuOpen, setMenuOpen] = useState(false);
+  const [depositOpen, setDepositOpen] = useState(false);
+  const [menuOpen, setMenuOpen] = useState(false);
+
   const [phone, setPhone] = useState("");
   const [depositAmount, setDepositAmount] = useState(10);
 
   const [chartData, setChartData] = useState(createChartData);
+
   const currentBalance = mode === "Demo" ? balance.demo : balance.real;
 
-  const price = useMemo(
-    () => (819 + lastDigit / 10 + Math.random() * 0.15).toFixed(2),
-    [lastDigit]
-  );
+  const price = useMemo(() => {
+    return (819 + lastDigit / 10 + Math.random() * 0.15).toFixed(2);
+  }, [lastDigit]);
 
-  const points = useMemo(
-    () => chartData.map((p) => `${p.x},${p.y.toFixed(1)}`).join(" "),
-    [chartData]
-  );
+  const points = useMemo(() => {
+    return chartData.map((p) => `${p.x},${p.y.toFixed(1)}`).join(" ");
+  }, [chartData]);
 
-  const digitStats = useMemo(
-    () =>
-      Array.from({ length: 10 }, (_, d) => ({
-        d,
-        percent: (8 + Math.random() * 4).toFixed(1),
-      })),
-    [lastDigit]
-  );
+  const digitStats = useMemo(() => {
+    return Array.from({ length: 10 }, (_, d) => ({
+      d,
+      percent: (8 + Math.random() * 4).toFixed(1),
+    }));
+  }, [lastDigit]);
 
   function changeContract(type) {
     setContractType(type);
@@ -177,12 +179,16 @@ export default function App() {
 
   useEffect(() => {
     if (screen !== "app") return;
+
     const timer = setInterval(refreshBalance, 3000);
     return () => clearInterval(timer);
   }, [screen, email]);
 
   async function auth(type) {
-    if (!email || !password) return alert("Enter email and password");
+    if (!email || !password) {
+      alert("Enter email and password");
+      return;
+    }
 
     try {
       const res = await fetch(`${API}/api/${type}`, {
@@ -193,7 +199,10 @@ export default function App() {
 
       const data = await res.json();
 
-      if (!data.success) return alert(data.message || "Auth failed");
+      if (!data.success) {
+        alert(data.message || "Auth failed");
+        return;
+      }
 
       localStorage.setItem("token", data.token);
       localStorage.setItem("email", data.user.email);
@@ -201,6 +210,7 @@ export default function App() {
 
       setEmail(data.user.email);
       setMode("Demo");
+
       setBalance({
         demo: Number(data.user.demoBalance || 10000),
         real: Number(data.user.realBalance || 0),
@@ -216,6 +226,7 @@ export default function App() {
     localStorage.clear();
     setScreen("login");
     setPassword("");
+    setMenuOpen(false);
   }
 
   function changeMode(value) {
@@ -310,7 +321,10 @@ export default function App() {
   }
 
   async function deposit() {
-    if (!phone || !depositAmount) return alert("Enter phone and amount");
+    if (!phone || !depositAmount) {
+      alert("Enter phone and amount");
+      return;
+    }
 
     try {
       const res = await fetch(`${API}/api/deposit`, {
@@ -325,7 +339,10 @@ export default function App() {
 
       const data = await res.json();
 
-      if (!data.success) return alert(data.message || "Deposit failed");
+      if (!data.success) {
+        alert(data.message || "Deposit failed");
+        return;
+      }
 
       alert("STK Push sent. Wait for M-Pesa confirmation.");
       refreshBalance();
@@ -339,6 +356,7 @@ export default function App() {
       <div className="authPage">
         <div className="authCard">
           <h1>MetaBinary</h1>
+
           <p>
             {screen === "login"
               ? "Login to continue trading"
@@ -382,18 +400,11 @@ export default function App() {
         <div className="brand">MetaBinary</div>
 
         <nav className="nav">
+          <button type="button" onClick={() => setMenuOpen(true)}>
+            ☰ Menu
+          </button>
+
           <button type="button">Trader&apos;s Hub</button>
-          <button type="button" onClick={() => setDepositOpen(true)}>
-            Deposit
-          </button>
-          <button type="button" onClick={() => alert("Withdraw coming soon")}>
-            Withdraw
-          </button>
-          <button type="button">History</button>
-          <button type="button">Chat</button>
-          <button type="button" onClick={logout}>
-            Logout
-          </button>
         </nav>
 
         <div className="accountBox">
@@ -487,6 +498,7 @@ export default function App() {
                 </defs>
 
                 <polygon points={`40,430 ${points} 1260,430`} />
+
                 <polyline
                   points={points}
                   fill="none"
@@ -530,6 +542,7 @@ export default function App() {
           </div>
 
           <p className="learn">ⓘ Learn about this trade type</p>
+
           <h1 className="tradeTitle">{contractType}</h1>
 
           <div className="contractTabs">
@@ -549,11 +562,13 @@ export default function App() {
             <div className="toolBox">
               <h2>Bot Builder</h2>
               <p>Run automatic trades using your selected contract.</p>
+
               <label>Bot Runs</label>
               <input
                 value={botRuns}
                 onChange={(e) => setBotRuns(e.target.value)}
               />
+
               <button type="button" className="mainBuy" onClick={runBot}>
                 Start Bot
               </button>
@@ -615,13 +630,16 @@ export default function App() {
             <div className="toolBox">
               <h2>Bulk Trader</h2>
               <p>Open many trades quickly using the same settings.</p>
+
               <label>Number of trades</label>
               <input
                 value={bulkCount}
                 onChange={(e) => setBulkCount(e.target.value)}
               />
+
               <label>Stake per trade</label>
               <input value={stake} onChange={(e) => setStake(e.target.value)} />
+
               <button type="button" className="mainBuy" onClick={runBulk}>
                 Run Bulk Trades
               </button>
@@ -630,10 +648,56 @@ export default function App() {
         </aside>
       </div>
 
+      {menuOpen && (
+        <div className="sideMenu">
+          <div className="menuContent">
+            <button
+              type="button"
+              className="closeMenu"
+              onClick={() => setMenuOpen(false)}
+            >
+              ×
+            </button>
+
+            <button
+              type="button"
+              onClick={() => {
+                setDepositOpen(true);
+                setMenuOpen(false);
+              }}
+            >
+              Deposit
+            </button>
+
+            <button
+              type="button"
+              onClick={() => {
+                alert("Withdraw coming soon");
+                setMenuOpen(false);
+              }}
+            >
+              Withdraw
+            </button>
+
+            <button type="button">History</button>
+
+            <button type="button">Settings</button>
+
+            <button type="button" onClick={logout}>
+              Logout
+            </button>
+          </div>
+        </div>
+      )}
+
       {depositOpen && (
         <div className="modal">
           <div className="modalBox">
-            <button type="button" className="x" onClick={() => setDepositOpen(false)}>
+            <button
+              type="button"
+              className="x"
+              onClick={() => setDepositOpen(false)}
+            >
               ×
             </button>
 
