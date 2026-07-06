@@ -76,19 +76,9 @@ export default function App() {
     const returned = won ? Number((trade.stake * trade.payout).toFixed(2)) : 0;
     const profit = won ? Number((returned - trade.stake).toFixed(2)) : -trade.stake;
 
-    if (won) {
-      setBalance((b) => Number((b + returned).toFixed(2)));
-    }
+    if (won) setBalance((b) => Number((b + returned).toFixed(2)));
 
-    setHistory((h) => [
-      {
-        ...trade,
-        result: won ? "WON" : "LOST",
-        returned,
-        profit,
-      },
-      ...h,
-    ]);
+    setHistory((h) => [{ ...trade, result: won ? "WON" : "LOST", returned, profit }, ...h]);
   }
 
   function buy(type) {
@@ -136,9 +126,17 @@ export default function App() {
         }
 
         html,body,#root{
-          width:100%;
-          min-height:100%;
+          width:100% !important;
+          min-width:100% !important;
+          max-width:none !important;
+          min-height:100% !important;
           background:#f2f2f2;
+          overflow-x:hidden;
+        }
+
+        body{
+          margin:0 !important;
+          padding:0 !important;
         }
 
         button,select{
@@ -146,10 +144,10 @@ export default function App() {
         }
 
         .app{
-          width:100vw;
-          max-width:none;
+          width:100% !important;
+          max-width:none !important;
           min-height:100vh;
-          margin:0;
+          margin:0 !important;
           background:#f2f2f2;
           color:#111;
           overflow-x:hidden;
@@ -545,31 +543,19 @@ export default function App() {
           <div className="panelTitle">⌄ Select contract type</div>
 
           <div className="contractGrid">
-            <button
-              className={mode === "risefall" ? "active" : ""}
-              onClick={() => setMode("risefall")}
-            >
+            <button className={mode === "risefall" ? "active" : ""} onClick={() => setMode("risefall")}>
               Rise/Fall
             </button>
 
-            <button
-              className={mode === "evenodd" ? "active" : ""}
-              onClick={() => setMode("evenodd")}
-            >
+            <button className={mode === "evenodd" ? "active" : ""} onClick={() => setMode("evenodd")}>
               Even/Odd
             </button>
 
-            <button
-              className={mode === "matchesdiffers" ? "active" : ""}
-              onClick={() => setMode("matchesdiffers")}
-            >
+            <button className={mode === "matchesdiffers" ? "active" : ""} onClick={() => setMode("matchesdiffers")}>
               Matches/Differs
             </button>
 
-            <button
-              className={mode === "overunder" ? "active" : ""}
-              onClick={() => setMode("overunder")}
-            >
+            <button className={mode === "overunder" ? "active" : ""} onClick={() => setMode("overunder")}>
               Over/Under
             </button>
           </div>
@@ -581,11 +567,7 @@ export default function App() {
 
             <div className="predictionGrid">
               {[0,1,2,3,4,5,6,7,8,9].map((n) => (
-                <button
-                  key={n}
-                  onClick={() => setPrediction(n)}
-                  className={prediction === n ? "active" : ""}
-                >
+                <button key={n} onClick={() => setPrediction(n)} className={prediction === n ? "active" : ""}>
                   {n}
                 </button>
               ))}
@@ -615,11 +597,7 @@ export default function App() {
 
         <div className="buyGrid">
           {buyButtons().map((b, index) => (
-            <button
-              key={b}
-              onClick={() => buy(b)}
-              className={index === 0 ? "buyBtn green" : "buyBtn red"}
-            >
+            <button key={b} onClick={() => buy(b)} className={index === 0 ? "buyBtn green" : "buyBtn red"}>
               {title(b)}
               <span>Payout {(stake * PAYOUTS[b]).toFixed(2)} USD</span>
             </button>
