@@ -29,15 +29,15 @@ overflow:hidden;
 background:#f4f5f6;
 }
 
-/* TOP */
+/* TOPBAR */
 
 .topbar{
-height:150px;
+height:142px;
 background:#fff;
-padding:12px 14px;
+padding:10px 14px 8px;
 display:flex;
 flex-direction:column;
-gap:8px;
+gap:7px;
 overflow:hidden;
 border-bottom:1px solid #ddd;
 }
@@ -50,12 +50,12 @@ line-height:1;
 }
 
 .nav{
-height:64px;
+height:52px;
 display:flex;
-gap:10px;
+gap:8px;
 overflow-x:auto;
 overflow-y:hidden;
-padding:8px;
+padding:6px;
 border-radius:14px;
 background:linear-gradient(90deg,#004b38,#08b6a3);
 }
@@ -65,26 +65,26 @@ display:none;
 }
 
 .nav button{
-height:48px;
-min-width:118px;
-padding:0 14px;
+height:38px;
+min-width:104px;
+padding:0 10px;
 border-radius:10px;
 background:rgba(0,55,42,.85);
 color:white;
-font-size:15px;
+font-size:13px;
 font-weight:900;
 white-space:nowrap;
 }
 
 .accountBox{
 display:grid;
-grid-template-columns:155px 1fr;
+grid-template-columns:140px 1fr;
 gap:10px;
 }
 
 .accountBox select,
 .balance{
-height:48px;
+height:44px;
 border-radius:12px;
 background:#f1f2f4;
 border:1px solid #d7dce0;
@@ -110,9 +110,9 @@ display:none!important;
 /* LAYOUT */
 
 .layout{
-height:calc(100vh - 150px);
+height:calc(100vh - 142px);
 display:grid;
-grid-template-rows:43% 57%;
+grid-template-rows:39% 61%;
 overflow:hidden;
 }
 
@@ -124,7 +124,7 @@ display:none;
 
 .chartWrap{
 height:100%;
-padding:10px 14px 0;
+padding:8px 14px 0;
 background:#f4f5f6;
 overflow:hidden;
 }
@@ -142,37 +142,37 @@ position:relative;
 width:100%;
 background:white;
 border-radius:14px;
-padding:16px 18px;
-box-shadow:0 4px 16px rgba(0,0,0,.08);
-margin-bottom:14px;
+padding:12px 16px;
+box-shadow:0 4px 14px rgba(0,0,0,.08);
+margin-bottom:10px;
 }
 
 .chartHeader:before{
 content:"100 1s";
 display:inline-flex;
-height:28px;
-padding:0 9px;
+height:24px;
+padding:0 8px;
 align-items:center;
 justify-content:center;
 background:#111;
 color:white;
 border-radius:6px;
-font-size:14px;
+font-size:13px;
 font-weight:900;
-margin-bottom:8px;
+margin-bottom:6px;
 }
 
 .chartHeader h1{
-font-size:24px;
+font-size:22px;
 font-weight:900;
 color:#202020;
 }
 
 .chartHeader p{
-font-size:17px;
+font-size:15px;
 color:#888;
 text-align:center;
-margin-top:10px;
+margin-top:7px;
 }
 
 .chartHeader p:after{
@@ -194,15 +194,15 @@ left:auto!important;
 right:auto!important;
 display:grid!important;
 grid-template-columns:repeat(5,1fr)!important;
-gap:26px 8px!important;
+gap:18px 5px!important;
 width:100%!important;
-padding:0 4px 32px!important;
+padding:0 4px 16px!important;
 }
 
 .digit{
-width:58px!important;
-height:58px!important;
-min-width:58px!important;
+width:52px!important;
+height:52px!important;
+min-width:52px!important;
 border-radius:50%!important;
 background:white!important;
 border:6px solid #e5e7eb!important;
@@ -216,15 +216,15 @@ color:#222!important;
 }
 
 .digit b{
-font-size:22px!important;
+font-size:20px!important;
 font-weight:900!important;
 line-height:1!important;
 color:#222!important;
 }
 
 .digit span{
-font-size:11px!important;
-margin-top:3px!important;
+font-size:10px!important;
+margin-top:2px!important;
 color:#333!important;
 }
 
@@ -249,30 +249,32 @@ border-bottom-color:#f2363d!important;
 .digit:nth-child(10)::after{
 content:"";
 position:absolute;
-bottom:-24px;
+bottom:-18px;
 left:50%;
 transform:translateX(-50%);
-border-left:9px solid transparent;
-border-right:9px solid transparent;
-border-bottom:14px solid #ff544a;
+border-left:7px solid transparent;
+border-right:7px solid transparent;
+border-bottom:10px solid #ff544a;
 }
 
 .chartCard::before{
 content:"≪";
 position:absolute;
-left:2px;
-bottom:4px;
-font-size:32px;
+left:0;
+bottom:8px;
+font-size:24px;
 color:#777;
+z-index:4;
 }
 
 .chartCard::after{
 content:"≫";
 position:absolute;
-right:2px;
-bottom:4px;
-font-size:32px;
+right:0;
+bottom:8px;
+font-size:24px;
 color:#111;
+z-index:4;
 }
 
 /* TRADE PANEL */
@@ -280,17 +282,17 @@ color:#111;
 .tradePanel{
 height:100%;
 background:#f1f2f4;
-padding:8px 14px 12px;
+padding:6px 14px 10px;
 display:flex;
 flex-direction:column;
-gap:9px;
+gap:6px;
 overflow:hidden;
 }
 
 .tradePanel:before{
 content:"";
 width:70px;
-height:6px;
+height:5px;
 border-radius:20px;
 background:#c9ced1;
 align-self:center;
@@ -298,52 +300,53 @@ margin-bottom:2px;
 }
 
 .learn{
-font-size:14px;
+font-size:13px;
 color:#333;
 text-decoration:underline dotted;
+line-height:1;
 }
 
 .tradeTitle{
-height:58px;
+height:48px;
 background:white;
 border-radius:13px;
 display:flex;
 align-items:center;
-padding:0 16px;
-font-size:22px;
+padding:0 14px;
+font-size:20px;
 font-weight:900;
 color:#111;
-box-shadow:0 3px 12px rgba(0,0,0,.06);
+box-shadow:0 3px 10px rgba(0,0,0,.06);
 }
 
 .tradeTitle:before{
 content:"↗ ↘";
 background:#f1f2f4;
 color:#f2383e;
-padding:8px;
+padding:7px;
 border-radius:8px;
-margin-right:14px;
-font-size:18px;
+margin-right:12px;
+font-size:16px;
 }
 
 .tradeTitle:after{
 content:"›";
 margin-left:auto;
-font-size:36px;
+font-size:32px;
 font-weight:300;
 }
 
 .contractTabs{
 display:grid;
 grid-template-columns:repeat(5,1fr);
-gap:8px;
+gap:7px;
 background:white;
 border-radius:13px;
-padding:9px;
+padding:8px;
 }
 
 .contractTabs button{
-height:48px;
+height:40px;
 border-radius:10px;
 background:#f1f2f4;
 color:#222;
@@ -358,7 +361,7 @@ inset:0;
 display:flex;
 align-items:center;
 justify-content:center;
-font-size:22px;
+font-size:20px;
 }
 
 .contractTabs button:nth-child(1)::after{content:"0";}
@@ -377,30 +380,30 @@ display:none;
 }
 
 .tradeRow{
-height:54px;
+height:42px;
 background:white;
-border-radius:13px;
+border-radius:12px;
 display:flex;
 align-items:center;
 justify-content:space-between;
-padding:0 16px;
-font-size:17px;
+padding:0 14px;
+font-size:15px;
 font-weight:700;
 color:#555;
 }
 
 .tradeRow b{
-font-size:19px;
+font-size:17px;
 color:#111;
 }
 
 .tradePanel input{
-height:54px;
+height:38px;
 background:white;
 border:1px solid #dfe3e6;
 border-radius:12px;
 text-align:center;
-font-size:20px;
+font-size:17px;
 font-weight:900;
 color:#111;
 }
@@ -413,24 +416,24 @@ margin-top:auto;
 }
 
 .choice button{
-height:72px;
+height:58px;
 border-radius:12px;
-font-size:24px;
+font-size:21px;
 font-weight:900;
 color:white;
 display:flex;
 flex-direction:column;
 align-items:center;
 justify-content:center;
-gap:4px;
+gap:2px;
 }
 
 .choice button small{
-font-size:13px;
+font-size:11px;
 }
 
 .choice button strong{
-font-size:13px;
+font-size:11px;
 }
 
 .green{
@@ -498,8 +501,8 @@ font-weight:900;
 @media(max-width:380px){
 
 .topbar{
-height:140px;
-padding:10px;
+height:134px;
+padding:8px 10px;
 }
 
 .brand{
@@ -507,78 +510,83 @@ font-size:26px;
 }
 
 .nav{
-height:58px;
-gap:7px;
+height:48px;
+gap:6px;
 }
 
 .nav button{
-height:42px;
-min-width:105px;
-font-size:13px;
+height:36px;
+min-width:96px;
+font-size:12px;
 }
 
 .accountBox{
-grid-template-columns:135px 1fr;
+grid-template-columns:130px 1fr;
 }
 
 .accountBox select,
 .balance{
-height:42px;
+height:40px;
 font-size:14px;
 }
 
 .layout{
-height:calc(100vh - 140px);
-grid-template-rows:42% 58%;
+height:calc(100vh - 134px);
+grid-template-rows:38% 62%;
 }
 
 .chartHeader{
-padding:12px 14px;
+padding:10px 12px;
 }
 
 .chartHeader h1{
-font-size:20px;
-}
-
-.chartHeader p{
-font-size:14px;
-}
-
-.digit{
-width:50px!important;
-height:50px!important;
-min-width:50px!important;
-}
-
-.digit b{
-font-size:18px!important;
-}
-
-.digit span{
-font-size:10px!important;
-}
-
-.digits{
-gap:20px 4px!important;
-}
-
-.tradeTitle{
-height:50px;
 font-size:19px;
 }
 
-.contractTabs button{
-height:42px;
+.chartHeader p{
+font-size:13px;
 }
 
-.tradeRow,
+.digit{
+width:46px!important;
+height:46px!important;
+min-width:46px!important;
+border-width:5px!important;
+}
+
+.digit b{
+font-size:17px!important;
+}
+
+.digit span{
+font-size:9px!important;
+}
+
+.digits{
+gap:14px 3px!important;
+padding-bottom:12px!important;
+}
+
+.tradeTitle{
+height:44px;
+font-size:18px;
+}
+
+.contractTabs button{
+height:36px;
+}
+
+.tradeRow{
+height:38px;
+}
+
 .tradePanel input{
-height:48px;
+height:34px;
 }
 
 .choice button{
-height:64px;
-font-size:21px;
+height:52px;
+font-size:19px;
 }
 
 }
