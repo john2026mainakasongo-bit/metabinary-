@@ -1185,3 +1185,104 @@ font-size:18px;
 }
 
 }
+/* FINAL MOBILE TIGHT FIX */
+
+@media(max-width:900px){
+
+.chartWrap{
+padding:8px 8px 0;
+}
+
+.chartHeader{
+margin-bottom:12px;
+}
+
+.digits{
+gap:18px 4px!important;
+padding-bottom:20px!important;
+margin-top:10px!important;
+}
+
+.digit{
+width:48px!important;
+height:48px!important;
+min-width:48px!important;
+border-width:5px!important;
+}
+
+.digit b{
+font-size:17px!important;
+}
+
+.digit span{
+font-size:10px!important;
+}
+
+.chartCard::before{
+left:-2px;
+bottom:48px;
+font-size:26px;
+}
+
+.chartCard::after{
+right:-2px;
+bottom:48px;
+font-size:26px;
+}
+
+.tradePanel{
+padding:10px!important;
+gap:8px!important;
+}
+
+.tradeTitle{
+height:54px;
+font-size:18px;
+}
+
+.contractTabs{
+padding:8px;
+gap:5px;
+}
+
+.contractTabs button{
+height:42px;
+}
+
+.tradeRow{
+height:48px;
+font-size:15px;
+}
+
+.tradePanel input{
+height:48px;
+font-size:17px;
+}
+
+.choice button{
+height:74px;
+font-size:18px;
+}
+
+.topbar{
+padding:10px;
+}
+
+.accountBox{
+display:flex;
+gap:6px;
+align-items:center;
+}
+
+.balance{
+font-size:14px;
+padding:0 8px;
+}
+
+.depositBtn{
+height:40px;
+font-size:13px;
+padding:0 10px;
+}
+
+}
