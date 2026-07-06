@@ -26,34 +26,31 @@ cursor:pointer;
 width:100vw;
 height:100vh;
 overflow:hidden;
-background:#ffffff;
+background:white;
 }
 
-/* TOP */
-
 .topbar{
-height:118px;
+height:112px;
 background:white;
 display:flex;
 flex-direction:column;
-gap:0;
 border-bottom:1px solid #e6e6e6;
 overflow:hidden;
 }
 
 .brand{
-height:40px;
+height:36px;
 display:flex;
 align-items:center;
 padding:0 16px;
-font-size:26px;
+font-size:25px;
 font-weight:900;
 color:#07947f;
 line-height:1;
 }
 
 .nav{
-height:46px;
+height:44px;
 display:flex;
 overflow-x:auto;
 overflow-y:hidden;
@@ -65,7 +62,7 @@ display:none;
 }
 
 .nav button{
-height:46px;
+height:44px;
 min-width:128px;
 padding:0 12px;
 background:#061426;
@@ -116,12 +113,10 @@ font-size:15px;
 display:none!important;
 }
 
-/* LAYOUT */
-
 .layout{
-height:calc(100vh - 118px);
+height:calc(100vh - 112px);
 display:grid;
-grid-template-rows:61% 39%;
+grid-template-rows:55% 45%;
 overflow:hidden;
 background:white;
 }
@@ -130,12 +125,10 @@ background:white;
 display:none;
 }
 
-/* MARKET AREA */
-
 .chartWrap{
 height:100%;
 background:white;
-padding:10px 14px 0;
+padding:8px 14px 0;
 overflow:hidden;
 }
 
@@ -153,9 +146,9 @@ width:74%;
 min-width:280px;
 background:white;
 border-radius:8px;
-padding:9px 12px 10px;
+padding:8px 12px;
 box-shadow:0 0 0 8px #f3f3f4;
-margin-bottom:68px;
+margin-bottom:48px;
 }
 
 .chartHeader:before{
@@ -176,7 +169,7 @@ vertical-align:middle;
 
 .chartHeader h1{
 display:inline;
-font-size:19px;
+font-size:18px;
 font-weight:900;
 color:#202020;
 vertical-align:middle;
@@ -184,15 +177,15 @@ vertical-align:middle;
 
 .chartHeader h1:after{
 content:"⌄";
-font-size:23px;
+font-size:22px;
 font-weight:400;
 margin-left:14px;
 }
 
 .chartHeader p{
-font-size:14px;
+font-size:13px;
 color:#9b9b9b;
-margin-top:6px;
+margin-top:5px;
 padding-left:78px;
 }
 
@@ -206,8 +199,6 @@ color:#c92f55;
 display:none;
 }
 
-/* DIGITS */
-
 .digits{
 position:relative!important;
 top:auto!important;
@@ -215,18 +206,18 @@ left:auto!important;
 right:auto!important;
 display:grid!important;
 grid-template-columns:repeat(5,1fr)!important;
-gap:32px 10px!important;
+gap:26px 10px!important;
 width:100%!important;
 padding:0 20px 0!important;
 }
 
 .digit{
-width:54px!important;
-height:54px!important;
-min-width:54px!important;
+width:50px!important;
+height:50px!important;
+min-width:50px!important;
 border-radius:50%!important;
 background:white!important;
-border:6px solid #e9ebee!important;
+border:5px solid #e9ebee!important;
 display:flex!important;
 align-items:center!important;
 justify-content:center!important;
@@ -237,14 +228,14 @@ color:#222!important;
 }
 
 .digit b{
-font-size:18px!important;
+font-size:17px!important;
 font-weight:900!important;
 line-height:1!important;
 color:#222!important;
 }
 
 .digit span{
-font-size:13px!important;
+font-size:12px!important;
 line-height:1!important;
 margin-top:3px!important;
 color:#444!important;
@@ -279,7 +270,7 @@ border-bottom-color:#ef3e42!important;
 .digit:nth-child(3)::after{
 content:"";
 position:absolute;
-bottom:-20px;
+bottom:-18px;
 left:50%;
 transform:translateX(-50%);
 border-left:7px solid transparent;
@@ -290,7 +281,7 @@ border-bottom:10px solid #ff6b4a;
 .digit:nth-child(10)::after{
 content:"";
 position:absolute;
-bottom:-20px;
+bottom:-18px;
 left:50%;
 transform:translateX(-50%);
 border-left:7px solid transparent;
@@ -302,8 +293,8 @@ border-bottom:10px solid #ff6b4a;
 content:"≪";
 position:absolute;
 left:0;
-bottom:34px;
-font-size:34px;
+bottom:18px;
+font-size:32px;
 color:#999;
 font-weight:300;
 z-index:4;
@@ -313,22 +304,20 @@ z-index:4;
 content:"≫";
 position:absolute;
 right:0;
-bottom:34px;
-font-size:34px;
+bottom:18px;
+font-size:32px;
 color:#111;
 font-weight:300;
 z-index:4;
 }
 
-/* TRADE PANEL */
-
 .tradePanel{
 height:100%;
 background:#f4f4f4;
-padding:10px 14px 14px;
+padding:8px 14px 10px;
 display:flex;
 flex-direction:column;
-gap:8px;
+gap:7px;
 overflow:hidden;
 border-radius:0;
 }
@@ -338,20 +327,20 @@ display:none;
 }
 
 .learn{
-font-size:14px;
+font-size:13px;
 color:#444;
 text-decoration:underline dotted;
 line-height:1;
 }
 
 .tradeTitle{
-height:48px;
+height:45px;
 background:white;
 border-radius:8px;
 display:flex;
 align-items:center;
 padding:0 14px;
-font-size:19px;
+font-size:18px;
 font-weight:900;
 color:#222;
 }
@@ -360,20 +349,20 @@ color:#222;
 content:"▦";
 background:#f1f3f4;
 color:#4fb6b5;
-width:34px;
-height:34px;
+width:32px;
+height:32px;
 display:flex;
 align-items:center;
 justify-content:center;
 border-radius:6px;
 margin-right:12px;
-font-size:18px;
+font-size:17px;
 }
 
 .tradeTitle:after{
 content:"›";
 margin-left:auto;
-font-size:32px;
+font-size:30px;
 font-weight:300;
 }
 
@@ -386,20 +375,20 @@ display:none;
 }
 
 .tradeRow{
-height:44px;
+height:39px;
 background:white;
 border-radius:7px;
 display:flex;
 align-items:center;
 justify-content:space-between;
 padding:0 14px;
-font-size:16px;
+font-size:15px;
 font-weight:400;
 color:#777;
 }
 
 .tradeRow b{
-font-size:18px;
+font-size:17px;
 color:#222;
 font-weight:900;
 }
@@ -416,34 +405,34 @@ margin-top:auto;
 }
 
 .choice button{
-height:78px;
+height:68px;
 border-radius:7px;
-font-size:19px;
+font-size:18px;
 font-weight:900;
 color:white;
 display:grid;
 grid-template-columns:1fr;
-grid-template-rows:1fr 32px;
+grid-template-rows:1fr 28px;
 overflow:hidden;
 padding:0;
 }
 
 .choice button small{
 width:100%;
-height:32px;
+height:28px;
 display:flex;
 align-items:center;
-padding-left:20px;
-font-size:14px;
+padding-left:18px;
+font-size:13px;
 font-weight:400;
 background:rgba(0,0,0,.16);
 }
 
 .choice button strong{
 position:absolute;
-right:18px;
-bottom:10px;
-font-size:13px;
+right:16px;
+bottom:8px;
+font-size:12px;
 font-weight:900;
 }
 
@@ -460,8 +449,6 @@ position:relative;
 .buyEven{
 display:none!important;
 }
-
-/* MODAL */
 
 .modal{
 position:fixed;
@@ -510,26 +497,24 @@ font-size:18px;
 font-weight:900;
 }
 
-/* SMALL PHONES */
-
 @media(max-width:380px){
 
 .topbar{
-height:110px;
+height:106px;
 }
 
 .brand{
-height:36px;
+height:34px;
 font-size:23px;
 padding:0 12px;
 }
 
 .nav{
-height:42px;
+height:40px;
 }
 
 .nav button{
-height:42px;
+height:40px;
 min-width:112px;
 font-size:13px;
 }
@@ -541,87 +526,87 @@ padding:4px 12px;
 }
 
 .layout{
-height:calc(100vh - 110px);
-grid-template-rows:60% 40%;
+height:calc(100vh - 106px);
+grid-template-rows:54% 46%;
 }
 
 .chartWrap{
-padding:8px 12px 0;
+padding:7px 12px 0;
 }
 
 .chartHeader{
 width:78%;
 min-width:250px;
-padding:8px 10px;
-margin-bottom:58px;
+padding:7px 10px;
+margin-bottom:42px;
 }
 
 .chartHeader h1{
-font-size:17px;
+font-size:16px;
 }
 
 .chartHeader p{
-font-size:13px;
+font-size:12px;
 padding-left:68px;
 }
 
 .digits{
-gap:28px 7px!important;
+gap:22px 7px!important;
 padding:0 14px!important;
 }
 
 .digit{
-width:48px!important;
-height:48px!important;
-min-width:48px!important;
+width:45px!important;
+height:45px!important;
+min-width:45px!important;
 border-width:5px!important;
 }
 
 .digit b{
-font-size:16px!important;
+font-size:15px!important;
 }
 
 .digit span{
-font-size:12px!important;
+font-size:11px!important;
 }
 
 .chartCard::before,
 .chartCard::after{
-bottom:30px;
-font-size:30px;
+bottom:16px;
+font-size:28px;
 }
 
 .tradePanel{
-padding:8px 12px 12px;
-gap:7px;
+padding:7px 12px 9px;
+gap:6px;
 }
 
 .learn{
-font-size:13px;
+font-size:12px;
 }
 
 .tradeTitle{
-height:44px;
-font-size:18px;
-}
-
-.tradeRow{
-height:40px;
-font-size:15px;
-}
-
-.tradeRow b{
+height:41px;
 font-size:17px;
 }
 
+.tradeRow{
+height:36px;
+font-size:14px;
+}
+
+.tradeRow b{
+font-size:16px;
+}
+
 .choice button{
-height:70px;
-font-size:18px;
+height:62px;
+font-size:17px;
 }
 
 .choice button small{
-height:30px;
-font-size:13px;
+height:26px;
+font-size:12px;
 }
 
 }
