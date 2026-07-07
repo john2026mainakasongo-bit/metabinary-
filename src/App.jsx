@@ -1,100 +1,152 @@
-import { useEffect, useMemo, useRef, useState } from "react";
+                </div>
+                <label className="modalLabel">M-Pesa number</label>
+                <input className="phoneInput" value={depositPhone} onChange={(e) => setDepositPhone(e.target.value)} />
+                <div className="hint">Use this format only: 2547XXXXXXXX</div>
+                <button className="depositSubmit" onClick={handleDeposit} disabled={depositLoading}>
+                  {depositLoading ? "Processing..." : `Deposit $${Number(depositAmount || 0).toFixed(0)}`}
+                </button>
+              </div>
+            )}
+          </div>
+        </div>
+      )}
 
-const API_URL = "https://metabinary-3.onrender.com";
-const DERIV_WS_URL = "wss://ws.derivws.com/websockets/v3?app_id=1089";
+      <div className="top">
+        <div className="accountBox">
+          {account === "Real" && <span>US</span>}
+          <select value={account} onChange={(e) => setAccount(e.target.value)}>
+            <option>Real</option>
+            <option>Demo</option>
+          </select>
+        </div>
+        <div className="wallet" onClick={openDepositModal}>${balance.toFixed(2)}</div>
+      </div>
 
-const MARKETS = [
-  { name: "Meta Volatility 10", symbol: "R_10", subtitle: "Calm synthetic volatility" },
-  { name: "Meta Volatility 25", symbol: "R_25", subtitle: "Balanced synthetic volatility" },
-  { name: "Meta Volatility 50", symbol: "R_50", subtitle: "Fast synthetic volatility" },
-  { name: "Meta Volatility 75", symbol: "R_75", subtitle: "High synthetic volatility" },
-  { name: "Meta Volatility 100", symbol: "R_100", subtitle: "Extreme synthetic volatility" },
-  { name: "Meta Flash 10", symbol: "1HZ10V", subtitle: "1 second synthetic ticks" },
-  { name: "Meta Flash 25", symbol: "1HZ25V", subtitle: "1 second synthetic ticks" },
-  { name: "Meta Flash 50", symbol: "1HZ50V", subtitle: "1 second synthetic ticks" },
-  { name: "Meta Flash 75", symbol: "1HZ75V", subtitle: "1 second synthetic ticks" },
-  { name: "Meta Flash 100", symbol: "1HZ100V", subtitle: "1 second synthetic ticks" },
-];
+      <div className="nav">
+        <button onClick={() => setMenuOpen(true)}>Menu</button>
+        <button className="active">Trade</button>
+        <button>Charts</button>
+        <button>Free Bot</button>
+        <button>Copy Trading</button>
+      </div>
 
-export default function App() {
-  const [menuOpen, setMenuOpen] = useState(false);
-  const [depositOpen, setDepositOpen] = useState(false);
-  const [depositStep, setDepositStep] = useState("methods");
-  const [marketMenuOpen, setMarketMenuOpen] = useState(false);
+      <main className="layout">
+        <section className="chartArea">
+          <div className="marketCard">
+            <div>
+              <div className="marketTitle">
+                <div className="marketIcon">M</div>
+                <div>
+                  <h1>{market.name}</h1>
+                  <p>{market.subtitle}</p>
+                  <button className="marketSwitch" onClick={() => setMarketMenuOpen(!marketMenuOpen)}>
+                    Change synthetic market
+                  </button>
+                </div>
+              </div>
+              <div className="livePill"><span className="liveDot" />{marketStatus}</div>
+            </div>
 
-  const [account, setAccount] = useState("Real");
-  const [email] = useState("john2026mainakasongo@gmail.com");
-  const [realBalance, setRealBalance] = useState(0);
-  const [demoBalance, setDemoBalance] = useState(10000);
+            {marketMenuOpen && (
+              <div className="marketMenu">
+                {MARKETS.map((item) => (
+                  <button
+                    key={item.symbol}
+                    className={item.symbol === market.symbol ? "active" : ""}
+                    onClick={() => {
+                      setMarket(item);
+                      setMarketMenuOpen(false);
+                      setTradeMessage("");
+                    }}
+                  >
+                    <b>{item.name}</b>
+                    <span>{item.subtitle}</span>
+                  </button>
+                ))}
+              </div>
+            )}
 
-  const [depositPhone, setDepositPhone] = useState("254757610718");
-  const [depositAmount, setDepositAmount] = useState(10);
-  const [depositLoading, setDepositLoading] = useState(false);
+            <div className="quoteBox">
+              <strong>{quote === null ? "..." : quote.toFixed(2)}</strong>
+              <span className={marketMove < 0 ? "down" : ""}>
+                {marketMove >= 0 ? "+" : ""}{marketMove.toFixed(2)}
+              </span>
+              <div className="lastDigit">{lastDigit}</div>
+            </div>
+          </div>
 
-  const [market, setMarket] = useState(MARKETS[4]);
-  const [marketStatus, setMarketStatus] = useState("Connecting");
-  const [quote, setQuote] = useState(null);
-  const [previousQuote, setPreviousQuote] = useState(null);
-  const [ticks, setTicks] = useState([]);
+          <div className="chartBox">
+            <div className="chartGrid" />
+            <div className="chartLine" />
+            <div className="pricePulse">{lastDigit}</div>
+          </div>
 
-  const [tradeType, setTradeType] = useState("Even/Odd");
-  const [stake, setStake] = useState(10);
-  const [duration, setDuration] = useState(5);
-  const [selectedDigit, setSelectedDigit] = useState(5);
-  const [tradeMessage, setTradeMessage] = useState("");
+          <div className="tickGrid">
+            {ticks.map((tick, index) => (
+              <div className="tick" key={`${tick.time}-${index}`}>
+                <b>{tick.digit}</b>
+                <span>{tick.quote}</span>
+              </div>
+            ))}
+          </div>
+        </section>
 
-  const wsRef = useRef(null);
-  const quickAmounts = [10, 25, 50, 100, 250, 500];
-  const tradeTypes = ["Even/Odd", "Matches/Differs", "Over/Under"];
-  const balance = account === "Real" ? realBalance : demoBalance;
+        <aside className="tradePanel">
+          <h2>Trade Type</h2>
+          <div className="tradeSelector">
+            {tradeTypes.map((type) => (
+              <button
+                key={type}
+                className={tradeType === type ? "active" : ""}
+                onClick={() => {
+                  setTradeType(type);
+                  setTradeMessage("");
+                }}
+              >
+                {type}
+              </button>
+            ))}
+          </div>
 
-  const lastDigit = useMemo(() => {
-    if (quote === null) return "-";
-    const text = Number(quote).toFixed(2).replace(".", "");
-    return text[text.length - 1];
-  }, [quote]);
+          {(tradeType === "Matches/Differs" || tradeType === "Over/Under") && (
+            <div className="tradeRow">
+              <label>Select digit</label>
+              <div className="digits">
+                {[0, 1, 2, 3, 4, 5, 6, 7, 8, 9].map((digit) => (
+                  <button key={digit} className={selectedDigit === digit ? "active" : ""} onClick={() => setSelectedDigit(digit)}>
+                    {digit}
+                  </button>
+                ))}
+              </div>
+            </div>
+          )}
 
-  const marketMove = quote !== null && previousQuote !== null ? quote - previousQuote : 0;
+          <div className="tradeRow">
+            <label>Duration</label>
+            <div className="stepper">
+              <button onClick={() => setDuration(Math.max(1, duration - 1))}>-</button>
+              <b>{duration} ticks</b>
+              <button onClick={() => setDuration(duration + 1)}>+</button>
+            </div>
+          </div>
 
-  useEffect(() => {
-    loadUser();
-  }, []);
+          <div className="tradeRow">
+            <label>Stake</label>
+            <div className="stepper">
+              <button onClick={() => setStake(Math.max(1, stake - 1))}>-</button>
+              <b>${stake}</b>
+              <button onClick={() => setStake(stake + 1)}>+</button>
+            </div>
+          </div>
 
-  useEffect(() => {
-    connectLiveMarket(market.symbol);
+          <div className="tradeActions">
+            <button className="primaryTrade" onClick={() => placeTrade(tradeButtons[0])}>{tradeButtons[0]}</button>
+            <button className="secondaryTrade" onClick={() => placeTrade(tradeButtons[1])}>{tradeButtons[1]}</button>
+          </div>
 
-    return () => {
-      if (wsRef.current) wsRef.current.close();
-    };
-  }, [market]);
-
-  async function loadUser() {
-    try {
-      const res = await fetch(`${API_URL}/api/user/${email}`);
-      const data = await res.json();
-
-      setRealBalance(Number(data.realBalance || data.user?.realBalance || 0));
-      setDemoBalance(Number(data.demoBalance || data.user?.demoBalance || 10000));
-    } catch (err) {
-      console.log(err);
-    }
-  }
-
-  function connectLiveMarket(symbol) {
-    if (wsRef.current) wsRef.current.close();
-
-    setQuote(null);
-    setPreviousQuote(null);
-    setTicks([]);
-    setMarketStatus("Connecting");
-
-    const ws = new WebSocket(DERIV_WS_URL);
-    wsRef.current = ws;
-
-    ws.onopen = () => {
-      setMarketStatus("Live");
-      ws.send(JSON.stringify({ ticks: symbol, subscribe: 1 }));
-    };
-
-    ws.onmessage = (event) => {
-      const data = JSON.parse(event.data);
+          {tradeMessage && <div className="tradeMessage">{tradeMessage}</div>}
+        </aside>
+      </main>
+    </div>
+  );
+}
