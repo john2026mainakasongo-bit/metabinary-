@@ -1,4 +1,4 @@
-                </div>
+import { useEffect, useMemo, useRef, useState } from "react";
                 <label className="modalLabel">M-Pesa number</label>
                 <input className="phoneInput" value={depositPhone} onChange={(e) => setDepositPhone(e.target.value)} />
                 <div className="hint">Use this format only: 2547XXXXXXXX</div>
