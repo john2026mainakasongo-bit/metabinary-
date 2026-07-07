@@ -1,4 +1,4 @@
-  }
+  import { useEffect, useMemo, useRef, useState } from "react";
 
   function placeTrade(choice) {
     if (quote === null) {
