@@ -1481,12 +1481,17 @@ h1 {
   align-content: center;
   gap: 5px;
   padding: 8px 9px;
-  border: 1px solid #d8dce4;
+  border: 1px solid transparent;
   border-radius: 9px;
-  background: #fff;
-  color: #111;
+  background: #0f2138;
+  color: #fff;
   text-align: center;
   font-weight: 950;
+  box-shadow: 0 6px 14px rgba(15, 29, 51, 0.14);
+  transition:
+    transform 120ms ease,
+    box-shadow 120ms ease,
+    border-color 120ms ease;
 }
 
 .choice-main,
@@ -1499,38 +1504,46 @@ h1 {
 }
 
 .choice-meta {
-  color: #626d79;
+  color: rgba(255, 255, 255, 0.9);
   font-size: clamp(10px, 2.8vw, 12px);
   line-height: 1.2;
 }
 
-.choice.selected {
-  background: #0f2138;
-  border-color: #0f2138;
-  color: #fff;
+.choice.positive-choice {
+  background: linear-gradient(135deg, #11382f 0%, #0b4f3e 100%);
+  border-color: #18d59a;
+  color: #42f7ba;
+  box-shadow: 0 8px 18px rgba(32, 201, 151, 0.2);
 }
 
-.choice.selected .choice-meta {
-  color: rgba(255, 255, 255, 0.86);
+.choice.negative-choice {
+  background: linear-gradient(135deg, #451118 0%, #7f1d1d 100%);
+  border-color: #ff4747;
+  color: #ffb4b4;
+  box-shadow: 0 8px 18px rgba(239, 68, 68, 0.22);
+}
+
+.choice.positive-choice .choice-meta,
+.choice.negative-choice .choice-meta {
+  color: rgba(255, 255, 255, 0.92);
+}
+
+.choice.selected {
+  transform: translateY(-1px);
 }
 
 .choice.positive-choice.selected {
-  background: #0e4f3e;
-  border-color: #20c997;
-  color: #39f0b5;
-  box-shadow: 0 8px 18px rgba(32, 201, 151, 0.18);
+  border-color: #5dffd1;
+  box-shadow:
+    0 10px 22px rgba(32, 201, 151, 0.32),
+    inset 0 0 0 1px rgba(93, 255, 209, 0.58);
 }
 
 .choice.negative-choice.selected {
-  background: #5a151c;
-  border-color: #ef4444;
-  color: #ffb0b0;
-  box-shadow: 0 8px 18px rgba(239, 68, 68, 0.18);
-}
-
-.choice.positive-choice.selected .choice-meta,
-.choice.negative-choice.selected .choice-meta {
-  color: rgba(255, 255, 255, 0.9);
+  border-color: #ff7373;
+  box-shadow:
+    0 10px 22px rgba(239, 68, 68, 0.34),
+    inset 0 0 0 1px rgba(255, 115, 115, 0.55);
 }
 
 .choice:disabled {
