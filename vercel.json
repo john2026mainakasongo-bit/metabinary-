@@ -3,8 +3,22 @@
   "cleanUrls": true,
   "outputDirectory": "dist",
   "rewrites": [
-    { "source": "/register", "destination": "/index.html" },
-    { "source": "/", "destination": "/index.html" }
+    {
+      "source": "/register",
+      "destination": "/index.html"
+    },
+    {
+      "source": "/login",
+      "destination": "/index.html"
+    },
+    {
+      "source": "/trading-page",
+      "destination": "/trading-page.html"
+    },
+    {
+      "source": "/",
+      "destination": "/index.html"
+    }
   ],
   "trailingSlash": false
 }
