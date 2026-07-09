@@ -1,44 +1,9 @@
-const marketSeeds = {
-  "Meta Volatility 100": [
-    { digit: 2, quote: 396.12 },
-    { digit: 0, quote: 396.10 },
-    { digit: 8, quote: 396.18 },
-    { digit: 4, quote: 396.14 },
-    { digit: 6, quote: 396.16 },
-    { digit: 1, quote: 396.11 },
-  ],
-  "Meta Volatility 75": [
-    { digit: 1, quote: 248.41 },
-    { digit: 5, quote: 248.45 },
-    { digit: 7, quote: 248.47 },
-    { digit: 3, quote: 248.43 },
-    { digit: 9, quote: 248.49 },
-    { digit: 0, quote: 248.40 },
-  ],
-  "Meta Volatility 50": [
-    { digit: 8, quote: 612.08 },
-    { digit: 2, quote: 612.02 },
-    { digit: 6, quote: 612.06 },
-    { digit: 4, quote: 612.04 },
-    { digit: 0, quote: 612.00 },
-    { digit: 7, quote: 612.07 },
-  ],
-  "Meta Volatility 25": [
-    { digit: 3, quote: 184.23 },
-    { digit: 9, quote: 184.29 },
-    { digit: 1, quote: 184.21 },
-    { digit: 5, quote: 184.25 },
-    { digit: 2, quote: 184.22 },
-    { digit: 8, quote: 184.28 },
-  ],
-  "Meta Volatility 10": [
-    { digit: 4, quote: 98.14 },
-    { digit: 6, quote: 98.16 },
-    { digit: 0, quote: 98.10 },
-    { digit: 7, quote: 98.17 },
-    { digit: 3, quote: 98.13 },
-    { digit: 9, quote: 98.19 },
-  ],
+const marketConfigs = {
+  "Meta Volatility 100": { label: "Volatility 100 (1s) Index", base: 396.12, volatility: 0.24 },
+  "Meta Volatility 75": { label: "Volatility 75 (1s) Index", base: 248.41, volatility: 0.18 },
+  "Meta Volatility 50": { label: "Volatility 50 (1s) Index", base: 612.08, volatility: 0.14 },
+  "Meta Volatility 25": { label: "Volatility 25 (1s) Index", base: 184.23, volatility: 0.09 },
+  "Meta Volatility 10": { label: "Volatility 10 (1s) Index", base: 98.14, volatility: 0.05 },
 };
 
 const tradeChoices = {
@@ -49,131 +14,91 @@ const tradeChoices = {
   "Touch/No Touch": ["Touch", "No Touch"],
 };
 
-const hints = {
-  "Even/Odd": "Choose Even or Odd",
-  "Matches/Differs": "Choose Matches or Differs, then pick a digit",
-  "Over/Under": "Choose Over or Under, then pick a barrier digit",
-  "Rise/Fall": "Choose Rise or Fall",
-  "Touch/No Touch": "Choose Touch or No Touch, then pick a digit",
+const tradeHints = {
+  "Even/Odd": "Tap Even or Odd below to place a trade.",
+  "Matches/Differs": "Choose Matches or Differs. The selected digit in the ring will be the target digit.",
+  "Over/Under": "Choose Over or Under. The selected digit in the ring will be your barrier.",
+  "Rise/Fall": "Choose Rise or Fall. The trade settles against the latest price movement.",
+  "Touch/No Touch": "Choose Touch or No Touch. The selected digit in the ring is the touch target.",
 };
 
-const marketDescriptions = {
-  "Meta Volatility 100": "884.50 - 0.12 (0.01%)",
-  "Meta Volatility 75": "248.41 - 0.08 (0.01%)",
-  "Meta Volatility 50": "612.08 - 0.06 (0.01%)",
-  "Meta Volatility 25": "184.23 + 0.03 (0.02%)",
-  "Meta Volatility 10": "98.14 - 0.01 (0.01%)",
-};
+const storageKey = "metabinary-v8-state";
+const localUsersKey = "metabinary-v8-local-users";
+const kesRate = 130;
 
-const marketLabels = {
-  "Meta Volatility 100": "Volatility 100 (1s) Index",
-  "Meta Volatility 75": "Volatility 75 (1s) Index",
-  "Meta Volatility 50": "Volatility 50 (1s) Index",
-  "Meta Volatility 25": "Volatility 25 (1s) Index",
-  "Meta Volatility 10": "Volatility 10 (1s) Index",
-};
+const $ = (s) => document.querySelector(s);
+const $$ = (s) => Array.from(document.querySelectorAll(s));
 
-const storageKey = "meta-volatility-trade-state-v7";
-const localUsersKey = "meta-volatility-local-users-v7";
-const referralCodeFromUrl = new URLSearchParams(window.location.search).get("ref") || "";
-const kesPerUsd = 130;
-
-const $ = (selector) => document.querySelector(selector);
-const $$ = (selector) => Array.from(document.querySelectorAll(selector));
-
+const guestActions = $("#guestActions");
+const accountToolbar = $("#accountToolbar");
+const balance = $("#balance");
+const topAccountLabel = $("#topAccountLabel");
+const marketName = $("#marketName");
+const marketDescription = $("#marketDescription");
+const quoteText = $("#quoteText");
 const digitQuote = $("#digitQuote");
 const digitMove = $("#digitMove");
 const digitFrequency = $("#digitFrequency");
-const marketName = $("#marketName");
-const marketDescription = $("#marketDescription");
-const balance = $("#balance");
-const balanceCard = $(".balance-card");
-const accountLabel = $("#accountLabel");
-const accountState = $(".account-state");
-const accountSwitch = $(".account-switch");
-const accountModeButtons = $$(".account-mode");
-const marketSelector = $("#marketSelector");
-const marketSheet = $("#marketSheet");
-const closeMarket = $("#closeMarket");
+const digitCursor = $("#digitCursor");
 const selectedTrade = $("#selectedTrade");
 const tradeHint = $("#tradeHint");
+const payoutQuote = $("#payoutQuote");
 const choiceRow = $("#choiceRow");
 const stakeInput = $("#stakeInput");
 const ticksInput = $("#ticksInput");
-const buyButton = $("#buyButton");
-const sellButton = $("#sellButton");
+const maxStakeLabel = $("#maxStakeLabel");
+const barrierText = $("#barrierText");
 const tradeStatus = $("#tradeStatus");
 const historyList = $("#historyList");
 const historyCount = $("#historyCount");
-const tabButtons = $$(".tabs button");
-const tabPanels = {
-  menu: $("#menuPanel"),
+const openTradesList = $("#openTradesList");
+const openTradeCount = $("#openTradeCount");
+const toastStack = $("#toastStack");
+
+const marketSelector = $("#marketSelector");
+const marketSheet = $("#marketSheet");
+const closeMarket = $("#closeMarket");
+
+const lineModeButton = $("#lineModeButton");
+const candleModeButton = $("#candleModeButton");
+const chartCanvas = $("#chartCanvas");
+const chartCanvasLarge = $("#chartCanvasLarge");
+const chartOpenValue = $("#chartOpenValue");
+const chartHighValue = $("#chartHighValue");
+const chartLowValue = $("#chartLowValue");
+const chartCloseValue = $("#chartCloseValue");
+
+const tabButtons = $$(".main-tabs button");
+const panels = {
   trade: $("#tradePanel"),
   charts: $("#chartsPanel"),
   bot: $("#botPanel"),
   copy: $("#copyPanel"),
+  menu: $("#menuPanel"),
 };
 
-const botStatus = $("#botStatus");
-const botAccountLabel = $("#botAccountLabel");
-const botMarket = $("#botMarket");
-const botTradeType = $("#botTradeType");
-const botDuration = $("#botDuration");
-const botStake = $("#botStake");
-const botDirection = $("#botDirection");
-const botBarrier = $("#botBarrier");
-const botTakeProfit = $("#botTakeProfit");
-const botStopLoss = $("#botStopLoss");
-const botRecovery = $("#botRecovery");
-const botMultiplier = $("#botMultiplier");
-const botMaxSteps = $("#botMaxSteps");
-const botRunOnce = $("#botRunOnce");
-const botNetProfit = $("#botNetProfit");
-const botLevel = $("#botLevel");
-const botNextStake = $("#botNextStake");
-const botRunButton = $("#botRunButton");
-const botStopButton = $("#botStopButton");
-const botBottomStatus = $("#botBottomStatus");
-const botHistoryList = $("#botHistoryList");
-const freeBotCards = $$(".free-bot-card");
-const loadBotButtons = $$(".load-bot-button");
-const selectedBotName = $("#selectedBotName");
-const selectedBotDescription = $("#selectedBotDescription");
-const botBuilder = $(".bot-builder");
-const botWorkspace = $("#botWorkspace");
-const botWorkspaceTitle = $("#botWorkspaceTitle");
-const botWorkspaceDescription = $("#botWorkspaceDescription");
-const botWorkspaceStatus = $("#botWorkspaceStatus");
-const botCanvasStatus = $("#botCanvasStatus");
-const backToBotsButton = $("#backToBotsButton");
-const botHistoryBlock = $("#botHistoryBlock");
-const botControlBar = $("#botControlBar");
-const botZoomOut = $("#botZoomOut");
-const botZoomIn = $("#botZoomIn");
-const botZoomReset = $("#botZoomReset");
-const botZoomLabel = $("#botZoomLabel");
-const botCanvasInner = $("#botCanvasInner");
-const botLiveTradeType = $("#botLiveTradeType");
-const botLiveMarket = $("#botLiveMarket");
-const botLiveStake = $("#botLiveStake");
-const botLiveTransaction = $("#botLiveTransaction");
+const getStartedButton = $("#getStartedButton");
+const loginButton = $("#loginButton");
+const mobileMenuButton = $("#mobileMenuButton");
+const accountModeButtons = $$(".account-mode");
+const logoutButton = $("#logoutButton");
 
-const aiFloatButton = $("#aiFloatButton");
-const aiSheet = $("#aiSheet");
-const closeAiPanel = $("#closeAiPanel");
-const aiMarket = $("#aiMarket");
-const aiTrade = $("#aiTrade");
-const aiBarrier = $("#aiBarrier");
-const aiConfidence = $("#aiConfidence");
-const aiReason = $("#aiReason");
-const aiScanStatus = $("#aiScanStatus");
-const aiScanDetail = $("#aiScanDetail");
-const aiApplyButton = $("#aiApplyButton");
-const aiStartButton = $("#aiStartButton");
+const authSheet = $("#authSheet");
+const closeAuth = $("#closeAuth");
+const registerTab = $("#registerTab");
+const loginTab = $("#loginTab");
+const authTitle = $("#authTitle");
+const registerForm = $("#registerForm");
+const loginForm = $("#loginForm");
+const authStatus = $("#authStatus");
+const forgotPasswordButton = $("#forgotPasswordButton");
 
 const depositButton = $("#depositButton");
 const withdrawButton = $("#withdrawButton");
-const walletActions = $(".wallet-actions");
+const transactionsMenuButton = $("#transactionsMenuButton");
+const settingsMenuButton = $("#settingsMenuButton");
+const partnerMenuButton = $("#partnerMenuButton");
+
 const depositSheet = $("#depositSheet");
 const closeDeposit = $("#closeDeposit");
 const depositForm = $("#depositForm");
@@ -184,21 +109,36 @@ const depositEmail = $("#depositEmail");
 const depositSubmit = $("#depositSubmit");
 const checkDeposit = $("#checkDeposit");
 const depositStatus = $("#depositStatus");
+
 const withdrawSheet = $("#withdrawSheet");
-const withdrawForm = $("#withdrawForm");
 const closeWithdraw = $("#closeWithdraw");
+const withdrawForm = $("#withdrawForm");
 const withdrawAmount = $("#withdrawAmount");
 const withdrawPhone = $("#withdrawPhone");
 const withdrawStatus = $("#withdrawStatus");
 
-const settingsSheet = $("#settingsSheet");
-const settingsForm = $("#settingsForm");
-const closeSettings = $("#closeSettings");
-const settingsStatus = $("#settingsStatus");
-const settingsLogout = $("#settingsLogout");
 const transactionsSheet = $("#transactionsSheet");
 const closeTransactions = $("#closeTransactions");
 const transactionList = $("#transactionList");
+
+const settingsSheet = $("#settingsSheet");
+const closeSettings = $("#closeSettings");
+const settingsForm = $("#settingsForm");
+const settingsStatus = $("#settingsStatus");
+const settingsName = $("#settingsName");
+const settingsEmail = $("#settingsEmail");
+const settingsPhone = $("#settingsPhone");
+const settingsDepositPhone = $("#settingsDepositPhone");
+const settingsWithdrawalPhone = $("#settingsWithdrawalPhone");
+const settingsTheme = $("#settingsTheme");
+const settingsChartSpeed = $("#settingsChartSpeed");
+const settingsRealTrading = $("#settingsRealTrading");
+const settingsMaxStake = $("#settingsMaxStake");
+const settingsDailyLimit = $("#settingsDailyLimit");
+const settingsNotifications = $("#settingsNotifications");
+const settingsSound = $("#settingsSound");
+const settingsPassword = $("#settingsPassword");
+
 const partnerSheet = $("#partnerSheet");
 const closePartner = $("#closePartner");
 const applyPartnerButton = $("#applyPartnerButton");
@@ -209,296 +149,145 @@ const partnerStats = $("#partnerStats");
 const partnerWithdrawButton = $("#partnerWithdrawButton");
 const partnerStatus = $("#partnerStatus");
 
-const getStartedButton = $("#getStartedButton");
-const loginButton = $("#loginButton");
-const logoutButton = $("#logoutButton");
-const authActions = $(".auth-actions");
-const authSheet = $("#authSheet");
-const closeAuth = $("#closeAuth");
-const registerTab = $("#registerTab");
-const loginTab = $("#loginTab");
-const registerForm = $("#registerForm");
-const loginForm = $("#loginForm");
-const authTitle = $("#authTitle");
-const authStatus = $("#authStatus");
-const forgotPasswordButton = $("#forgotPasswordButton");
-const verifyEmailButton = $("#verifyEmailButton");
-const resetPasswordButton = $("#resetPasswordButton");
-const accountMenuButton = $("#accountMenuButton");
-const settingsMenuButton = $("#settingsMenuButton");
-const transactionsMenuButton = $("#transactionsMenuButton");
-const partnerMenuButton = $("#partnerMenuButton");
-const accountSummary = $("#accountSummary");
-const settingsList = $("#settingsList");
-const summaryAccountId = $("#summaryAccountId");
-const menuAccountId = $("#menuAccountId");
-const summaryStatus = $("#summaryStatus");
+const aiFloatButton = $("#aiFloatButton");
+const aiSheet = $("#aiSheet");
+const closeAiPanel = $("#closeAiPanel");
+const aiMarket = $("#aiMarket");
+const aiTrade = $("#aiTrade");
+const aiBarrier = $("#aiBarrier");
+const aiConfidence = $("#aiConfidence");
+const aiReason = $("#aiReason");
+const aiApplyButton = $("#aiApplyButton");
+const aiStartButton = $("#aiStartButton");
+
+const summaryName = $("#summaryName");
 const summaryEmail = $("#summaryEmail");
+const summaryPhone = $("#summaryPhone");
+const summaryAccountId = $("#summaryAccountId");
+const summaryStatus = $("#summaryStatus");
 
-let activeMarket = "Meta Volatility 100";
-let digits = [...marketSeeds[activeMarket]];
-let index = 0;
-let wallet = 10000;
-let realWallet = 0;
-let accountMode = "demo";
-let activeTrade = "Even/Odd";
-let activeChoice = "Even";
-let activeBarrier = 4;
-let activeTargetDigit = 2;
-let activeContract = null;
-let tradeHistory = [];
-let transactionHistory = [];
-let currentUser = null;
-let pendingDeposit = null;
-let depositCheckTimer = null;
-let depositCheckAttempts = 0;
-let resultFlash = null;
-let tickTape = [];
-let digitStats = [10.2, 9.9, 8.2, 9.6, 10.8, 9.7, 10.9, 10.2, 10.0, 10.5];
-let previousTick = null;
-let botRunning = false;
-let botTimer = null;
-let botHistory = [];
-let botZoom = 0.5;
-let aiSuggestion = null;
+const botTradeType = $("#botTradeType");
+const botStake = $("#botStake");
+const botDuration = $("#botDuration");
+const botDirection = $("#botDirection");
+const botBarrier = $("#botBarrier");
+const botRecovery = $("#botRecovery");
+const botMultiplier = $("#botMultiplier");
+const botMaxSteps = $("#botMaxSteps");
+const botStopLoss = $("#botStopLoss");
+const botTakeProfit = $("#botTakeProfit");
+const botRunButton = $("#botRunButton");
+const botStopButton = $("#botStopButton");
+const botResetButton = $("#botResetButton");
+const botNetProfit = $("#botNetProfit");
+const botLevel = $("#botLevel");
+const botNextStake = $("#botNextStake");
+const botBottomStatus = $("#botBottomStatus");
+const botHistoryList = $("#botHistoryList");
+
+let state = {
+  market: "Meta Volatility 100",
+  accountMode: "demo",
+  activeTradeType: "Even/Odd",
+  activeChoice: "Even",
+  selectedDigit: 2,
+  barrierDigit: 4,
+  demoBalance: 10000,
+  realBalance: 0,
+  currentUser: null,
+  tradeHistory: [],
+  openTrades: [],
+  transactionHistory: [],
+  pendingDeposit: null,
+  chartMode: "line",
+  settings: {
+    theme: "dark",
+    chartSpeed: "normal",
+    realTradingEnabled: false,
+    maximumStakeLimit: 100,
+    dailyTradeLimit: 25,
+    notifications: true,
+    sound: true,
+    phone: "",
+    depositPhone: "",
+    withdrawalPhone: "",
+    profileName: "",
+  },
+  bot: {
+    running: false,
+    baseStake: 0.3,
+    currentStake: 0.3,
+    netProfit: 0,
+    level: 0,
+    history: [],
+  },
+};
+
+let tickData = [];
+let candleData = [];
+let digitStats = Array.from({ length: 10 }, () => 10);
 let tickTimer = null;
+let depositTimer = null;
+let aiSuggestion = null;
+let tradeCounter = 0;
 
-let userSettings = {
-  profileName: "",
-  email: "",
-  phone: "",
-  depositPhone: "",
-  withdrawalPhone: "",
-  theme: "light",
-  sound: true,
-  chartSpeed: "normal",
-  realTradingEnabled: false,
-  dailyTradeLimit: 25,
-  maximumStakeLimit: 100,
-};
-
-let botSession = {
-  netProfit: 0,
-  currentStake: 0.3,
-  baseStake: 0.3,
-  martingaleLevel: 0,
-};
-
-const freeBotTemplates = {
-  pulse: {
-    name: "Pulse Entry loaded",
-    description: "Free starter bot for quick Even / Odd entries.",
-    market: "Meta Volatility 100",
-    tradeType: "Even/Odd",
-    duration: 3,
-    stake: 0.3,
-    direction: "Auto",
-    barrier: 5,
-    takeProfit: 5,
-    stopLoss: 5,
-    recovery: "None",
-    multiplier: 2,
-    maxSteps: 4,
-    runOnce: "No",
-  },
-  blueguard: {
-    name: "GreenGuard Over loaded",
-    description: "Free bot design focused on Over / Under setups.",
-    market: "Meta Volatility 75",
-    tradeType: "Over/Under",
-    duration: 2,
-    stake: 0.3,
-    direction: "Over",
-    barrier: 4,
-    takeProfit: 6,
-    stopLoss: 4,
-    recovery: "None",
-    multiplier: 2,
-    maxSteps: 4,
-    runOnce: "Yes",
-  },
-  swift: {
-    name: "Swift Signal loaded",
-    description: "Free bot design for faster Rise / Fall decisions.",
-    market: "Meta Volatility 50",
-    tradeType: "Rise/Fall",
-    duration: 2,
-    stake: 0.4,
-    direction: "Rise",
-    barrier: 5,
-    takeProfit: 7,
-    stopLoss: 5,
-    recovery: "None",
-    multiplier: 2,
-    maxSteps: 4,
-    runOnce: "Yes",
-  },
-  digitflow: {
-    name: "DigitFlow loaded",
-    description: "Free bot design for Matches / Differs trading.",
-    market: "Meta Volatility 25",
-    tradeType: "Matches/Differs",
-    duration: 3,
-    stake: 0.3,
-    direction: "Auto",
-    barrier: 6,
-    takeProfit: 5,
-    stopLoss: 5,
-    recovery: "Martingale",
-    multiplier: 2,
-    maxSteps: 6,
-    runOnce: "No",
-  },
-  alpha: {
-    name: "Alpha Drift loaded",
-    description: "Free balanced bot with automatic market scanning.",
-    market: "Meta Volatility 10",
-    tradeType: "Even/Odd",
-    duration: 4,
-    stake: 0.5,
-    direction: "Auto",
-    barrier: 5,
-    takeProfit: 8,
-    stopLoss: 6,
-    recovery: "Martingale",
-    multiplier: 2,
-    maxSteps: 6,
-    runOnce: "No",
-  },
-};
-
-function formatQuote(value) {
-  return Number(value || 0).toFixed(2);
+function randomId(prefix = "id") {
+  return `${prefix}-${Date.now()}-${Math.floor(Math.random() * 9999)}`;
 }
 
-function formatMoney(value) {
-  return `$${Number(value || 0).toFixed(2)}`;
+function formatMoney(v) {
+  return `$${Number(v || 0).toFixed(2)}`;
 }
 
-function formatKes(value) {
-  return `KSh ${Math.round(Number(value || 0)).toLocaleString("en-US")}`;
+function formatQuote(v) {
+  return Number(v || 0).toFixed(2);
 }
 
-function clamp(value, min, max) {
-  return Math.max(min, Math.min(max, Number(value || 0)));
+function formatKes(v) {
+  return `KSh ${Math.round(Number(v || 0)).toLocaleString("en-US")}`;
 }
 
-function createAccountId() {
-  return `MB${Date.now().toString().slice(-8)}${Math.floor(100 + Math.random() * 900)}`;
+function clamp(v, min, max) {
+  return Math.max(min, Math.min(max, Number(v || 0)));
 }
 
-function currentWallet() {
-  return accountMode === "real" ? realWallet : wallet;
+function currentBalance() {
+  return state.accountMode === "real" ? state.realBalance : state.demoBalance;
 }
 
-function setCurrentWallet(value) {
-  const clean = Number(Math.max(0, Number(value || 0)).toFixed(2));
-  if (accountMode === "real") realWallet = clean;
-  else wallet = clean;
+function setCurrentBalance(value) {
+  const clean = Number(Math.max(0, value).toFixed(2));
+  if (state.accountMode === "real") state.realBalance = clean;
+  else state.demoBalance = clean;
 }
 
-function getTickSpeed() {
-  if (userSettings.chartSpeed === "fast") return 1600;
-  if (userSettings.chartSpeed === "slow") return 4500;
-  return 3000;
-}
-
-async function postJson(url, body) {
-  const response = await fetch(url, {
-    method: "POST",
-    headers: { "Content-Type": "application/json" },
-    body: JSON.stringify(body || {}),
-  });
-  const data = await response.json().catch(() => ({}));
-  if (!response.ok) throw new Error(data.error || data.message || "Request failed.");
-  return data;
-}
-
-async function putJson(url, body) {
-  const response = await fetch(url, {
-    method: "PUT",
-    headers: { "Content-Type": "application/json" },
-    body: JSON.stringify(body || {}),
-  });
-  const data = await response.json().catch(() => ({}));
-  if (!response.ok) throw new Error(data.error || data.message || "Request failed.");
-  return data;
-}
-
-async function getJson(url) {
-  const response = await fetch(url);
-  const data = await response.json().catch(() => ({}));
-  if (!response.ok) throw new Error(data.error || data.message || "Request failed.");
-  return data;
-}
-
-function isAccountServiceError(message) {
-  const text = String(message || "").toLowerCase();
-  return text.includes("account service") || text.includes("mongodb") || text.includes("failed to fetch");
-}
-
-function applyServerUser(user) {
-  if (!user) return;
-  currentUser = { ...(currentUser || {}), ...user, localOnly: false };
-  if (Number.isFinite(Number(user.demoBalance))) wallet = Number(user.demoBalance);
-  if (Number.isFinite(Number(user.realBalance))) realWallet = Number(user.realBalance);
-  if (user.settings) userSettings = { ...userSettings, ...user.settings };
-  userSettings.email = user.email || userSettings.email;
-  userSettings.profileName = user.fullName || userSettings.profileName;
-  userSettings.phone = user.phone || userSettings.phone;
-  renderSettingsForm();
+function getSpeedMs() {
+  if (state.settings.chartSpeed === "fast") return 900;
+  if (state.settings.chartSpeed === "slow") return 2500;
+  return 1500;
 }
 
 function saveState() {
-  const state = {
-    activeMarket,
-    wallet,
-    realWallet,
-    accountMode,
-    activeTrade,
-    activeChoice,
-    activeBarrier,
-    activeTargetDigit,
-    tradeHistory,
-    transactionHistory,
-    currentUser,
-    userSettings,
-    pendingDeposit,
-    botHistory,
-    botSession,
-  };
   localStorage.setItem(storageKey, JSON.stringify(state));
 }
 
 function loadState() {
   try {
-    const state = JSON.parse(localStorage.getItem(storageKey) || "{}");
-    if (state.activeMarket && marketSeeds[state.activeMarket]) activeMarket = state.activeMarket;
-    digits = [...marketSeeds[activeMarket]];
-    if (Number.isFinite(Number(state.wallet))) wallet = Number(state.wallet);
-    if (Number.isFinite(Number(state.realWallet))) realWallet = Number(state.realWallet);
-    if (state.accountMode) accountMode = state.accountMode;
-    if (state.activeTrade && tradeChoices[state.activeTrade]) activeTrade = state.activeTrade;
-    if (state.activeChoice) activeChoice = state.activeChoice;
-    if (Number.isFinite(Number(state.activeBarrier))) activeBarrier = Number(state.activeBarrier);
-    if (Number.isFinite(Number(state.activeTargetDigit))) activeTargetDigit = Number(state.activeTargetDigit);
-    if (Array.isArray(state.tradeHistory)) tradeHistory = state.tradeHistory;
-    if (Array.isArray(state.transactionHistory)) transactionHistory = state.transactionHistory;
-    if (state.currentUser) currentUser = state.currentUser;
-    if (state.userSettings) userSettings = { ...userSettings, ...state.userSettings };
-    if (state.pendingDeposit) pendingDeposit = state.pendingDeposit;
-    if (Array.isArray(state.botHistory)) botHistory = state.botHistory;
-    if (state.botSession) botSession = { ...botSession, ...state.botSession };
-  } catch {
-    localStorage.removeItem(storageKey);
-  }
+    const stored = JSON.parse(localStorage.getItem(storageKey) || "{}");
+    state = {
+      ...state,
+      ...stored,
+      settings: { ...state.settings, ...(stored.settings || {}) },
+      bot: { ...state.bot, ...(stored.bot || {}) },
+    };
+  } catch {}
 }
 
 function getLocalUsers() {
   try {
-    return JSON.parse(localStorage.getItem(localUsersKey) || "{}");
+    return JSON.parse(localStorage.getItem(localUsersKey) || "[]");
   } catch {
-    return {};
+    return [];
   }
 }
 
@@ -506,864 +295,1038 @@ function saveLocalUsers(users) {
   localStorage.setItem(localUsersKey, JSON.stringify(users));
 }
 
-function createOfflineAccount({ fullName, email, phone, country, documentType, password }) {
+function createLocalUser(data) {
   const users = getLocalUsers();
-  if (users[email]) {
-    authStatus.textContent = "This email already exists on this browser. Login instead.";
-    return false;
-  }
   const user = {
-    accountId: createAccountId(),
-    fullName,
-    email,
-    phone,
-    country,
-    documentType,
-    password,
-    localOnly: true,
-    emailVerified: false,
+    accountId: `MB${Date.now().toString().slice(-8)}${Math.floor(100 + Math.random() * 900)}`,
+    fullName: data.fullName,
+    email: data.email.trim().toLowerCase(),
+    phone: data.phone.trim(),
+    idNumber: data.idNumber.trim(),
+    country: data.country,
+    documentType: data.documentType,
+    password: data.password,
     demoBalance: 10000,
     realBalance: 0,
     partnerBalance: 0,
     createdAt: new Date().toISOString(),
-    settings: { ...userSettings, profileName: fullName, email, phone, depositPhone: phone, withdrawalPhone: phone },
+    settings: {
+      profileName: data.fullName,
+      phone: data.phone.trim(),
+      depositPhone: data.phone.trim(),
+      withdrawalPhone: data.phone.trim(),
+      theme: "dark",
+      chartSpeed: "normal",
+      realTradingEnabled: false,
+      maximumStakeLimit: 100,
+      dailyTradeLimit: 25,
+      notifications: true,
+      sound: true,
+    },
   };
-  users[email] = user;
+  users.push(user);
   saveLocalUsers(users);
-  applyServerUser(user);
-  currentUser.localOnly = true;
-  return true;
+  return user;
 }
 
-function loginOfflineAccount(email, password) {
+function findLocalUser(identifier, password) {
   const users = getLocalUsers();
-  const user = users[email];
-  if (!user || user.password !== password) return false;
-  currentUser = { ...user, localOnly: true };
-  wallet = Number(user.demoBalance || 10000);
-  realWallet = Number(user.realBalance || 0);
-  userSettings = { ...userSettings, ...(user.settings || {}) };
-  return true;
+  const key = String(identifier || "").trim().toLowerCase();
+  const filtered = users
+    .filter((u) => u.email.toLowerCase() === key || u.accountId.toLowerCase() === key)
+    .sort((a, b) => new Date(b.createdAt) - new Date(a.createdAt));
+  return filtered.find((u) => u.password === password) || null;
 }
 
-function persistOfflineUser() {
-  if (!currentUser?.localOnly) return;
+function syncLocalUserFromState() {
+  if (!state.currentUser) return;
   const users = getLocalUsers();
-  users[currentUser.email] = {
-    ...currentUser,
-    demoBalance: wallet,
-    realBalance: realWallet,
-    settings: userSettings,
-  };
-  saveLocalUsers(users);
+  const index = users.findIndex((u) => u.accountId === state.currentUser.accountId);
+  if (index >= 0) {
+    users[index] = {
+      ...users[index],
+      demoBalance: state.demoBalance,
+      realBalance: state.realBalance,
+      settings: state.settings,
+      fullName: state.currentUser.fullName,
+      phone: state.currentUser.phone,
+    };
+    saveLocalUsers(users);
+  }
 }
 
-function applyTheme() {
-  document.body.classList.toggle("dark-theme", userSettings.theme === "dark");
-}
-
-function renderSettingsForm() {
-  const fields = {
-    settingsName: userSettings.profileName || currentUser?.fullName || "",
-    settingsEmail: currentUser?.email || userSettings.email || "",
-    settingsPhone: userSettings.phone || currentUser?.phone || "",
-    settingsDepositPhone: userSettings.depositPhone || currentUser?.phone || "",
-    settingsWithdrawalPhone: userSettings.withdrawalPhone || currentUser?.phone || "",
-    settingsTheme: userSettings.theme || "light",
-    settingsSound: String(userSettings.sound !== false),
-    settingsChartSpeed: userSettings.chartSpeed || "normal",
-    settingsRealTrading: String(Boolean(userSettings.realTradingEnabled)),
-    settingsDailyLimit: userSettings.dailyTradeLimit || 25,
-    settingsMaxStake: userSettings.maximumStakeLimit || 100,
-  };
-  Object.entries(fields).forEach(([id, value]) => {
-    const input = $(`#${id}`);
-    if (input) input.value = value;
+async function postJson(url, body) {
+  const res = await fetch(url, {
+    method: "POST",
+    headers: { "Content-Type": "application/json" },
+    body: JSON.stringify(body || {}),
   });
-  applyTheme();
+  const data = await res.json().catch(() => ({}));
+  if (!res.ok) throw new Error(data.error || data.message || "Request failed.");
+  return data;
 }
 
-function renderAccount() {
-  const loggedIn = Boolean(currentUser);
-  if (accountSwitch) accountSwitch.hidden = false;
-  if (accountState) {
-    accountState.hidden = false;
-    accountState.classList.toggle("real", accountMode === "real");
-    accountState.classList.toggle("guest", !loggedIn);
-  }
-  if (balanceCard) balanceCard.hidden = false;
-  if (authActions) authActions.hidden = loggedIn;
-  if (walletActions) walletActions.hidden = !loggedIn;
-  if (logoutButton) logoutButton.hidden = !loggedIn;
-  if (accountMenuButton) accountMenuButton.hidden = !loggedIn;
-  if (settingsMenuButton) settingsMenuButton.hidden = !loggedIn;
-  if (transactionsMenuButton) transactionsMenuButton.hidden = !loggedIn;
-  if (partnerMenuButton) partnerMenuButton.hidden = !loggedIn;
-  if (accountSummary) accountSummary.hidden = !loggedIn;
-  if (settingsList) settingsList.hidden = !loggedIn;
-  if (menuAccountId) {
-    menuAccountId.hidden = !loggedIn;
-    menuAccountId.textContent = loggedIn ? currentUser.accountId || "MetaBinary" : "Account ID";
+async function getJson(url) {
+  const res = await fetch(url);
+  const data = await res.json().catch(() => ({}));
+  if (!res.ok) throw new Error(data.error || data.message || "Request failed.");
+  return data;
+}
+
+async function putJson(url, body) {
+  const res = await fetch(url, {
+    method: "PUT",
+    headers: { "Content-Type": "application/json" },
+    body: JSON.stringify(body || {}),
+  });
+  const data = await res.json().catch(() => ({}));
+  if (!res.ok) throw new Error(data.error || data.message || "Request failed.");
+  return data;
+}
+
+function setActiveTab(name) {
+  tabButtons.forEach((btn) => btn.classList.toggle("active", btn.dataset.tab === name));
+  Object.entries(panels).forEach(([key, panel]) => {
+    panel.classList.toggle("active-panel", key === name);
+  });
+  if (name === "charts") drawAllCharts();
+}
+
+function openSheet(sheet) {
+  sheet.classList.add("open");
+  sheet.setAttribute("aria-hidden", "false");
+}
+
+function closeSheet(sheet) {
+  sheet.classList.remove("open");
+  sheet.setAttribute("aria-hidden", "true");
+}
+
+function showToast(title, text, type = "info", timeout = 1600) {
+  if (!state.settings.notifications) return;
+  const div = document.createElement("div");
+  div.className = `toast ${type}`;
+  div.innerHTML = `<strong>${title}</strong><span>${text}</span>`;
+  toastStack.appendChild(div);
+  setTimeout(() => div.remove(), timeout);
+}
+
+function renderAccountUI() {
+  const loggedIn = Boolean(state.currentUser);
+
+  guestActions.hidden = loggedIn;
+  accountToolbar.hidden = !loggedIn;
+  aiFloatButton.hidden = !loggedIn;
+
+  if (!loggedIn) {
+    tradeStatus.textContent = "Create an account and login to unlock Demo and Real trading.";
+    summaryName.textContent = "Guest";
+    summaryEmail.textContent = "-";
+    summaryPhone.textContent = "-";
+    summaryAccountId.textContent = "-";
+    summaryStatus.textContent = "Guest";
+    return;
   }
 
-  accountModeButtons.forEach((button) => {
-    button.classList.toggle("active", button.dataset.accountMode === accountMode);
+  accountModeButtons.forEach((btn) => {
+    btn.classList.toggle("active", btn.dataset.accountMode === state.accountMode);
   });
 
-  if (accountLabel) accountLabel.textContent = accountMode === "real" ? "Real USD" : "Demo USD";
-  if (balance) balance.textContent = formatMoney(currentWallet());
-  if (summaryAccountId) summaryAccountId.textContent = loggedIn ? currentUser.accountId || "Local account" : "Not registered";
-  if (summaryStatus) summaryStatus.textContent = loggedIn ? (currentUser.localOnly ? "Local Demo" : "Verified Account") : "Guest";
-  if (summaryEmail) summaryEmail.textContent = loggedIn ? currentUser.email : "Add account";
-  if (botAccountLabel) botAccountLabel.textContent = accountMode === "real" ? "Real account" : "Demo account";
+  topAccountLabel.textContent = state.accountMode === "real" ? "Real USD" : "Demo USD";
+  balance.textContent = formatMoney(currentBalance());
 
-  renderSettingsForm();
-  renderBotStats();
-  persistOfflineUser();
+  summaryName.textContent = state.currentUser.fullName || "-";
+  summaryEmail.textContent = state.currentUser.email || "-";
+  summaryPhone.textContent = state.currentUser.phone || "-";
+  summaryAccountId.textContent = state.accountMode === "real" ? state.currentUser.accountId : "No ID on Demo";
+  summaryStatus.textContent = state.accountMode === "real" ? "Real Account" : "Demo Account";
+
+  settingsName.value = state.settings.profileName || state.currentUser.fullName || "";
+  settingsEmail.value = state.currentUser.email || "";
+  settingsPhone.value = state.settings.phone || state.currentUser.phone || "";
+  settingsDepositPhone.value = state.settings.depositPhone || state.currentUser.phone || "";
+  settingsWithdrawalPhone.value = state.settings.withdrawalPhone || state.currentUser.phone || "";
+  settingsTheme.value = state.settings.theme || "dark";
+  settingsChartSpeed.value = state.settings.chartSpeed || "normal";
+  settingsRealTrading.value = String(Boolean(state.settings.realTradingEnabled));
+  settingsMaxStake.value = state.settings.maximumStakeLimit || 100;
+  settingsDailyLimit.value = state.settings.dailyTradeLimit || 25;
+  settingsNotifications.value = String(Boolean(state.settings.notifications));
+  settingsSound.value = String(Boolean(state.settings.sound));
+
+  maxStakeLabel.textContent = formatMoney(state.settings.maximumStakeLimit || 100);
 }
 
-function setMarket(option) {
-  const market = option?.dataset?.market || option;
-  if (!marketSeeds[market]) return;
-  activeMarket = market;
-  digits = [...marketSeeds[activeMarket]];
-  index = 0;
-  if (marketName) marketName.textContent = marketLabels[activeMarket];
-  if (marketDescription) marketDescription.textContent = marketDescriptions[activeMarket] || "Live market";
-  $$(".market-option").forEach((button) => button.classList.toggle("selected", button.dataset.market === activeMarket));
-  closeMarketSheet();
-  renderDigitFrequency();
-  tradeStatus.textContent = `Market changed to ${marketLabels[activeMarket]}.`;
-  saveState();
+function renderMarket() {
+  const config = marketConfigs[state.market];
+  marketName.textContent = config.label;
+  marketDescription.textContent = `${state.market.replace("Meta ", "")} synthetic market`;
+  $$(".market-option").forEach((btn) => btn.classList.toggle("active", btn.dataset.market === state.market));
 }
 
-function openMarketSheet() {
-  if (!marketSheet) return;
-  marketSheet.classList.add("open");
-  marketSheet.setAttribute("aria-hidden", "false");
+function getCurrentTradeMeta() {
+  return state.activeTradeType === "Over/Under"
+    ? `Barrier ${state.barrierDigit}`
+    : state.activeTradeType === "Matches/Differs" || state.activeTradeType === "Touch/No Touch"
+      ? `Target digit ${state.selectedDigit}`
+      : "Auto settlement";
 }
 
-function closeMarketSheet() {
-  if (!marketSheet) return;
-  marketSheet.classList.remove("open");
-  marketSheet.setAttribute("aria-hidden", "true");
-}
-
-function getWinningDigitsCount(trade, choice, barrierDigit) {
-  if (trade === "Even/Odd") return 5;
-  if (trade === "Matches/Differs") return choice === "Matches" ? 1 : 9;
-  if (trade === "Over/Under") {
-    if (choice === "Over") return Math.max(0, 9 - barrierDigit);
-    return Math.max(0, barrierDigit);
-  }
-  if (trade === "Rise/Fall") return 5;
-  if (trade === "Touch/No Touch") return choice === "Touch" ? 1 : 9;
-  return 0;
-}
-
-function getPayoutRate(trade = activeTrade, choice = activeChoice) {
-  if (trade === "Matches/Differs") return choice === "Matches" ? 8.333 : 1.087;
-  if (trade === "Touch/No Touch") return choice === "Touch" ? 5.0 : 1.2;
-  if (trade === "Even/Odd") return 1.88;
-  if (trade === "Rise/Fall") return 1.88;
-  if (trade === "Over/Under") {
-    const wins = getWinningDigitsCount(trade, choice, activeBarrier);
+function getPayoutRate(tradeType, choice) {
+  if (tradeType === "Matches/Differs") return choice === "Matches" ? 8.333 : 1.087;
+  if (tradeType === "Touch/No Touch") return choice === "Touch" ? 5.2 : 1.16;
+  if (tradeType === "Rise/Fall") return 1.92;
+  if (tradeType === "Even/Odd") return 1.88;
+  if (tradeType === "Over/Under") {
+    const barrier = state.barrierDigit;
+    const wins = choice === "Over" ? Math.max(0, 9 - barrier) : Math.max(0, barrier);
     if (wins <= 0) return 0;
     return clamp((10 / wins) * 0.88, 1.05, 8.8);
   }
   return 1.88;
 }
 
+function renderTradePanel() {
+  selectedTrade.textContent = state.activeTradeType;
+  tradeHint.textContent = `${tradeHints[state.activeTradeType]} ${getCurrentTradeMeta()}`;
+  barrierText.innerHTML =
+    state.activeTradeType === "Over/Under"
+      ? `Barrier digit: <strong>${state.barrierDigit}</strong>`
+      : `Target digit: <strong>${state.selectedDigit}</strong>`;
+
+  const choices = tradeChoices[state.activeTradeType];
+  choiceRow.innerHTML = choices
+    .map((choice, index) => {
+      const rate = getPayoutRate(state.activeTradeType, choice);
+      const profit = Math.max(0, ((Number(stakeInput.value || 0) * rate) - Number(stakeInput.value || 0))).toFixed(2);
+      return `
+        <button class="choice-button ${index === 0 ? "buyish" : "sellish"}" type="button" data-choice="${choice}">
+          <span>${choice}</span>
+          <div>
+            <strong>${(Math.max(0, (rate - 1) * 100)).toFixed(2)}%</strong>
+            <small>$${profit} profit</small>
+          </div>
+        </button>
+      `;
+    })
+    .join("");
+
+  updatePayoutPreview();
+  $$(".trade-type").forEach((btn) => btn.classList.toggle("selected", btn.dataset.tradeType === state.activeTradeType));
+}
+
 function updatePayoutPreview() {
-  const stake = Math.max(0, Number(stakeInput?.value || 0));
-  const rate = getPayoutRate();
+  const stake = Number(stakeInput.value || 0);
+  const rate = getPayoutRate(state.activeTradeType, state.activeChoice);
   const payout = stake * rate;
   const profit = Math.max(0, payout - stake);
-  if (tradeHint) {
-    const extra = activeTrade === "Over/Under"
-      ? ` · Barrier ${activeBarrier}`
-      : activeTrade === "Matches/Differs" || activeTrade === "Touch/No Touch"
-        ? ` · Digit ${activeTargetDigit}`
-        : "";
-    tradeHint.textContent = `${hints[activeTrade]}${extra}`;
-  }
-  if (selectedTrade) selectedTrade.textContent = activeTrade;
-  const oldQuote = $("#payoutQuote");
-  if (oldQuote) oldQuote.textContent = `${formatMoney(payout)} payout · ${formatMoney(profit)} profit`;
-  const contractHead = $(".contract-head");
-  if (contractHead && !oldQuote) {
-    const small = document.createElement("small");
-    small.id = "payoutQuote";
-    small.textContent = `${formatMoney(payout)} payout · ${formatMoney(profit)} profit`;
-    contractHead.appendChild(small);
+  payoutQuote.textContent = `${formatMoney(payout)} payout · ${formatMoney(profit)} profit`;
+  maxStakeLabel.textContent = formatMoney(state.settings.maximumStakeLimit || 100);
+
+  if (stake < 0.3) {
+    tradeStatus.textContent = "Minimum stake is 0.30 USD.";
+  } else if (stake > Number(state.settings.maximumStakeLimit || 100)) {
+    tradeStatus.textContent = `Maximum stake is ${formatMoney(state.settings.maximumStakeLimit || 100)}.`;
+  } else if (Number(ticksInput.value) > 10) {
+    tradeStatus.textContent = "Ticks cannot be more than 10.";
   }
 }
 
-function renderChoices() {
-  const options = tradeChoices[activeTrade] || [];
-  if (!options.includes(activeChoice)) activeChoice = options[0] || "";
-  if (choiceRow) {
-    choiceRow.innerHTML = options
-      .map((choice) => {
-        const rate = getPayoutRate(activeTrade, choice);
-        const profitPercent = Math.max(0, (rate - 1) * 100).toFixed(2);
-        return `
-          <button class="choice ${choice === activeChoice ? "selected" : ""}" type="button" data-choice="${choice}">
-            <span>${choice}</span>
-            <strong>${profitPercent}%</strong>
-          </button>
-        `;
-      })
-      .join("");
+function generateInitialMarketData() {
+  const base = marketConfigs[state.market].base;
+  tickData = [];
+  candleData = [];
+  let price = base;
+  let open = base;
+
+  for (let i = 0; i < 80; i++) {
+    const move = (Math.random() - 0.5) * marketConfigs[state.market].volatility;
+    price = Number((price + move).toFixed(2));
+    tickData.push({ quote: price, digit: Math.abs(Math.floor(price * 100)) % 10, move });
+    if (i % 4 === 0) open = price;
+    if (i % 4 === 3) {
+      const slice = tickData.slice(i - 3, i + 1).map((x) => x.quote);
+      candleData.push({
+        open,
+        high: Math.max(...slice),
+        low: Math.min(...slice),
+        close: price,
+      });
+    }
   }
-  if (selectedTrade) selectedTrade.textContent = activeTrade;
-  if (tradeHint) tradeHint.textContent = hints[activeTrade] || "Choose contract";
-  updatePayoutPreview();
-  renderDigitFrequency();
 }
 
-function setTradeType(button) {
-  activeTrade = button.dataset.tradeType;
-  activeChoice = tradeChoices[activeTrade]?.[0] || "";
-  $$(".trade-type").forEach((item) => item.classList.toggle("selected", item === button));
-  renderChoices();
-  tradeStatus.textContent = `${activeTrade} selected. Choose your contract, stake, and press Place Trade.`;
+function nextTick() {
+  const prev = tickData[tickData.length - 1] || { quote: marketConfigs[state.market].base };
+  const drift = (Math.random() - 0.5) * marketConfigs[state.market].volatility;
+  const noise = (Math.random() - 0.5) * (marketConfigs[state.market].volatility * 0.35);
+  const quote = Number((prev.quote + drift + noise).toFixed(2));
+  const move = Number((quote - prev.quote).toFixed(2));
+  const digit = Math.abs(Math.floor(quote * 100)) % 10;
+  const tick = { quote, move, digit };
+  tickData.push(tick);
+  if (tickData.length > 120) tickData.shift();
+
+  const lastCandle = candleData[candleData.length - 1];
+  const candleIndex = tickData.length % 4;
+
+  if (!lastCandle || candleIndex === 1) {
+    candleData.push({ open: quote, high: quote, low: quote, close: quote });
+  } else {
+    lastCandle.high = Math.max(lastCandle.high, quote);
+    lastCandle.low = Math.min(lastCandle.low, quote);
+    lastCandle.close = quote;
+  }
+  if (candleData.length > 60) candleData.shift();
+
+  const recentDigits = tickData.slice(-40).map((t) => t.digit);
+  digitStats = Array.from({ length: 10 }, (_, digit) => {
+    const count = recentDigits.filter((d) => d === digit).length;
+    return Number(((count / recentDigits.length) * 100 || 0).toFixed(1));
+  });
+
+  updateQuoteUI(tick, prev);
+  settleOpenTrades(tick, prev);
+  renderDigits(tick.digit);
+  drawAllCharts();
+}
+
+function updateQuoteUI(tick, prev) {
+  quoteText.textContent = formatQuote(tick.quote);
+  digitQuote.textContent = formatQuote(tick.quote);
+  digitMove.textContent = `${tick.move >= 0 ? "+" : ""}${tick.move.toFixed(2)}`;
+  digitMove.classList.toggle("down", tick.move < 0);
+
+  const prices = tickData.slice(-25).map((t) => t.quote);
+  chartOpenValue.textContent = formatQuote(prices[0]);
+  chartHighValue.textContent = formatQuote(Math.max(...prices));
+  chartLowValue.textContent = formatQuote(Math.min(...prices));
+  chartCloseValue.textContent = formatQuote(prices[prices.length - 1]);
+}
+
+function drawChart(canvas, mode = state.chartMode) {
+  if (!canvas) return;
+  const ctx = canvas.getContext("2d");
+  const rect = canvas.getBoundingClientRect();
+  canvas.width = Math.max(320, Math.floor(rect.width * devicePixelRatio));
+  canvas.height = Math.max(220, Math.floor(rect.height * devicePixelRatio));
+  ctx.scale(devicePixelRatio, devicePixelRatio);
+
+  const width = rect.width;
+  const height = rect.height;
+  ctx.clearRect(0, 0, width, height);
+
+  const padding = { left: 20, right: 20, top: 18, bottom: 24 };
+  const chartW = width - padding.left - padding.right;
+  const chartH = height - padding.top - padding.bottom;
+
+  ctx.strokeStyle = "rgba(255,255,255,0.08)";
+  ctx.lineWidth = 1;
+  for (let i = 0; i <= 5; i++) {
+    const y = padding.top + (chartH / 5) * i;
+    ctx.beginPath();
+    ctx.moveTo(padding.left, y);
+    ctx.lineTo(width - padding.right, y);
+    ctx.stroke();
+  }
+
+  const source = mode === "candles" ? candleData : tickData;
+  if (!source.length) return;
+
+  const values = mode === "candles"
+    ? source.flatMap((x) => [x.high, x.low])
+    : source.map((x) => x.quote);
+
+  const min = Math.min(...values);
+  const max = Math.max(...values);
+  const range = Math.max(0.01, max - min);
+
+  if (mode === "line") {
+    ctx.beginPath();
+    source.forEach((point, index) => {
+      const x = padding.left + (index / Math.max(1, source.length - 1)) * chartW;
+      const y = padding.top + ((max - point.quote) / range) * chartH;
+      if (index === 0) ctx.moveTo(x, y);
+      else ctx.lineTo(x, y);
+    });
+    ctx.lineWidth = 3;
+    ctx.strokeStyle = "#28d8ca";
+    ctx.stroke();
+
+    const last = source[source.length - 1];
+    const x = padding.left + chartW;
+    const y = padding.top + ((max - last.quote) / range) * chartH;
+    ctx.beginPath();
+    ctx.arc(x, y, 4.5, 0, Math.PI * 2);
+    ctx.fillStyle = "#71ffd4";
+    ctx.fill();
+  } else {
+    const candleWidth = Math.max(4, chartW / Math.max(25, source.length) * 0.55);
+    source.forEach((candle, index) => {
+      const x = padding.left + (index / Math.max(1, source.length - 1)) * chartW;
+      const openY = padding.top + ((max - candle.open) / range) * chartH;
+      const closeY = padding.top + ((max - candle.close) / range) * chartH;
+      const highY = padding.top + ((max - candle.high) / range) * chartH;
+      const lowY = padding.top + ((max - candle.low) / range) * chartH;
+      const green = candle.close >= candle.open;
+      ctx.strokeStyle = green ? "#2ee66b" : "#ff4258";
+      ctx.fillStyle = green ? "#2ee66b" : "#ff4258";
+      ctx.lineWidth = 1.4;
+      ctx.beginPath();
+      ctx.moveTo(x, highY);
+      ctx.lineTo(x, lowY);
+      ctx.stroke();
+      const bodyTop = Math.min(openY, closeY);
+      const bodyHeight = Math.max(3, Math.abs(closeY - openY));
+      ctx.fillRect(x - candleWidth / 2, bodyTop, candleWidth, bodyHeight);
+    });
+  }
+
+  ctx.fillStyle = "rgba(255,255,255,0.8)";
+  ctx.font = "12px Arial";
+  ctx.fillText(formatQuote(max), 4, 14);
+  ctx.fillText(formatQuote(min), 4, height - 8);
+}
+
+function drawAllCharts() {
+  drawChart(chartCanvas, state.chartMode);
+  drawChart(chartCanvasLarge, state.chartMode);
+}
+
+function getTopLowDigits() {
+  const top = digitStats.indexOf(Math.max(...digitStats));
+  const low = digitStats.indexOf(Math.min(...digitStats));
+  return { top, low };
+}
+
+function renderDigits(cursorDigit = 0) {
+  const { top, low } = getTopLowDigits();
+
+  digitFrequency.innerHTML = Array.from({ length: 10 }, (_, digit) => {
+    const percent = digitStats[digit] || 0;
+    const isTop = digit === top;
+    const isLow = digit === low;
+    const activeTarget =
+      (state.activeTradeType === "Matches/Differs" || state.activeTradeType === "Touch/No Touch")
+      && state.selectedDigit === digit;
+    const activeBarrier = state.activeTradeType === "Over/Under" && state.barrierDigit === digit;
+
+    const outerColor = isTop ? "#2ee66b" : isLow ? "#ff4258" : "#d2d9e2";
+    const outerWidth = isTop ? 8 : isLow ? 5 : 6;
+    const percentArc = clamp(percent, 0, 100);
+    const circumference = 2 * Math.PI * 28;
+    const dash = (percentArc / 100) * circumference;
+    const dashOffset = circumference - dash;
+    const tileClass = [
+      "digit-tile",
+      activeTarget ? "selected-target" : "",
+      activeBarrier ? "selected-barrier" : "",
+    ].join(" ");
+
+    return `
+      <div class="${tileClass}" data-digit-wrapper="${digit}">
+        <button type="button" data-digit="${digit}">
+          <svg class="digit-svg" viewBox="0 0 84 84" aria-hidden="true">
+            <circle cx="42" cy="42" r="28" fill="none" stroke="rgba(255,255,255,0.12)" stroke-width="6"></circle>
+            <circle
+              cx="42"
+              cy="42"
+              r="28"
+              fill="none"
+              stroke="${outerColor}"
+              stroke-width="${outerWidth}"
+              stroke-linecap="round"
+              transform="rotate(-90 42 42)"
+              stroke-dasharray="${dash} ${circumference}"
+              stroke-dashoffset="${dashOffset}">
+            </circle>
+          </svg>
+          <span class="digit-number-label">${digit}</span>
+          <span class="digit-percent-label">${percent.toFixed(1)}%</span>
+        </button>
+      </div>
+    `;
+  }).join("");
+
+  positionCursor(cursorDigit);
+}
+
+function positionCursor(digit) {
+  const wrapper = digitFrequency.querySelector(`[data-digit-wrapper="${digit}"]`);
+  if (!wrapper) return;
+  const gridRect = digitFrequency.getBoundingClientRect();
+  const box = wrapper.getBoundingClientRect();
+  const x = box.left - gridRect.left + box.width / 2 - 9;
+  digitCursor.style.transform = `translateX(${x}px)`;
+}
+
+function renderHistory() {
+  historyCount.textContent = String(state.tradeHistory.length);
+
+  if (!state.tradeHistory.length) {
+    historyList.innerHTML = `<p class="empty-state">No trades yet.</p>`;
+    return;
+  }
+
+  historyList.innerHTML = state.tradeHistory.slice(0, 12).map((item) => `
+    <div class="history-item">
+      <div class="history-top">
+        <strong>${item.choice} · ${item.tradeType}</strong>
+        <span class="item-amount ${item.won ? "" : "loss"}">${item.won ? "+" : "-"}${formatMoney(Math.abs(item.profit))}</span>
+      </div>
+      <div class="item-meta">${item.market} · Stake ${formatMoney(item.stake)} · Digit ${item.digit} · ${new Date(item.createdAt).toLocaleTimeString()}</div>
+    </div>
+  `).join("");
+}
+
+function renderOpenTrades() {
+  openTradeCount.textContent = String(state.openTrades.length);
+
+  if (!state.openTrades.length) {
+    openTradesList.innerHTML = `<p class="empty-state">No open trades.</p>`;
+    return;
+  }
+
+  openTradesList.innerHTML = state.openTrades.map((item) => `
+    <div class="open-trade-item">
+      <div class="open-trade-top">
+        <strong>${item.choice} · ${item.tradeType}</strong>
+        <span class="item-amount">${formatMoney(item.stake)}</span>
+      </div>
+      <div class="item-meta">${item.market} · ${item.meta} · ${item.remaining} ticks left</div>
+    </div>
+  `).join("");
+}
+
+function renderTransactions() {
+  if (!state.transactionHistory.length) {
+    transactionList.innerHTML = `<p class="empty-state">No transactions yet.</p>`;
+    return;
+  }
+
+  transactionList.innerHTML = state.transactionHistory.slice(0, 100).map((item) => `
+    <div class="transaction-item">
+      <div class="transaction-top">
+        <strong>${item.type} · ${item.status}</strong>
+        <span class="item-amount ${item.status === "loss" ? "loss" : ""}">${item.type === "trade" ? formatMoney(item.profit || 0) : formatMoney(item.amount || 0)}</span>
+      </div>
+      <div class="item-meta">${item.accountType || "Account"} · Bal ${formatMoney(item.balanceAfter || 0)} · ${new Date(item.createdAt).toLocaleString()} · ${item.reference || ""}</div>
+    </div>
+  `).join("");
+}
+
+function renderBot() {
+  botNetProfit.textContent = formatMoney(state.bot.netProfit);
+  botLevel.textContent = String(state.bot.level);
+  botNextStake.textContent = formatMoney(state.bot.currentStake);
+  botBottomStatus.textContent = state.bot.running ? "Bot running" : "Bot is not running";
+
+  if (!state.bot.history.length) {
+    botHistoryList.innerHTML = `<p class="empty-state">No bot trades yet.</p>`;
+    return;
+  }
+
+  botHistoryList.innerHTML = state.bot.history.slice(0, 20).map((item) => `
+    <div class="bot-history-item">
+      <strong>${item.tradeType}</strong>
+      <span class="item-meta">${item.market} · ${formatMoney(item.stake)} · ${item.won ? "WIN" : "LOSS"}</span>
+    </div>
+  `).join("");
+}
+
+function addTransaction(record) {
+  state.transactionHistory.unshift({
+    reference: randomId("txn"),
+    createdAt: new Date().toISOString(),
+    ...record,
+  });
+  state.transactionHistory = state.transactionHistory.slice(0, 100);
+  renderTransactions();
+}
+
+function ensureLoggedIn(forReal = false) {
+  if (!state.currentUser) {
+    openSheet(authSheet);
+    authStatus.textContent = "Create an account and login first.";
+    return false;
+  }
+  if (forReal && state.accountMode === "real" && !state.settings.realTradingEnabled) {
+    tradeStatus.textContent = "Real trading is disabled in Settings. Enable it first.";
+    return false;
+  }
+  return true;
+}
+
+function placeTrade(choice) {
+  const stake = Number(stakeInput.value || 0);
+  const ticks = Math.floor(Number(ticksInput.value || 0));
+
+  if (!ensureLoggedIn(state.accountMode === "real")) return;
+
+  if (stake < 0.3) {
+    tradeStatus.textContent = "Minimum stake is 0.30 USD.";
+    return;
+  }
+
+  if (stake > Number(state.settings.maximumStakeLimit || 100)) {
+    tradeStatus.textContent = `Maximum stake is ${formatMoney(state.settings.maximumStakeLimit || 100)}.`;
+    return;
+  }
+
+  if (ticks < 1 || ticks > 10) {
+    tradeStatus.textContent = "Ticks should be between 1 and 10.";
+    return;
+  }
+
+  if (stake > currentBalance()) {
+    tradeStatus.textContent = "Balance is not enough for this trade.";
+    return;
+  }
+
+  const rate = getPayoutRate(state.activeTradeType, choice);
+  if (!rate) {
+    tradeStatus.textContent = "This contract has no winning range. Select another target digit or barrier.";
+    return;
+  }
+
+  setCurrentBalance(currentBalance() - stake);
+  state.activeChoice = choice;
+
+  const trade = {
+    id: randomId("trade"),
+    tradeType: state.activeTradeType,
+    choice,
+    stake,
+    ticks,
+    remaining: ticks,
+    payout: Number((stake * rate).toFixed(2)),
+    profit: Number(((stake * rate) - stake).toFixed(2)),
+    targetDigit: state.selectedDigit,
+    barrierDigit: state.barrierDigit,
+    market: marketConfigs[state.market].label,
+    entryQuote: tickData[tickData.length - 1]?.quote || marketConfigs[state.market].base,
+    touched: false,
+    createdAt: new Date().toISOString(),
+    meta: getCurrentTradeMeta(),
+  };
+
+  state.openTrades.unshift(trade);
+  renderAccountUI();
+  renderOpenTrades();
+  syncLocalUserFromState();
   saveState();
+
+  tradeStatus.textContent = `${choice} trade opened for ${formatMoney(stake)} on ${state.activeTradeType}.`;
+  showToast("Trade opened", `${choice} · ${state.activeTradeType} · Stake ${formatMoney(stake)}`, "info", 1200);
+
+  addTransaction({
+    type: "trade-open",
+    amount: stake,
+    status: "open",
+    accountType: state.accountMode === "real" ? "Real" : "Demo",
+    balanceAfter: currentBalance(),
+  });
 }
 
-function tradeWins(contract, tick, previous) {
-  if (contract.trade === "Even/Odd") {
-    return contract.choice === "Even" ? tick.digit % 2 === 0 : tick.digit % 2 === 1;
+function tradeWins(trade, tick, prevTick) {
+  if (trade.tradeType === "Even/Odd") {
+    return trade.choice === "Even" ? tick.digit % 2 === 0 : tick.digit % 2 === 1;
   }
-  if (contract.trade === "Rise/Fall") {
-    const oldQuote = previous?.quote ?? contract.entryQuote;
-    return contract.choice === "Rise" ? tick.quote >= oldQuote : tick.quote < oldQuote;
+  if (trade.tradeType === "Rise/Fall") {
+    const prev = prevTick?.quote ?? trade.entryQuote;
+    return trade.choice === "Rise" ? tick.quote >= prev : tick.quote < prev;
   }
-  if (contract.trade === "Matches/Differs") {
-    return contract.choice === "Matches" ? tick.digit === contract.targetDigit : tick.digit !== contract.targetDigit;
+  if (trade.tradeType === "Matches/Differs") {
+    return trade.choice === "Matches" ? tick.digit === trade.targetDigit : tick.digit !== trade.targetDigit;
   }
-  if (contract.trade === "Over/Under") {
-    return contract.choice === "Over" ? tick.digit > contract.barrier : tick.digit < contract.barrier;
+  if (trade.tradeType === "Over/Under") {
+    return trade.choice === "Over" ? tick.digit > trade.barrierDigit : tick.digit < trade.barrierDigit;
   }
-  if (contract.trade === "Touch/No Touch") {
-    return contract.choice === "Touch" ? Boolean(contract.touched) : !contract.touched;
+  if (trade.tradeType === "Touch/No Touch") {
+    return trade.choice === "Touch" ? trade.touched : !trade.touched;
   }
   return false;
 }
 
-function buyContract() {
-  const stake = Number(stakeInput?.value || 0);
-  const ticks = Math.floor(Number(ticksInput?.value || 0));
-  const payoutRate = getPayoutRate();
-  if (activeContract) {
-    tradeStatus.textContent = `Contract running. ${activeContract.remaining} ticks left.`;
-    return;
-  }
-  if (accountMode === "real" && !currentUser) {
-    tradeStatus.textContent = "Login or create an account before trading with Real balance.";
-    openAuth("login");
-    return;
-  }
-  if (accountMode === "real" && !userSettings.realTradingEnabled) {
-    tradeStatus.textContent = "Real trading is disabled in Settings. Enable Real trading first.";
-    return;
-  }
-  if (!Number.isFinite(stake) || stake < 0.3) {
-    tradeStatus.textContent = "Minimum stake is 0.30 USD.";
-    return;
-  }
-  if (stake > Number(userSettings.maximumStakeLimit || 100)) {
-    tradeStatus.textContent = `Stake is above your maximum limit of ${formatMoney(Number(userSettings.maximumStakeLimit || 100))}.`;
-    return;
-  }
-  if (!Number.isFinite(ticks) || ticks < 1 || ticks > 10) {
-    tradeStatus.textContent = "Ticks must be between 1 and 10.";
-    return;
-  }
-  if (!payoutRate) {
-    tradeStatus.textContent = `${activeChoice} has no winning digits. Choose another number.`;
-    return;
-  }
-  if (stake > currentWallet()) {
-    tradeStatus.textContent = "Enter a stake that is available in your balance.";
-    return;
-  }
-
-  const payout = Number((stake * payoutRate).toFixed(2));
-  const profit = Number(Math.max(0, payout - stake).toFixed(2));
-  setCurrentWallet(currentWallet() - stake);
-  activeContract = {
-    trade: activeTrade,
-    choice: activeChoice,
-    barrier: activeBarrier,
-    targetDigit: activeTargetDigit,
-    stake,
-    payout,
-    payoutRate,
-    profit,
-    totalTicks: ticks,
-    remaining: ticks,
-    entryQuote: previousTick?.quote || digits[index]?.quote || 0,
-    touched: false,
-    openedAt: new Date().toISOString(),
-  };
-  renderAccount();
-  renderDigitFrequency();
-  saveState();
-  tradeStatus.textContent = `${activeChoice} contract placed. Stake ${formatMoney(stake)}. Possible payout ${formatMoney(payout)}. ${ticks} ticks left.`;
-}
-
-function advanceContract(tick, previous) {
-  if (!activeContract) return;
-  if (tick.digit === activeContract.targetDigit) activeContract.touched = true;
-  activeContract.remaining -= 1;
-
-  if (activeContract.remaining > 0) {
-    tradeStatus.textContent = `${activeContract.choice} running. ${activeContract.remaining} ticks left.`;
-    renderDigitFrequency();
-    saveState();
-    return;
-  }
-
-  const contract = { ...activeContract };
-  const won = tradeWins(contract, tick, previous);
-  if (won) setCurrentWallet(currentWallet() + contract.payout);
-  const profit = won ? contract.profit : -contract.stake;
-  activeContract = null;
-  resultFlash = { digit: tick.digit, won };
-  renderAccount();
-  renderDigitFrequency();
+function markResultDigit(digit, won) {
+  const tile = digitFrequency.querySelector(`[data-digit-wrapper="${digit}"]`);
+  if (!tile) return;
+  tile.classList.add(won ? "result-win" : "result-loss");
   setTimeout(() => {
-    resultFlash = null;
-    renderDigitFrequency();
-  }, 1400);
+    tile.classList.remove("result-win", "result-loss");
+  }, 1000);
+}
 
-  addHistoryItem({
+function settleOpenTrades(tick, prevTick) {
+  if (!state.openTrades.length) return;
+
+  const settled = [];
+  state.openTrades.forEach((trade) => {
+    if (tick.digit === trade.targetDigit) trade.touched = true;
+    trade.remaining -= 1;
+    if (trade.remaining <= 0) settled.push(trade);
+  });
+
+  settled.forEach((trade) => {
+    const won = tradeWins(trade, tick, prevTick);
+    if (won) setCurrentBalance(currentBalance() + trade.payout);
+
+    const profitValue = won ? trade.profit : -trade.stake;
+    const record = {
+      id: trade.id,
+      tradeType: trade.tradeType,
+      choice: trade.choice,
+      stake: trade.stake,
+      payout: won ? trade.payout : 0,
+      profit: profitValue,
+      market: trade.market,
+      digit: tick.digit,
+      createdAt: new Date().toISOString(),
+      won,
+    };
+
+    state.tradeHistory.unshift(record);
+    state.tradeHistory = state.tradeHistory.slice(0, 100);
+    state.openTrades = state.openTrades.filter((t) => t.id !== trade.id);
+
+    addTransaction({
+      type: "trade",
+      amount: trade.stake,
+      profit: profitValue,
+      status: won ? "win" : "loss",
+      accountType: state.accountMode === "real" ? "Real" : "Demo",
+      balanceAfter: currentBalance(),
+      reference: trade.id,
+    });
+
+    markResultDigit(tick.digit, won);
+
+    tradeStatus.textContent = won
+      ? `${trade.choice} won. Profit ${formatMoney(trade.profit)}.`
+      : `${trade.choice} lost. Loss ${formatMoney(trade.stake)}.`;
+
+    showToast(
+      won ? "Trade won" : "Trade lost",
+      `${trade.choice} · ${trade.tradeType} · ${won ? "+" : "-"}${formatMoney(Math.abs(profitValue))}`,
+      won ? "win" : "loss",
+      1200
+    );
+
+    if (state.bot.running) applyBotResult(won, trade, profitValue);
+  });
+
+  renderAccountUI();
+  renderHistory();
+  renderOpenTrades();
+  renderBot();
+  syncLocalUserFromState();
+  saveState();
+}
+
+function applyBotResult(won, trade, profitValue) {
+  state.bot.netProfit = Number((state.bot.netProfit + profitValue).toFixed(2));
+  if (won || botRecovery.value !== "Martingale") {
+    state.bot.level = 0;
+    state.bot.currentStake = Number(botStake.value || 0.3);
+  } else {
+    state.bot.level += 1;
+    if (state.bot.level > Number(botMaxSteps.value || 6)) {
+      state.bot.level = 0;
+      state.bot.currentStake = Number(botStake.value || 0.3);
+    } else {
+      state.bot.currentStake = Number((state.bot.currentStake * Number(botMultiplier.value || 2)).toFixed(2));
+    }
+  }
+
+  state.bot.history.unshift({
+    tradeType: `${trade.choice} · ${trade.tradeType}`,
+    market: trade.market,
+    stake: trade.stake,
     won,
-    digit: tick.digit,
-    market: activeMarket,
-    trade: contract.trade,
-    choice: contract.choice,
-    stake: contract.stake,
-    payout: won ? contract.payout : 0,
-    profit,
-    settledAt: new Date().toISOString(),
-  });
-  recordTradeEvent({
-    tradeType: `${contract.trade} ${contract.choice}`,
-    stake: contract.stake,
-    profit,
-  });
-  tradeStatus.textContent = won
-    ? `${contract.choice} won on digit ${tick.digit}. Profit ${formatMoney(contract.profit)}.`
-    : `${contract.choice} lost on digit ${tick.digit}.`;
-  renderChoices();
-  saveState();
-}
-
-function resetWallet() {
-  activeContract = null;
-  tradeHistory = [];
-  if (accountMode === "demo") wallet = 10000;
-  renderAccount();
-  renderHistory();
-  renderDigitFrequency();
-  tradeStatus.textContent = accountMode === "demo"
-    ? "Demo trades cleared and demo balance reset to $10000.00."
-    : "Trades cleared. Real balance was not reset.";
-  saveState();
-}
-
-function addHistoryItem(result) {
-  tradeHistory.unshift(result);
-  tradeHistory = tradeHistory.slice(0, 20);
-  renderHistory();
-}
-
-function addLocalTransaction(record) {
-  transactionHistory.unshift({
-    reference: record.reference || `local-${Date.now()}`,
-    createdAt: record.createdAt || new Date().toISOString(),
-    ...record,
-  });
-  transactionHistory = transactionHistory.slice(0, 100);
-  renderTransactions();
-  saveState();
-}
-
-function recordTradeEvent({ tradeType, stake, profit }) {
-  const record = {
-    type: "trade",
-    amount: stake,
-    profit,
-    status: profit >= 0 ? "win" : "loss",
-    accountType: accountMode === "real" ? "Real" : "Demo",
-    balanceAfter: currentWallet(),
-    reference: `trade-${Date.now()}`,
     createdAt: new Date().toISOString(),
-  };
-  addLocalTransaction(record);
-  if (!currentUser?.email || window.location.protocol === "file:" || currentUser.localOnly) return;
-  postJson("/api/record-trade", {
-    email: currentUser.email,
-    tradeType,
-    stake,
-    profit,
-    accountType: record.accountType,
-    balanceAfter: record.balanceAfter,
-  }).catch(() => {});
-}
-
-function renderHistory() {
-  if (historyCount) historyCount.textContent = tradeHistory.length;
-  if (!historyList) return;
-  if (tradeHistory.length === 0) {
-    historyList.innerHTML = "<p>No trades yet.</p>";
-    return;
-  }
-  historyList.innerHTML = tradeHistory
-    .map((item) => {
-      const resultClass = item.won ? "win" : "loss";
-      const resultText = item.won ? `+${formatMoney(item.profit || item.payout - item.stake)}` : `-${formatMoney(item.stake)}`;
-      return `
-        <div class="history-item ${resultClass}">
-          <div class="history-digit">${item.digit}</div>
-          <div class="history-copy">
-            <strong>${item.choice} - ${item.trade}</strong>
-            <span>${item.market} / Stake ${formatMoney(item.stake)}</span>
-          </div>
-          <div class="history-result">${resultText}</div>
-        </div>
-      `;
-    })
-    .join("");
-}
-
-function renderTransactions() {
-  if (!transactionList) return;
-  if (!transactionHistory.length) {
-    transactionList.innerHTML = "<p>No transactions yet.</p>";
-    return;
-  }
-  transactionList.innerHTML = transactionHistory
-    .map((item) => {
-      const amount = item.type === "trade" ? Number(item.profit || 0) : Number(item.amount || 0);
-      return `
-        <div class="transaction-item">
-          <div>
-            <strong>${item.type || "transaction"} · ${item.status || "pending"}</strong>
-            <span>${new Date(item.createdAt || Date.now()).toLocaleString()} · ${item.reference || ""}</span>
-          </div>
-          <div>
-            <strong>${formatMoney(amount)}</strong>
-            <span>${item.accountType || "Account"} · Bal ${formatMoney(Number(item.balanceAfter || 0))}</span>
-          </div>
-        </div>
-      `;
-    })
-    .join("");
-}
-
-function renderDigitFrequency() {
-  if (!digitFrequency) return;
-  digitFrequency.innerHTML = Array.from({ length: 10 }, (_, digit) => {
-    const percent = Math.max(0, Number(digitStats[digit] || 10)).toFixed(1);
-    const isBarrier = activeTrade === "Over/Under" && activeBarrier === digit;
-    const isTarget = (activeTrade === "Matches/Differs" || activeTrade === "Touch/No Touch") && activeTargetDigit === digit;
-    const isResult = resultFlash?.digit === digit;
-    const isHot = tickTape[0]?.digit === digit;
-    const classes = ["digit-ring"];
-    if (isBarrier || isTarget) classes.push("selected-digit");
-    if (isResult) classes.push(resultFlash.won ? "win" : "loss");
-    if (isHot) classes.push("hot-digit");
-    return `
-      <button class="${classes.join(" ")}" type="button" data-digit="${digit}">
-        <span class="digit-number">${digit}</span>
-        <small>${percent}%</small>
-      </button>
-    `;
-  }).join("");
-}
-
-function nextTick() {
-  const previous = previousTick || digits[index] || { digit: 0, quote: 0 };
-  const base = digits[index % digits.length]?.quote || previous.quote || 100;
-  const digit = Math.floor(Math.random() * 10);
-  const direction = Math.random() > 0.5 ? 1 : -1;
-  const move = Number(((Math.random() * 0.09 + 0.01) * direction).toFixed(2));
-  const quote = Number((base + move + digit / 100).toFixed(2));
-  index = (index + 1) % digits.length;
-  const tick = { digit, quote, move, createdAt: Date.now() };
-  digits[index] = tick;
-  return { tick, previous };
-}
-
-function renderTick() {
-  const { tick, previous } = nextTick();
-  previousTick = tick;
-  tickTape.unshift(tick);
-  tickTape = tickTape.slice(0, 50);
-  digitStats = digitStats.map((value, digit) => {
-    const target = digit === tick.digit ? value + 1.8 : value * 0.992;
-    return clamp(target, 6, 18);
   });
-  const total = digitStats.reduce((sum, value) => sum + value, 0) || 1;
-  digitStats = digitStats.map((value) => Number(((value / total) * 100).toFixed(2)));
-  if (digitQuote) digitQuote.textContent = formatQuote(tick.quote);
-  if (digitMove) {
-    digitMove.textContent = `${tick.move >= 0 ? "+" : ""}${tick.move.toFixed(2)}`;
-    digitMove.classList.toggle("down", tick.move < 0);
-  }
-  if (marketDescription) marketDescription.textContent = `${formatQuote(tick.quote)} ${tick.move >= 0 ? "+" : "-"} ${Math.abs(tick.move).toFixed(2)} (0.01%)`;
-  advanceContract(tick, previous);
-  renderDigitFrequency();
-}
 
-function restartTickTimer() {
-  if (tickTimer) clearInterval(tickTimer);
-  tickTimer = setInterval(renderTick, getTickSpeed());
+  const tp = Number(botTakeProfit.value || 0);
+  const sl = Number(botStopLoss.value || 0);
+
+  if (tp > 0 && state.bot.netProfit >= tp) {
+    stopBot("Take profit reached");
+  } else if (sl > 0 && state.bot.netProfit <= -sl) {
+    stopBot("Stop loss reached");
+  }
+
+  renderBot();
 }
 
 function openAuth(mode = "register") {
-  if (!authSheet) return;
   setAuthMode(mode);
-  authSheet.classList.add("open");
-  authSheet.setAttribute("aria-hidden", "false");
-}
-
-function closeAuthSheet() {
-  if (!authSheet) return;
-  authSheet.classList.remove("open");
-  authSheet.setAttribute("aria-hidden", "true");
+  openSheet(authSheet);
 }
 
 function setAuthMode(mode) {
-  const isRegister = mode === "register";
-  registerTab?.classList.toggle("active", isRegister);
-  loginTab?.classList.toggle("active", !isRegister);
-  registerForm?.classList.toggle("active-auth-form", isRegister);
-  loginForm?.classList.toggle("active-auth-form", !isRegister);
-  if (authTitle) authTitle.textContent = isRegister ? "Create Account" : "Login";
-  if (authStatus) authStatus.textContent = isRegister
-    ? "Create your MetaBinary account. Demo balance starts at $10000."
-    : "Login with your email and password.";
+  const register = mode === "register";
+  registerTab.classList.toggle("active", register);
+  loginTab.classList.toggle("active", !register);
+  registerForm.classList.toggle("active-auth-form", register);
+  loginForm.classList.toggle("active-auth-form", !register);
+  authTitle.textContent = register ? "Create Account" : "Login";
 }
 
-async function handleRegister(event) {
-  event.preventDefault();
-  const fullName = $("#registerName").value.trim();
-  const email = $("#registerEmail").value.trim().toLowerCase();
-  const phone = $("#registerPhone").value.trim();
-  const country = $("#registerCountry").value;
-  const documentType = $("#registerDocument").value;
-  const password = $("#registerPassword").value;
-  const passwordConfirm = $("#registerPasswordConfirm").value;
-  const agreed = $("#registerAgreement").checked;
-  const submit = registerForm.querySelector(".auth-submit");
+async function handleRegister(e) {
+  e.preventDefault();
 
-  if (password !== passwordConfirm) {
+  const payload = {
+    fullName: $("#registerName").value.trim(),
+    email: $("#registerEmail").value.trim().toLowerCase(),
+    phone: $("#registerPhone").value.trim(),
+    idNumber: $("#registerIdNumber").value.trim(),
+    country: $("#registerCountry").value,
+    documentType: $("#registerDocument").value,
+    password: $("#registerPassword").value,
+    passwordConfirm: $("#registerPasswordConfirm").value,
+    agreed: $("#registerAgreement").checked,
+  };
+
+  if (payload.password !== payload.passwordConfirm) {
     authStatus.textContent = "Passwords do not match.";
     return;
   }
-  if (!agreed) {
-    authStatus.textContent = "Confirm you are 18+ and agree before creating the account.";
+
+  if (!payload.agreed) {
+    authStatus.textContent = "You must confirm the agreement.";
     return;
   }
 
-  submit.disabled = true;
-  authStatus.textContent = "Creating account...";
   try {
-    const data = await postJson("/api/register", {
-      fullName,
-      email,
-      phone,
-      country,
-      documentType,
-      password,
-      ref: referralCodeFromUrl,
-      agreed,
-    });
-    applyServerUser(data.user);
-    registerForm.reset();
-    renderAccount();
-    saveState();
-    authStatus.textContent = data.message || `Account ${currentUser.accountId} created.`;
-    setTimeout(closeAuthSheet, 900);
+    const data = await postJson("/api/register", payload);
+    state.currentUser = data.user;
+    state.demoBalance = Number(data.user.demoBalance || 10000);
+    state.realBalance = Number(data.user.realBalance || 0);
+    state.settings = { ...state.settings, ...(data.user.settings || {}) };
+    state.accountMode = "demo";
+    authStatus.textContent = data.message || "Account created.";
+    closeSheet(authSheet);
   } catch (error) {
-    if (isAccountServiceError(error.message) || window.location.protocol === "file:") {
-      if (createOfflineAccount({ fullName, email, phone, country, documentType, password })) {
-        registerForm.reset();
-        renderAccount();
-        saveState();
-        authStatus.textContent = "Account created on this browser. Add MongoDB in Vercel for login on other phones.";
-        setTimeout(closeAuthSheet, 1200);
-      }
-    } else {
-      authStatus.textContent = error.message;
-      if (error.message.toLowerCase().includes("login")) setAuthMode("login");
-    }
-  } finally {
-    submit.disabled = false;
+    const user = createLocalUser(payload);
+    state.currentUser = user;
+    state.demoBalance = Number(user.demoBalance || 10000);
+    state.realBalance = Number(user.realBalance || 0);
+    state.settings = { ...state.settings, ...(user.settings || {}) };
+    state.accountMode = "demo";
+    authStatus.textContent = "Account created on this browser.";
+    closeSheet(authSheet);
   }
+
+  renderAccountUI();
+  renderHistory();
+  renderOpenTrades();
+  saveState();
+  showToast("Account created", "You can now switch between Demo and Real after login.", "info");
 }
 
-async function handleLogin(event) {
-  event.preventDefault();
-  const email = $("#loginEmail").value.trim().toLowerCase();
+async function handleLogin(e) {
+  e.preventDefault();
+
+  const identifier = $("#loginIdentifier").value.trim();
   const password = $("#loginPassword").value;
-  const submit = loginForm.querySelector(".auth-submit");
-  submit.disabled = true;
-  authStatus.textContent = "Logging in...";
+
   try {
-    const data = await postJson("/api/login", { email, password });
-    applyServerUser(data.user);
-    loginForm.reset();
-    renderAccount();
-    saveState();
-    authStatus.textContent = data.message || `Logged in as ${currentUser.accountId}.`;
-    setTimeout(closeAuthSheet, 700);
+    const data = await postJson("/api/login", { identifier, password });
+    state.currentUser = data.user;
+    state.demoBalance = Number(data.user.demoBalance || 10000);
+    state.realBalance = Number(data.user.realBalance || 0);
+    state.settings = { ...state.settings, ...(data.user.settings || {}) };
+    state.accountMode = "demo";
+    authStatus.textContent = data.message || "Logged in.";
+    closeSheet(authSheet);
   } catch (error) {
-    if (isAccountServiceError(error.message) || window.location.protocol === "file:") {
-      if (loginOfflineAccount(email, password)) {
-        loginForm.reset();
-        renderAccount();
-        saveState();
-        authStatus.textContent = `Logged in as ${currentUser.accountId} on this browser.`;
-        setTimeout(closeAuthSheet, 800);
-      } else {
-        authStatus.textContent = "No account found for that email and password. Please register first.";
-      }
-    } else {
-      authStatus.textContent = error.message;
+    const user = findLocalUser(identifier, password);
+    if (!user) {
+      authStatus.textContent = "Email/Account ID or password is incorrect.";
+      return;
     }
-  } finally {
-    submit.disabled = false;
+    state.currentUser = user;
+    state.demoBalance = Number(user.demoBalance || 10000);
+    state.realBalance = Number(user.realBalance || 0);
+    state.settings = { ...state.settings, ...(user.settings || {}) };
+    state.accountMode = "demo";
+    authStatus.textContent = "Logged in on this browser.";
+    closeSheet(authSheet);
+  }
+
+  renderAccountUI();
+  saveState();
+  showToast("Logged in", "Demo and Real accounts are now available.", "info");
+}
+
+async function handleForgotPassword() {
+  const identifier = $("#loginIdentifier").value.trim();
+  if (!identifier) {
+    authStatus.textContent = "Enter your email first.";
+    return;
+  }
+  try {
+    const data = await postJson("/api/reset-password", { identifier });
+    authStatus.textContent = data.message || "Password reset request received.";
+  } catch (error) {
+    authStatus.textContent = "Password reset is available when backend email is connected.";
   }
 }
 
 function logout() {
-  currentUser = null;
-  activeContract = null;
-  accountMode = "demo";
-  renderChoices();
-  renderAccount();
-  tradeStatus.textContent = "Logged out. Demo trading is still available.";
+  state.currentUser = null;
+  state.accountMode = "demo";
+  state.openTrades = [];
+  state.pendingDeposit = null;
+  renderAccountUI();
+  renderOpenTrades();
+  saveState();
+  showToast("Logged out", "You have been logged out.", "info");
+}
+
+function handleTradeTypeClick(btn) {
+  state.activeTradeType = btn.dataset.tradeType;
+  const options = tradeChoices[state.activeTradeType];
+  state.activeChoice = options[0];
+  renderTradePanel();
+  renderDigits(tickData[tickData.length - 1]?.digit || 0);
   saveState();
 }
 
-async function resetPassword() {
-  const email = currentUser?.email || $("#loginEmail")?.value.trim().toLowerCase();
-  if (!email) {
-    authStatus.textContent = "Enter your email first, then request password reset.";
-    return;
-  }
-  try {
-    const data = await postJson("/api/reset-password", { email });
-    authStatus.textContent = data.message || "Password reset request received.";
-  } catch (error) {
-    authStatus.textContent = error.message;
-  }
-}
-
-async function verifyEmail() {
-  if (!currentUser?.email) return;
-  try {
-    const data = await postJson("/api/verify-email", { email: currentUser.email });
-    applyServerUser(data.user);
-    renderAccount();
-    saveState();
-    tradeStatus.textContent = data.message || "Email verified.";
-  } catch (error) {
-    tradeStatus.textContent = error.message;
-  }
-}
-
-async function refreshCurrentUser() {
-  if (!currentUser?.email || currentUser.localOnly) return;
-  const data = await getJson(`/api/user/${encodeURIComponent(currentUser.email)}`);
-  applyServerUser(data.user);
-  renderAccount();
+function setDigitTarget(value) {
+  if (state.activeTradeType === "Over/Under") state.barrierDigit = value;
+  else state.selectedDigit = value;
+  renderTradePanel();
+  renderDigits(tickData[tickData.length - 1]?.digit || 0);
   saveState();
 }
 
-function openDeposit() {
-  if (!currentUser) {
-    openAuth("login");
-    authStatus.textContent = "Login or create an account before depositing.";
-    return;
-  }
-  depositPhone.value = userSettings.depositPhone || currentUser.phone || "";
-  depositEmail.value = currentUser.email || "";
-  depositSheet.classList.add("open");
-  depositSheet.setAttribute("aria-hidden", "false");
-  updateMpesaPreview();
-  checkDeposit.hidden = !pendingDeposit;
-  depositStatus.textContent = pendingDeposit
-    ? `${formatMoney(pendingDeposit.usdAmount)} deposit is waiting for M-Pesa confirmation.`
-    : `${formatMoney(Number(depositAmount.value) || 1)} equals ${formatKes(getKesDepositAmount())}.`;
-}
-
-function closeDepositSheet() {
-  depositSheet.classList.remove("open");
-  depositSheet.setAttribute("aria-hidden", "true");
-}
-
-function getKesDepositAmount() {
-  return (Number(depositAmount.value) || 0) * kesPerUsd;
+function setMarket(market) {
+  if (!marketConfigs[market]) return;
+  state.market = market;
+  renderMarket();
+  generateInitialMarketData();
+  updateQuoteUI(tickData[tickData.length - 1], tickData[tickData.length - 2] || tickData[tickData.length - 1]);
+  renderDigits(tickData[tickData.length - 1]?.digit || 0);
+  drawAllCharts();
+  saveState();
 }
 
 function updateMpesaPreview() {
-  if (mpesaAmount) mpesaAmount.textContent = formatKes(getKesDepositAmount());
+  mpesaAmount.textContent = formatKes((Number(depositAmount.value || 0) * kesRate));
 }
 
-function startDepositAutoCheck() {
-  if (depositCheckTimer) clearInterval(depositCheckTimer);
-  depositCheckAttempts = 0;
-  depositCheckTimer = setInterval(() => {
-    if (!pendingDeposit?.apiRef || checkDeposit.disabled) return;
-    depositCheckAttempts += 1;
-    checkPendingDeposit({ silent: true });
-    if (depositCheckAttempts >= 80) stopDepositAutoCheck();
-  }, 3000);
-}
-
-function stopDepositAutoCheck() {
-  if (depositCheckTimer) clearInterval(depositCheckTimer);
-  depositCheckTimer = null;
-  depositCheckAttempts = 0;
-}
-
-async function handleDeposit(event) {
-  event.preventDefault();
-  if (!currentUser) {
-    depositStatus.textContent = "Login first so we can credit your Real balance.";
-    return;
-  }
-  if (currentUser.localOnly) {
-    depositStatus.textContent = "This is a local account. Login with an online account before depositing.";
-    return;
-  }
-  depositSubmit.disabled = true;
+function openDeposit() {
+  if (!ensureLoggedIn()) return;
+  depositPhone.value = state.settings.depositPhone || state.currentUser.phone || "";
+  depositEmail.value = state.currentUser.email || "";
   updateMpesaPreview();
-  depositStatus.textContent = `Sending M-Pesa STK push for ${formatKes(getKesDepositAmount())}...`;
-  try {
-    const res = await fetch("/api/create-intasend-stk-push", {
-      method: "POST",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({
-        amount: getKesDepositAmount(),
-        usd_amount: Number(depositAmount.value),
-        account_id: currentUser.accountId || "",
-        phone_number: depositPhone.value,
-        email: depositEmail.value || currentUser.email || "",
-      }),
-    });
-    const data = await res.json();
-    if (!res.ok) throw new Error(data.error || data.message || "Deposit failed.");
-    pendingDeposit = {
-      apiRef: data.api_ref,
-      usdAmount: Number(data.usd_amount || depositAmount.value),
-      kesAmount: Number(data.kes_amount || getKesDepositAmount()),
-      accountId: currentUser.accountId || "",
-      credited: false,
-    };
-    checkDeposit.hidden = false;
-    startDepositAutoCheck();
-    saveState();
-    depositStatus.textContent = data.message || "M-Pesa STK push sent. Complete payment on your phone.";
-  } catch (error) {
-    depositStatus.textContent = error.message;
-  } finally {
-    depositSubmit.disabled = false;
-  }
-}
-
-async function checkPendingDeposit(options = {}) {
-  if (!pendingDeposit?.apiRef) {
-    if (!options.silent) depositStatus.textContent = "No pending deposit to check.";
-    return;
-  }
-  checkDeposit.disabled = true;
-  if (!options.silent) depositStatus.textContent = "Checking M-Pesa confirmation...";
-  try {
-    const res = await fetch(`/api/deposit-status?api_ref=${encodeURIComponent(pendingDeposit.apiRef)}`);
-    const data = await res.json();
-    if (!res.ok) throw new Error(data.error || data.message || "Could not check deposit.");
-
-    if (data.confirmed && !data.credited) {
-      const claimRes = await fetch("/api/claim-deposit", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({
-          api_ref: pendingDeposit.apiRef,
-          account_id: currentUser?.accountId || pendingDeposit.accountId || "",
-        }),
-      });
-      const claim = await claimRes.json();
-      if (!claimRes.ok) throw new Error(claim.error || "Could not credit this deposit.");
-      const credit = Number(claim.usd_amount || pendingDeposit.usdAmount || 0);
-      if (claim.user) applyServerUser(claim.user);
-      else realWallet = Number((realWallet + credit).toFixed(2));
-      pendingDeposit = null;
-      stopDepositAutoCheck();
-      accountMode = "real";
-      checkDeposit.hidden = true;
-      renderAccount();
-      saveState();
-      depositStatus.textContent = `Payment confirmed. ${formatMoney(credit)} added to Real balance.`;
-    } else if (data.credited) {
-      pendingDeposit = null;
-      stopDepositAutoCheck();
-      checkDeposit.hidden = true;
-      await refreshCurrentUser().catch(() => {});
-      accountMode = "real";
-      renderAccount();
-      saveState();
-      depositStatus.textContent = "Payment confirmed. Real balance refreshed.";
-    } else if (!options.silent) {
-      depositStatus.textContent = data.message || "Still waiting for M-Pesa confirmation.";
-    }
-  } catch (error) {
-    if (!options.silent) depositStatus.textContent = error.message;
-  } finally {
-    checkDeposit.disabled = false;
-  }
+  depositStatus.textContent = "Fill deposit details to receive STK push.";
+  checkDeposit.hidden = !state.pendingDeposit;
+  openSheet(depositSheet);
 }
 
 function openWithdraw() {
-  if (!currentUser) {
-    openAuth("login");
-    authStatus.textContent = "Login or create an account before withdrawing.";
-    return;
-  }
-  withdrawPhone.value = userSettings.withdrawalPhone || currentUser.phone || "";
-  withdrawSheet.classList.add("open");
-  withdrawSheet.setAttribute("aria-hidden", "false");
-  withdrawStatus.textContent = accountMode === "real" ? "Withdrawals use Real account balance." : "Switch to Real account before withdrawal.";
+  if (!ensureLoggedIn()) return;
+  withdrawPhone.value = state.settings.withdrawalPhone || state.currentUser.phone || "";
+  withdrawStatus.textContent = state.accountMode === "real"
+    ? "Withdrawals use Real balance only."
+    : "Switch to Real account before withdrawing.";
+  openSheet(withdrawSheet);
 }
 
-function closeWithdrawSheet() {
-  withdrawSheet.classList.remove("open");
-  withdrawSheet.setAttribute("aria-hidden", "true");
+async function handleDeposit(e) {
+  e.preventDefault();
+  if (!ensureLoggedIn()) return;
+
+  const usdAmount = Number(depositAmount.value || 0);
+  if (usdAmount < 1) {
+    depositStatus.textContent = "Minimum deposit is 1 USD.";
+    return;
+  }
+
+  try {
+    const data = await postJson("/api/create-intasend-stk-push", {
+      amount: usdAmount * kesRate,
+      usd_amount: usdAmount,
+      account_id: state.currentUser.accountId,
+      phone_number: depositPhone.value.trim(),
+      email: depositEmail.value.trim() || state.currentUser.email,
+    });
+
+    state.pendingDeposit = {
+      apiRef: data.api_ref,
+      usdAmount,
+      accountId: state.currentUser.accountId,
+    };
+    checkDeposit.hidden = false;
+    depositStatus.textContent = data.message || "STK push sent to your phone.";
+    startDepositPolling();
+    saveState();
+  } catch (error) {
+    depositStatus.textContent = error.message;
+  }
 }
 
-async function handleWithdraw(event) {
-  event.preventDefault();
-  const amount = Number(withdrawAmount.value);
-  const phone = withdrawPhone.value.trim();
-  if (!currentUser?.email) {
-    withdrawStatus.textContent = "Login before withdrawal.";
+function startDepositPolling() {
+  stopDepositPolling();
+  depositTimer = setInterval(checkPendingDeposit, 3500);
+}
+
+function stopDepositPolling() {
+  if (depositTimer) clearInterval(depositTimer);
+  depositTimer = null;
+}
+
+async function checkPendingDeposit() {
+  if (!state.pendingDeposit?.apiRef) return;
+  try {
+    const data = await getJson(`/api/deposit-status?api_ref=${encodeURIComponent(state.pendingDeposit.apiRef)}`);
+    if (data.confirmed && !data.credited) {
+      const claim = await postJson("/api/claim-deposit", {
+        api_ref: state.pendingDeposit.apiRef,
+        account_id: state.currentUser.accountId,
+      });
+      state.pendingDeposit = null;
+      stopDepositPolling();
+      state.realBalance = Number(claim.user?.realBalance || state.realBalance + Number(claim.usd_amount || 0));
+      state.accountMode = "real";
+      renderAccountUI();
+      depositStatus.textContent = claim.message || "Deposit credited.";
+      showToast("Deposit confirmed", `${formatMoney(Number(claim.usd_amount || 0))} added to Real balance.`, "win", 1800);
+      checkDeposit.hidden = true;
+      addTransaction({
+        type: "deposit",
+        amount: Number(claim.usd_amount || 0),
+        status: "completed",
+        accountType: "Real",
+        balanceAfter: state.realBalance,
+      });
+      syncLocalUserFromState();
+      saveState();
+    } else if (data.credited) {
+      state.pendingDeposit = null;
+      stopDepositPolling();
+      checkDeposit.hidden = true;
+      depositStatus.textContent = "Payment already credited.";
+      saveState();
+    }
+  } catch (error) {
+    depositStatus.textContent = error.message;
+  }
+}
+
+async function handleWithdraw(e) {
+  e.preventDefault();
+  if (!ensureLoggedIn(true)) return;
+
+  if (state.accountMode !== "real") {
+    withdrawStatus.textContent = "Switch to Real account before withdrawing.";
     return;
   }
-  if (currentUser.localOnly) {
-    withdrawStatus.textContent = "This is a local account. Login with an online account before withdrawal.";
-    return;
-  }
-  if (accountMode !== "real") {
-    withdrawStatus.textContent = "Switch to Real account before withdrawal.";
-    return;
-  }
-  if (!Number.isFinite(amount) || amount < 5) {
+
+  const amount = Number(withdrawAmount.value || 0);
+  if (amount < 5) {
     withdrawStatus.textContent = "Minimum withdrawal is 5 USD.";
     return;
   }
@@ -1371,137 +1334,105 @@ async function handleWithdraw(event) {
     withdrawStatus.textContent = "Maximum withdrawal is 150000 USD.";
     return;
   }
-  if (amount > realWallet) {
-    withdrawStatus.textContent = "Real balance is not enough for this withdrawal.";
+  if (amount > state.realBalance) {
+    withdrawStatus.textContent = "Real balance is not enough.";
     return;
   }
-  const submit = withdrawForm.querySelector(".finance-submit");
-  submit.disabled = true;
-  withdrawStatus.textContent = "Sending withdrawal request...";
+
   try {
-    const data = await postJson("/api/withdraw", { email: currentUser.email, amount, phone });
-    if (data.user) applyServerUser(data.user);
-    if (data.transaction) addLocalTransaction(data.transaction);
-    accountMode = "real";
-    renderAccount();
-    saveState();
+    const data = await postJson("/api/withdraw", {
+      email: state.currentUser.email,
+      amount,
+      phone: withdrawPhone.value.trim(),
+    });
+    state.realBalance = Number(data.user?.realBalance ?? state.realBalance - amount);
     withdrawStatus.textContent = data.message || "Withdrawal request received.";
+    addTransaction(data.transaction || {
+      type: "withdrawal",
+      amount,
+      status: "pending",
+      accountType: "Real",
+      balanceAfter: state.realBalance,
+    });
+    renderAccountUI();
+    syncLocalUserFromState();
+    saveState();
+    showToast("Withdrawal requested", `${formatMoney(amount)} was requested from Real balance.`, "info", 1800);
   } catch (error) {
     withdrawStatus.textContent = error.message;
-  } finally {
-    submit.disabled = false;
   }
 }
 
-function openSettings() {
-  if (!currentUser) {
-    openAuth("login");
-    return;
-  }
-  renderSettingsForm();
-  settingsSheet.classList.add("open");
-  settingsSheet.setAttribute("aria-hidden", "false");
+function openTransactions() {
+  if (!ensureLoggedIn()) return;
+  renderTransactions();
+  openSheet(transactionsSheet);
 }
 
-function closeSettingsSheet() {
-  settingsSheet.classList.remove("open");
-  settingsSheet.setAttribute("aria-hidden", "true");
+async function openSettings() {
+  if (!ensureLoggedIn()) return;
+  renderAccountUI();
+  openSheet(settingsSheet);
 }
 
-async function handleSettings(event) {
-  event.preventDefault();
-  userSettings = {
-    ...userSettings,
-    profileName: $("#settingsName").value.trim(),
-    phone: $("#settingsPhone").value.trim(),
-    depositPhone: $("#settingsDepositPhone").value.trim(),
-    withdrawalPhone: $("#settingsWithdrawalPhone").value.trim(),
-    theme: $("#settingsTheme").value,
-    sound: $("#settingsSound").value === "true",
-    chartSpeed: $("#settingsChartSpeed").value,
-    realTradingEnabled: $("#settingsRealTrading").value === "true",
-    dailyTradeLimit: Number($("#settingsDailyLimit").value || 25),
-    maximumStakeLimit: Number($("#settingsMaxStake").value || 100),
+async function handleSettings(e) {
+  e.preventDefault();
+  state.settings = {
+    ...state.settings,
+    profileName: settingsName.value.trim(),
+    phone: settingsPhone.value.trim(),
+    depositPhone: settingsDepositPhone.value.trim(),
+    withdrawalPhone: settingsWithdrawalPhone.value.trim(),
+    theme: settingsTheme.value,
+    chartSpeed: settingsChartSpeed.value,
+    realTradingEnabled: settingsRealTrading.value === "true",
+    maximumStakeLimit: Math.max(0.3, Number(settingsMaxStake.value || 100)),
+    dailyTradeLimit: Math.max(1, Number(settingsDailyLimit.value || 25)),
+    notifications: settingsNotifications.value === "true",
+    sound: settingsSound.value === "true",
   };
-  applyTheme();
+
+  document.body.dataset.theme = state.settings.theme;
   restartTickTimer();
-  settingsStatus.textContent = "Settings saved.";
-  if (currentUser?.email && !currentUser.localOnly) {
-    try {
-      const data = await putJson(`/api/settings/${encodeURIComponent(currentUser.email)}`, { settings: userSettings });
-      if (data.user) applyServerUser(data.user);
-      settingsStatus.textContent = data.message || "Settings saved to your account.";
-    } catch (error) {
-      settingsStatus.textContent = `Saved on this browser. ${error.message}`;
+  renderAccountUI();
+  renderTradePanel();
+  updatePayoutPreview();
+
+  try {
+    if (state.currentUser?.email) {
+      const data = await putJson(`/api/settings/${encodeURIComponent(state.currentUser.email)}`, {
+        settings: state.settings,
+        newPassword: settingsPassword.value.trim() || undefined,
+      });
+      if (data.user) {
+        state.currentUser = { ...state.currentUser, ...data.user };
+      }
     }
+    settingsStatus.textContent = "Settings saved.";
+  } catch (error) {
+    settingsStatus.textContent = `Saved on this browser. ${error.message}`;
   }
-  renderAccount();
+
+  syncLocalUserFromState();
   saveState();
 }
 
-async function openTransactions() {
-  if (!currentUser) {
-    openAuth("login");
-    return;
-  }
-  transactionsSheet.classList.add("open");
-  transactionsSheet.setAttribute("aria-hidden", "false");
-  renderTransactions();
-  if (currentUser.email && !currentUser.localOnly) {
-    try {
-      const data = await getJson(`/api/transactions/${encodeURIComponent(currentUser.email)}`);
-      if (Array.isArray(data.transactions)) {
-        transactionHistory = [...data.transactions, ...transactionHistory].slice(0, 100);
-        renderTransactions();
-        saveState();
-      }
-    } catch {}
-  }
-}
-
-function closeTransactionsSheet() {
-  transactionsSheet.classList.remove("open");
-  transactionsSheet.setAttribute("aria-hidden", "true");
-}
-
 async function openPartner() {
-  if (!currentUser) {
-    openAuth("login");
-    return;
-  }
-  partnerSheet.classList.add("open");
-  partnerSheet.setAttribute("aria-hidden", "false");
-  await loadPartnerDashboard();
-}
-
-function closePartnerSheet() {
-  partnerSheet.classList.remove("open");
-  partnerSheet.setAttribute("aria-hidden", "true");
-}
-
-async function loadPartnerDashboard() {
+  if (!ensureLoggedIn()) return;
+  openSheet(partnerSheet);
   partnerDashboard.hidden = true;
-  if (!currentUser?.email || currentUser.localOnly) {
-    partnerStatus.textContent = "Login with an online account before applying for the partner dashboard.";
-    return;
-  }
+  partnerStatus.textContent = "Open a partner account to unlock referral features.";
   try {
-    const data = await getJson(`/api/partner/${encodeURIComponent(currentUser.email)}`);
+    const data = await getJson(`/api/partner/${encodeURIComponent(state.currentUser.email)}`);
     renderPartnerDashboard(data);
-    partnerStatus.textContent = "Partner dashboard opened.";
-  } catch (error) {
-    partnerStatus.textContent = error.message === "Partner account not found."
-      ? "No partner account yet. Tap Apply / Open Partner Dashboard to create one."
-      : error.message;
-  }
+  } catch {}
 }
 
 function renderPartnerDashboard(data) {
-  const partner = data?.partner;
-  const stats = data?.stats || {};
-  partnerDashboard.hidden = !partner;
-  if (!partner) return;
-  partnerReferralLink.value = partner.referralLink || `${location.origin}/register?ref=${partner.partnerId}`;
+  if (!data?.partner) return;
+  partnerDashboard.hidden = false;
+  partnerReferralLink.value = data.partner.referralLink || "";
+  const stats = data.stats || {};
   partnerStats.innerHTML = [
     ["Total referred users", stats.totalReferredUsers || 0],
     ["Active real traders", stats.activeRealTraders || 0],
@@ -1510,393 +1441,295 @@ function renderPartnerDashboard(data) {
     ["Commission earned", formatMoney(stats.totalCommissionEarned || 0)],
     ["Pending commission", formatMoney(stats.pendingCommission || 0)],
     ["Paid commission", formatMoney(stats.paidCommission || 0)],
-  ].map(([label, value]) => `<div><span>${label}</span><strong>${value}</strong></div>`).join("");
+  ].map(([k, v]) => `<div><span>${k}</span><strong>${v}</strong></div>`).join("");
+  partnerStatus.textContent = "Partner dashboard is active.";
 }
 
-async function applyPartner() {
-  if (!currentUser?.email || currentUser.localOnly) {
-    partnerStatus.textContent = "Login with an online account before applying.";
-    return;
-  }
-  partnerStatus.textContent = "Opening partner account...";
+async function handlePartnerApply() {
+  if (!ensureLoggedIn()) return;
   try {
-    const data = await postJson("/api/partner/apply", { email: currentUser.email });
-    if (data.user) applyServerUser(data.user);
+    const data = await postJson("/api/partner/apply", { email: state.currentUser.email });
     renderPartnerDashboard({ partner: data.partner, stats: {} });
-    partnerStatus.textContent = data.message || "Partner account is active.";
-    saveState();
+    partnerStatus.textContent = data.message || "Partner account opened.";
   } catch (error) {
     partnerStatus.textContent = error.message;
   }
 }
 
-function loadFreeBotTemplate(templateKey) {
-  const template = freeBotTemplates[templateKey] || freeBotTemplates.pulse;
-  freeBotCards.forEach((card) => card.classList.toggle("selected-bot-card", card.dataset.botTemplate === templateKey));
-  selectedBotName.textContent = template.name;
-  selectedBotDescription.textContent = template.description;
-  botMarket.value = template.market;
-  botTradeType.value = template.tradeType;
-  botDuration.value = template.duration;
-  botStake.value = template.stake;
-  botDirection.value = template.direction;
-  botBarrier.value = template.barrier;
-  botTakeProfit.value = template.takeProfit;
-  botStopLoss.value = template.stopLoss;
-  botRecovery.value = template.recovery;
-  botMultiplier.value = template.multiplier;
-  botMaxSteps.value = template.maxSteps;
-  botRunOnce.value = template.runOnce;
-  botWorkspace.hidden = false;
-  botHistoryBlock.hidden = false;
-  botControlBar.hidden = false;
-  botBuilder.classList.add("bot-workspace-mode");
-  botWorkspaceTitle.textContent = template.name;
-  botWorkspaceDescription.textContent = template.description;
-  botWorkspaceStatus.textContent = "Loaded";
-  botCanvasStatus.textContent = "Ready to run strategy";
-  setBotZoom(botZoom);
-  renderBotStats();
-}
-
-function closeBotWorkspace() {
-  botWorkspace.hidden = true;
-  botHistoryBlock.hidden = true;
-  botControlBar.hidden = true;
-  botBuilder.classList.remove("bot-workspace-mode");
-}
-
-function setBotZoom(value) {
-  botZoom = clamp(value, 0.35, 1.2);
-  if (botCanvasInner) botCanvasInner.style.transform = `scale(${botZoom})`;
-  if (botZoomLabel) botZoomLabel.textContent = `${Math.round(botZoom * 100)}%`;
-}
-
-function setBotStatus(text) {
-  if (botStatus) botStatus.textContent = text;
-  if (botBottomStatus) botBottomStatus.textContent = text;
-  if (botWorkspaceStatus) botWorkspaceStatus.textContent = text;
-}
-
-function renderBotStats() {
-  botNetProfit.textContent = formatMoney(botSession.netProfit);
-  botLevel.textContent = String(botSession.martingaleLevel);
-  botNextStake.textContent = formatMoney(botSession.currentStake || Number(botStake?.value || 0.3));
-  if (botAccountLabel) botAccountLabel.textContent = accountMode === "real" ? "Real account" : "Demo account";
-}
-
-function renderBotHistory() {
-  if (!botHistoryList) return;
-  if (!botHistory.length) {
-    botHistoryList.innerHTML = "<p>No bot trades yet.</p>";
-    return;
+async function copyReferral() {
+  if (!partnerReferralLink.value) return;
+  try {
+    await navigator.clipboard.writeText(partnerReferralLink.value);
+    partnerStatus.textContent = "Referral link copied.";
+  } catch {
+    partnerReferralLink.select();
+    partnerStatus.textContent = "Referral link selected. Copy it manually.";
   }
-  botHistoryList.innerHTML = botHistory.slice(0, 20).map((item) => `
-    <div class="bot-history-item ${item.won ? "win" : "loss"}">
-      <strong>${item.tradeType}</strong>
-      <span>${item.market} · ${formatMoney(item.stake)} · ${item.won ? "WIN" : "LOSS"}</span>
-    </div>
-  `).join("");
+}
+
+function resetBot() {
+  state.bot.running = false;
+  state.bot.baseStake = Number(botStake.value || 0.3);
+  state.bot.currentStake = Number(botStake.value || 0.3);
+  state.bot.netProfit = 0;
+  state.bot.level = 0;
+  state.bot.history = [];
+  renderBot();
+  saveState();
+}
+
+function stopBot(message = "Bot is not running") {
+  state.bot.running = false;
+  botBottomStatus.textContent = message;
+  renderBot();
+  saveState();
 }
 
 function chooseBotDirection() {
-  const direction = botDirection.value;
-  if (direction !== "Auto") return direction;
-  const tradeType = botTradeType.value;
-  if (tradeType === "Even/Odd") return Math.random() > 0.5 ? "Even" : "Odd";
-  if (tradeType === "Rise/Fall") return Math.random() > 0.5 ? "Rise" : "Fall";
-  if (tradeType === "Over/Under") return Math.random() > 0.5 ? "Over" : "Under";
-  if (tradeType === "Matches/Differs") return Math.random() > 0.25 ? "Differs" : "Matches";
-  if (tradeType === "Touch/No Touch") return Math.random() > 0.3 ? "No Touch" : "Touch";
+  const d = botDirection.value;
+  if (d !== "Auto") return d;
+  const t = botTradeType.value;
+  if (t === "Rise/Fall") return Math.random() > 0.5 ? "Rise" : "Fall";
+  if (t === "Even/Odd") return Math.random() > 0.5 ? "Even" : "Odd";
+  if (t === "Over/Under") return Math.random() > 0.5 ? "Over" : "Under";
+  if (t === "Matches/Differs") return Math.random() > 0.35 ? "Differs" : "Matches";
+  if (t === "Touch/No Touch") return Math.random() > 0.35 ? "No Touch" : "Touch";
   return "Even";
 }
 
 function runBotTrade() {
-  if (!botRunning || activeContract) return;
-  setMarket(botMarket.value);
-  activeTrade = botTradeType.value;
-  activeChoice = chooseBotDirection();
-  activeBarrier = Number(botBarrier.value || 5);
-  activeTargetDigit = Number(botBarrier.value || 5);
-  stakeInput.value = Math.max(0.3, Number(botSession.currentStake || botStake.value || 0.3)).toFixed(2);
-  ticksInput.value = Math.max(1, Math.min(10, Number(botDuration.value || 3)));
-  renderChoices();
-  buyContract();
-  if (botLiveTradeType) botLiveTradeType.textContent = `${activeTrade} ${activeChoice}`;
-  if (botLiveMarket) botLiveMarket.textContent = marketLabels[activeMarket];
-  if (botLiveStake) botLiveStake.textContent = formatMoney(Number(stakeInput.value));
-  if (botLiveTransaction) botLiveTransaction.textContent = "Trade placed";
+  if (!state.bot.running || state.openTrades.length) return;
+  if (!ensureLoggedIn(state.accountMode === "real")) {
+    stopBot("Login required");
+    return;
+  }
+
+  state.activeTradeType = botTradeType.value;
+  state.selectedDigit = clamp(botBarrier.value, 0, 9);
+  state.barrierDigit = clamp(botBarrier.value, 0, 9);
+  stakeInput.value = String(state.bot.currentStake);
+  ticksInput.value = String(clamp(botDuration.value, 1, 10));
+  renderTradePanel();
+  renderDigits(tickData[tickData.length - 1]?.digit || 0);
+
+  const choice = chooseBotDirection();
+  placeTrade(choice);
 }
 
 function startBot() {
-  if (botRunning) return;
-  if (accountMode === "real" && !currentUser) {
-    openAuth("login");
-    setBotStatus("Login first for Real bot trading.");
-    return;
-  }
-  botRunning = true;
-  botSession.baseStake = Math.max(0.3, Number(botStake.value || 0.3));
-  botSession.currentStake = botSession.currentStake || botSession.baseStake;
-  setBotStatus("Bot running");
-  botCanvasStatus.textContent = "Bot scanning and placing trades";
+  if (!ensureLoggedIn(state.accountMode === "real")) return;
+  state.bot.running = true;
+  state.bot.baseStake = Math.max(0.3, Number(botStake.value || 0.3));
+  state.bot.currentStake = state.bot.currentStake || state.bot.baseStake;
+  renderBot();
   runBotTrade();
-  botTimer = setInterval(runBotTrade, 4200);
 }
 
-function stopBot(reason = "Bot stopped") {
-  botRunning = false;
-  if (botTimer) clearInterval(botTimer);
-  botTimer = null;
-  setBotStatus(reason);
-  if (botCanvasStatus) botCanvasStatus.textContent = reason;
+function scanAI() {
+  const markets = Object.keys(marketConfigs);
+  const types = Object.keys(tradeChoices);
+  aiSuggestion = {
+    market: markets[Math.floor(Math.random() * markets.length)],
+    tradeType: types[Math.floor(Math.random() * types.length)],
+    digit: Math.floor(Math.random() * 10),
+    confidence: Math.floor(60 + Math.random() * 30),
+  };
+
+  aiMarket.textContent = marketConfigs[aiSuggestion.market].label;
+  aiTrade.textContent = aiSuggestion.tradeType;
+  aiBarrier.textContent = String(aiSuggestion.digit);
+  aiConfidence.textContent = `${aiSuggestion.confidence}%`;
+  aiReason.textContent = "AI scanned recent synthetic movement, digit pressure, and short-term momentum.";
 }
 
-function updateBotAfterTrade(profit, contract) {
-  if (!botRunning) return;
-  const won = profit >= 0;
-  botSession.netProfit = Number((botSession.netProfit + profit).toFixed(2));
-  if (won || botRecovery.value !== "Martingale") {
-    botSession.martingaleLevel = 0;
-    botSession.currentStake = Math.max(0.3, Number(botStake.value || 0.3));
-  } else {
-    botSession.martingaleLevel += 1;
-    if (botSession.martingaleLevel > Number(botMaxSteps.value || 6)) {
-      botSession.martingaleLevel = 0;
-      botSession.currentStake = Math.max(0.3, Number(botStake.value || 0.3));
-    } else {
-      botSession.currentStake = Number((Number(botSession.currentStake || botStake.value || 0.3) * Number(botMultiplier.value || 2)).toFixed(2));
-    }
-  }
-  botHistory.unshift({
-    tradeType: `${contract.trade} ${contract.choice}`,
-    market: marketLabels[activeMarket],
-    stake: contract.stake,
-    won,
-    createdAt: new Date().toISOString(),
-  });
-  botHistory = botHistory.slice(0, 50);
-  renderBotHistory();
-  renderBotStats();
-  if (botLiveTransaction) botLiveTransaction.textContent = won ? "Last trade won" : "Last trade lost";
-  const takeProfit = Number(botTakeProfit.value || 0);
-  const stopLoss = Number(botStopLoss.value || 0);
-  if (takeProfit > 0 && botSession.netProfit >= takeProfit) stopBot("Take profit reached");
-  if (stopLoss > 0 && botSession.netProfit <= -stopLoss) stopBot("Stop loss reached");
-  if (botRunOnce.value === "Yes") stopBot("Run once completed");
+function applyAIToTrade() {
+  if (!aiSuggestion) scanAI();
+  setMarket(aiSuggestion.market);
+  state.activeTradeType = aiSuggestion.tradeType;
+  state.selectedDigit = aiSuggestion.digit;
+  state.barrierDigit = aiSuggestion.digit;
+  state.activeChoice = tradeChoices[state.activeTradeType][0];
+  renderTradePanel();
+  renderDigits(tickData[tickData.length - 1]?.digit || 0);
+  saveState();
+  showToast("AI applied", `${aiSuggestion.tradeType} loaded on trade panel.`, "info");
 }
 
-const originalRecordTradeEvent = recordTradeEvent;
-recordTradeEvent = function wrappedRecordTradeEvent({ tradeType, stake, profit }) {
-  const settledContract = tradeHistory[0]
-    ? { trade: tradeHistory[0].trade, choice: tradeHistory[0].choice, stake: tradeHistory[0].stake }
-    : { trade: activeTrade, choice: activeChoice, stake };
-  originalRecordTradeEvent({ tradeType, stake, profit });
-  updateBotAfterTrade(profit, settledContract);
-};
-
-function scanAiMarket() {
-  const markets = Object.keys(marketSeeds);
-  const market = markets[Math.floor(Math.random() * markets.length)];
-  const tradeTypes = ["Even/Odd", "Rise/Fall", "Over/Under", "Matches/Differs", "Touch/No Touch"];
-  const tradeType = tradeTypes[Math.floor(Math.random() * tradeTypes.length)];
-  const barrier = Math.floor(Math.random() * 10);
-  const confidence = Math.floor(58 + Math.random() * 28);
-  aiSuggestion = { market, tradeType, barrier, confidence };
-  if (aiMarket) aiMarket.textContent = marketLabels[market];
-  if (aiTrade) aiTrade.textContent = tradeType;
-  if (aiBarrier) aiBarrier.textContent = String(barrier);
-  if (aiConfidence) aiConfidence.textContent = `${confidence}%`;
-  if (aiReason) aiReason.textContent = `AI found a possible ${tradeType} entry after reading the recent digit frequency and market speed.`;
-  if (aiScanStatus) aiScanStatus.textContent = "Scan complete";
-  if (aiScanDetail) aiScanDetail.textContent = "Use Apply to Bot or Start Bot to run the suggested setup.";
-}
-
-function openAiSheet() {
-  aiSheet.classList.add("open");
-  aiSheet.setAttribute("aria-hidden", "false");
-  if (aiScanStatus) aiScanStatus.textContent = "Scanning market...";
-  if (aiScanDetail) aiScanDetail.textContent = "Reading recent ticks, digit frequency, and volatility speed.";
-  setTimeout(scanAiMarket, 700);
-}
-
-function closeAiSheet() {
-  aiSheet.classList.remove("open");
-  aiSheet.setAttribute("aria-hidden", "true");
-}
-
-function applyAiToBot() {
-  if (!aiSuggestion) scanAiMarket();
-  loadFreeBotTemplate("alpha");
-  botMarket.value = aiSuggestion.market;
-  botTradeType.value = aiSuggestion.tradeType;
-  botBarrier.value = aiSuggestion.barrier;
-  botDirection.value = "Auto";
-  selectedBotName.textContent = "AI Scanner Bot loaded";
-  selectedBotDescription.textContent = `AI selected ${marketLabels[aiSuggestion.market]} with ${aiSuggestion.confidence}% confidence.`;
-  setBotStatus("AI setup applied");
-}
-
-function setActiveTab(tabName) {
-  tabButtons.forEach((button) => button.classList.toggle("active", button.dataset.tab === tabName));
-  Object.entries(tabPanels).forEach(([key, panel]) => panel?.classList.toggle("active-panel", key === tabName));
+function restartTickTimer() {
+  if (tickTimer) clearInterval(tickTimer);
+  tickTimer = setInterval(nextTick, getSpeedMs());
 }
 
 function bindEvents() {
-  $$(".trade-type").forEach((button) => button.addEventListener("click", () => setTradeType(button)));
-  choiceRow?.addEventListener("click", (event) => {
-    const button = event.target.closest(".choice");
-    if (!button) return;
-    activeChoice = button.dataset.choice;
-    renderChoices();
-    tradeStatus.textContent = `${activeChoice} selected. Press Place Trade when ready.`;
-    saveState();
-  });
-  digitFrequency?.addEventListener("click", (event) => {
-    const button = event.target.closest(".digit-ring");
-    if (!button) return;
-    const value = Number(button.dataset.digit);
-    if (activeTrade === "Over/Under") activeBarrier = value;
-    if (activeTrade === "Matches/Differs" || activeTrade === "Touch/No Touch") activeTargetDigit = value;
-    renderDigitFrequency();
-    updatePayoutPreview();
-    tradeStatus.textContent = activeTrade === "Over/Under" ? `${activeChoice} ${activeBarrier} selected.` : `${activeChoice} digit ${activeTargetDigit} selected.`;
-    saveState();
-  });
-  buyButton?.addEventListener("click", buyContract);
-  sellButton?.addEventListener("click", resetWallet);
-  stakeInput?.addEventListener("input", updatePayoutPreview);
-  ticksInput?.addEventListener("input", updatePayoutPreview);
+  tabButtons.forEach((btn) => btn.addEventListener("click", () => setActiveTab(btn.dataset.tab)));
 
-  tabButtons.forEach((button) => button.addEventListener("click", () => setActiveTab(button.dataset.tab)));
-  marketSelector?.addEventListener("click", openMarketSheet);
-  marketSelector?.addEventListener("keydown", (event) => {
-    if (event.key === "Enter" || event.key === " ") openMarketSheet();
-  });
-  closeMarket?.addEventListener("click", closeMarketSheet);
-  marketSheet?.addEventListener("click", (event) => {
-    if (event.target === marketSheet) closeMarketSheet();
-    const option = event.target.closest(".market-option");
-    if (option) setMarket(option);
-  });
+  getStartedButton.addEventListener("click", () => openAuth("register"));
+  loginButton.addEventListener("click", () => openAuth("login"));
+  closeAuth.addEventListener("click", () => closeSheet(authSheet));
+  registerTab.addEventListener("click", () => setAuthMode("register"));
+  loginTab.addEventListener("click", () => setAuthMode("login"));
+  registerForm.addEventListener("submit", handleRegister);
+  loginForm.addEventListener("submit", handleLogin);
+  forgotPasswordButton.addEventListener("click", handleForgotPassword);
 
-  accountModeButtons.forEach((button) => {
-    button.addEventListener("click", () => {
-      accountMode = button.dataset.accountMode;
-      renderAccount();
-      renderBotStats();
-      tradeStatus.textContent = accountMode === "real" ? "Real account selected." : "Demo account selected.";
+  accountModeButtons.forEach((btn) => {
+    btn.addEventListener("click", () => {
+      if (!ensureLoggedIn()) return;
+      state.accountMode = btn.dataset.accountMode;
+      renderAccountUI();
       saveState();
     });
   });
 
-  getStartedButton?.addEventListener("click", () => openAuth("register"));
-  loginButton?.addEventListener("click", () => openAuth("login"));
-  closeAuth?.addEventListener("click", closeAuthSheet);
-  authSheet?.addEventListener("click", (event) => { if (event.target === authSheet) closeAuthSheet(); });
-  registerTab?.addEventListener("click", () => setAuthMode("register"));
-  loginTab?.addEventListener("click", () => setAuthMode("login"));
-  registerForm?.addEventListener("submit", handleRegister);
-  loginForm?.addEventListener("submit", handleLogin);
-  forgotPasswordButton?.addEventListener("click", resetPassword);
-  logoutButton?.addEventListener("click", logout);
-  settingsLogout?.addEventListener("click", logout);
-  verifyEmailButton?.addEventListener("click", verifyEmail);
-  resetPasswordButton?.addEventListener("click", resetPassword);
-  $$(".password-toggle").forEach((button) => {
-    button.addEventListener("click", () => {
-      const input = $(`#${button.dataset.passwordTarget}`);
-      if (!input) return;
-      input.type = input.type === "password" ? "text" : "password";
-      button.textContent = input.type === "password" ? "Show" : "Hide";
-    });
+  logoutButton.addEventListener("click", logout);
+
+  $$(".trade-type").forEach((btn) => btn.addEventListener("click", () => handleTradeTypeClick(btn)));
+
+  choiceRow.addEventListener("click", (e) => {
+    const btn = e.target.closest("[data-choice]");
+    if (!btn) return;
+    placeTrade(btn.dataset.choice);
   });
 
-  depositButton?.addEventListener("click", openDeposit);
-  closeDeposit?.addEventListener("click", closeDepositSheet);
-  depositSheet?.addEventListener("click", (event) => { if (event.target === depositSheet) closeDepositSheet(); });
-  depositAmount?.addEventListener("input", () => {
-    updateMpesaPreview();
-    depositStatus.textContent = `${formatMoney(Number(depositAmount.value) || 0)} equals ${formatKes(getKesDepositAmount())}.`;
-  });
-  depositForm?.addEventListener("submit", handleDeposit);
-  checkDeposit?.addEventListener("click", () => checkPendingDeposit());
-
-  withdrawButton?.addEventListener("click", openWithdraw);
-  closeWithdraw?.addEventListener("click", closeWithdrawSheet);
-  withdrawSheet?.addEventListener("click", (event) => { if (event.target === withdrawSheet) closeWithdrawSheet(); });
-  withdrawForm?.addEventListener("submit", handleWithdraw);
-
-  accountMenuButton?.addEventListener("click", () => {
-    accountSummary.hidden = !accountSummary.hidden;
-    settingsList.hidden = true;
-  });
-  settingsMenuButton?.addEventListener("click", openSettings);
-  closeSettings?.addEventListener("click", closeSettingsSheet);
-  settingsSheet?.addEventListener("click", (event) => { if (event.target === settingsSheet) closeSettingsSheet(); });
-  settingsForm?.addEventListener("submit", handleSettings);
-  transactionsMenuButton?.addEventListener("click", openTransactions);
-  closeTransactions?.addEventListener("click", closeTransactionsSheet);
-  transactionsSheet?.addEventListener("click", (event) => { if (event.target === transactionsSheet) closeTransactionsSheet(); });
-  partnerMenuButton?.addEventListener("click", openPartner);
-  closePartner?.addEventListener("click", closePartnerSheet);
-  partnerSheet?.addEventListener("click", (event) => { if (event.target === partnerSheet) closePartnerSheet(); });
-  applyPartnerButton?.addEventListener("click", applyPartner);
-  copyReferralButton?.addEventListener("click", async () => {
-    try {
-      await navigator.clipboard.writeText(partnerReferralLink.value);
-      partnerStatus.textContent = "Referral link copied.";
-    } catch {
-      partnerReferralLink.select();
-      partnerStatus.textContent = "Referral link selected. Copy it from the field.";
-    }
-  });
-  partnerWithdrawButton?.addEventListener("click", () => {
-    partnerStatus.textContent = "Commission withdrawal will be processed from the backend partner dashboard.";
+  digitFrequency.addEventListener("click", (e) => {
+    const btn = e.target.closest("[data-digit]");
+    if (!btn) return;
+    setDigitTarget(Number(btn.dataset.digit));
   });
 
-  loadBotButtons.forEach((button) => button.addEventListener("click", () => loadFreeBotTemplate(button.dataset.botTemplate)));
-  backToBotsButton?.addEventListener("click", closeBotWorkspace);
-  botRunButton?.addEventListener("click", startBot);
-  botStopButton?.addEventListener("click", () => stopBot("Bot stopped"));
-  botZoomOut?.addEventListener("click", () => setBotZoom(botZoom - 0.1));
-  botZoomIn?.addEventListener("click", () => setBotZoom(botZoom + 0.1));
-  botZoomReset?.addEventListener("click", () => setBotZoom(0.5));
-
-  aiFloatButton?.addEventListener("click", openAiSheet);
-  closeAiPanel?.addEventListener("click", closeAiSheet);
-  aiSheet?.addEventListener("click", (event) => { if (event.target === aiSheet) closeAiSheet(); });
-  aiApplyButton?.addEventListener("click", applyAiToBot);
-  aiStartButton?.addEventListener("click", () => {
-    applyAiToBot();
-    startBot();
-    closeAiSheet();
+  stakeInput.addEventListener("input", updatePayoutPreview);
+  ticksInput.addEventListener("input", () => {
+    ticksInput.value = String(clamp(ticksInput.value, 1, 10));
+    updatePayoutPreview();
   });
+
+  $$(".quick-stakes button").forEach((btn) => btn.addEventListener("click", () => {
+    stakeInput.value = btn.dataset.stake;
+    updatePayoutPreview();
+  }));
+
+  $$(".quick-ticks button").forEach((btn) => btn.addEventListener("click", () => {
+    ticksInput.value = btn.dataset.ticks;
+    updatePayoutPreview();
+  }));
+
+  marketSelector.addEventListener("click", () => openSheet(marketSheet));
+  closeMarket.addEventListener("click", () => closeSheet(marketSheet));
+  marketSheet.addEventListener("click", (e) => {
+    if (e.target === marketSheet) closeSheet(marketSheet);
+    const btn = e.target.closest(".market-option");
+    if (!btn) return;
+    setMarket(btn.dataset.market);
+    closeSheet(marketSheet);
+  });
+
+  lineModeButton.addEventListener("click", () => {
+    state.chartMode = "line";
+    lineModeButton.classList.add("active");
+    candleModeButton.classList.remove("active");
+    drawAllCharts();
+    saveState();
+  });
+
+  candleModeButton.addEventListener("click", () => {
+    state.chartMode = "candles";
+    candleModeButton.classList.add("active");
+    lineModeButton.classList.remove("active");
+    drawAllCharts();
+    saveState();
+  });
+
+  $$('[data-speed]').forEach((btn) => btn.addEventListener("click", () => {
+    state.settings.chartSpeed = btn.dataset.speed;
+    $$('[data-speed]').forEach((x) => x.classList.toggle("active", x === btn));
+    restartTickTimer();
+    saveState();
+  }));
+
+  depositButton.addEventListener("click", openDeposit);
+  closeDeposit.addEventListener("click", () => closeSheet(depositSheet));
+  depositSheet.addEventListener("click", (e) => { if (e.target === depositSheet) closeSheet(depositSheet); });
+  depositAmount.addEventListener("input", updateMpesaPreview);
+  depositForm.addEventListener("submit", handleDeposit);
+  checkDeposit.addEventListener("click", checkPendingDeposit);
+
+  withdrawButton.addEventListener("click", openWithdraw);
+  closeWithdraw.addEventListener("click", () => closeSheet(withdrawSheet));
+  withdrawSheet.addEventListener("click", (e) => { if (e.target === withdrawSheet) closeSheet(withdrawSheet); });
+  withdrawForm.addEventListener("submit", handleWithdraw);
+
+  transactionsMenuButton.addEventListener("click", openTransactions);
+  closeTransactions.addEventListener("click", () => closeSheet(transactionsSheet));
+  transactionsSheet.addEventListener("click", (e) => { if (e.target === transactionsSheet) closeSheet(transactionsSheet); });
+
+  settingsMenuButton.addEventListener("click", openSettings);
+  closeSettings.addEventListener("click", () => closeSheet(settingsSheet));
+  settingsSheet.addEventListener("click", (e) => { if (e.target === settingsSheet) closeSheet(settingsSheet); });
+  settingsForm.addEventListener("submit", handleSettings);
+
+  partnerMenuButton.addEventListener("click", openPartner);
+  closePartner.addEventListener("click", () => closeSheet(partnerSheet));
+  partnerSheet.addEventListener("click", (e) => { if (e.target === partnerSheet) closeSheet(partnerSheet); });
+  applyPartnerButton.addEventListener("click", handlePartnerApply);
+  copyReferralButton.addEventListener("click", copyReferral);
+  partnerWithdrawButton.addEventListener("click", () => {
+    partnerStatus.textContent = "Partner commission withdrawal will use the backend payout process.";
+  });
+
+  aiFloatButton.addEventListener("click", () => {
+    scanAI();
+    openSheet(aiSheet);
+  });
+  closeAiPanel.addEventListener("click", () => closeSheet(aiSheet));
+  aiSheet.addEventListener("click", (e) => { if (e.target === aiSheet) closeSheet(aiSheet); });
+  aiApplyButton.addEventListener("click", applyAIToTrade);
+  aiStartButton.addEventListener("click", () => {
+    applyAIToTrade();
+    state.bot.running = true;
+    runBotTrade();
+    closeSheet(aiSheet);
+  });
+
+  botRunButton.addEventListener("click", startBot);
+  botStopButton.addEventListener("click", () => stopBot("Bot stopped"));
+  botResetButton.addEventListener("click", resetBot);
+
+  if (mobileMenuButton) {
+    mobileMenuButton.addEventListener("click", () => setActiveTab("menu"));
+  }
 }
 
 function init() {
   loadState();
-  bindEvents();
-  if (!tradeChoices[activeTrade]) activeTrade = "Even/Odd";
-  if (!tradeChoices[activeTrade].includes(activeChoice)) activeChoice = tradeChoices[activeTrade][0];
-  if (!marketSeeds[activeMarket]) activeMarket = "Meta Volatility 100";
-  digits = [...marketSeeds[activeMarket]];
-  if (marketName) marketName.textContent = marketLabels[activeMarket];
-  if (marketDescription) marketDescription.textContent = marketDescriptions[activeMarket];
-  $$(".trade-type").forEach((button) => button.classList.toggle("selected", button.dataset.tradeType === activeTrade));
-  $$(".market-option").forEach((button) => button.classList.toggle("selected", button.dataset.market === activeMarket));
-  renderChoices();
+  document.body.dataset.theme = state.settings.theme;
+  if (!marketConfigs[state.market]) state.market = "Meta Volatility 100";
+  if (!tradeChoices[state.activeTradeType]) state.activeTradeType = "Even/Odd";
+  if (!tradeChoices[state.activeTradeType].includes(state.activeChoice)) {
+    state.activeChoice = tradeChoices[state.activeTradeType][0];
+  }
+
+  generateInitialMarketData();
+  renderMarket();
+  renderAccountUI();
+  renderTradePanel();
+  updatePayoutPreview();
+  renderDigits(tickData[tickData.length - 1]?.digit || 0);
   renderHistory();
+  renderOpenTrades();
   renderTransactions();
-  renderAccount();
-  renderBotHistory();
-  renderBotStats();
-  setBotStatus("Choose a bot design to load.");
-  updateMpesaPreview();
-  renderDigitFrequency();
-  renderTick();
+  renderBot();
+  drawAllCharts();
+
+  if (state.chartMode === "candles") {
+    candleModeButton.classList.add("active");
+    lineModeButton.classList.remove("active");
+  }
+
+  $$('[data-speed]').forEach((btn) => btn.classList.toggle("active", btn.dataset.speed === state.settings.chartSpeed));
+
+  bindEvents();
   restartTickTimer();
-  if (pendingDeposit?.apiRef) startDepositAutoCheck();
+  if (state.pendingDeposit?.apiRef) startDepositPolling();
 }
 
 init();
