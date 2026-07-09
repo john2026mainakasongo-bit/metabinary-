@@ -579,6 +579,7 @@ function renderChoices() {
       const rate = getPayoutRate(activeTrade, choice, activeBarrier, activeTargetDigit);
       const stake = Number(stakeInput.value) || 0;
       const payout = rate ? stake * rate : 0;
+      const profitPercent = rate ? Math.max(0, (rate - 1) * 100) : 0;
       const detail =
         activeTrade === "Over/Under"
           ? `${choice} ${activeBarrier}`
@@ -586,20 +587,28 @@ function renderChoices() {
             ? `${choice} ${activeTargetDigit}`
             : choice;
       const toneClass = choiceIndex === 0 ? " positive-choice" : " negative-choice";
+      const iconClass = choiceIndex === 0 ? "choice-icon-grid" : "choice-icon-triangle";
       return `
         <button class="choice${toneClass}${selectedClass}" type="button" data-choice="${choice}" ${activeContract ? "disabled" : ""}>
-          <span class="choice-main">${detail}</span>
-          <span class="choice-meta">${rate ? `Payout ${formatMoney(payout)} · x${rate.toFixed(2)}` : "Unavailable"}</span>
+          <span class="choice-payout">
+            <span>Payout <strong>${rate ? `${payout.toFixed(2)} USD` : "Unavailable"}</strong></span>
+            <span class="choice-info" aria-hidden="true">i</span>
+          </span>
+          <span class="choice-bar">
+            <span class="choice-label">
+              <span class="choice-icon ${iconClass}" aria-hidden="true"><i></i><i></i><i></i><i></i></span>
+              <span class="choice-main">${detail}</span>
+            </span>
+            <span class="choice-percent">${rate ? `${profitPercent.toFixed(2)}%` : "--"}</span>
+          </span>
         </button>
       `;
     })
     .join("");
   selectedTrade.textContent = activeTrade;
-  tradeHint.textContent = hints[activeTrade];
+  tradeHint.textContent = tradeHints[activeTrade];
   renderDigitFrequency();
-  updatePayoutPreview();
 }
-
 function getPayoutRate(trade = activeTrade, choice = activeChoice, barrier = activeBarrier, targetDigit = activeTargetDigit) {
   const winningCount = getWinningDigitCount(trade, choice, barrier, targetDigit);
   if (winningCount <= 0) return null;
