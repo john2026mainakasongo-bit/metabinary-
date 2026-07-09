@@ -27,32 +27,57 @@ body {
 
 body {
   margin: 0;
-  background: #fff;
+  background: #edf6f7;
   color: var(--ink);
   font-family: Inter, ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
   letter-spacing: 0;
+  -webkit-font-smoothing: antialiased;
+  text-rendering: optimizeLegibility;
+  overscroll-behavior-y: none;
 }
 
 button {
   font: inherit;
+  cursor: pointer;
+  -webkit-tap-highlight-color: transparent;
+  touch-action: manipulation;
+}
+
+input,
+select,
+textarea {
+  font: inherit;
+}
+
+input {
+  -webkit-tap-highlight-color: transparent;
 }
 
 .phone-page {
   width: 100%;
   min-height: 100vh;
-  background: #fff;
-  overflow: hidden;
+  background:
+    linear-gradient(180deg, #f4fbfb 0%, #ffffff 42%, #f7fafc 100%);
+  overflow-x: hidden;
+  overflow-y: auto;
+  scroll-behavior: smooth;
+  padding-bottom: env(safe-area-inset-bottom);
 }
 
 .top-strip {
+  position: sticky;
+  top: 0;
+  z-index: 24;
   display: flex;
   align-items: center;
   justify-content: space-between;
   gap: 8px;
-  min-height: 60px;
-  padding: 10px 12px;
-  background: #fff;
-  border-bottom: 1px solid #eef1f5;
+  min-height: 58px;
+  padding: calc(8px + env(safe-area-inset-top)) 12px 8px;
+  background: rgba(255, 255, 255, 0.94);
+  border-bottom: 1px solid rgba(226, 232, 240, 0.9);
+  box-shadow: 0 8px 22px rgba(15, 29, 51, 0.06);
+  backdrop-filter: blur(12px);
   flex-wrap: wrap;
 }
 
@@ -212,11 +237,20 @@ button {
 }
 
 .tabs {
+  position: sticky;
+  top: calc(58px + env(safe-area-inset-top));
+  z-index: 23;
   display: grid;
-  grid-template-columns: 0.8fr 1.25fr 0.95fr 1.1fr 1.45fr;
-  height: 38px;
+  grid-template-columns: repeat(5, minmax(72px, 1fr));
+  height: 44px;
   background: #050d15;
   border-bottom: 1px solid rgba(255, 255, 255, 0.05);
+  overflow-x: auto;
+  scrollbar-width: none;
+}
+
+.tabs::-webkit-scrollbar {
+  display: none;
 }
 
 .tabs button {
@@ -1048,22 +1082,26 @@ button {
 
 .trade-board {
   margin: 0;
-  padding: clamp(10px, 2.2vw, 18px);
-  background: #fff;
+  padding: clamp(9px, 2.2vw, 16px);
+  background:
+    linear-gradient(180deg, #f6fffe 0%, #ffffff 58%),
+    #fff;
   border-radius: 0;
   box-shadow: inset 0 -1px 0 rgba(17, 24, 39, 0.05);
 }
 
 .asset-card {
-  background: #fff;
-  border: 1px solid #e2e8f0;
-  border-radius: 12px;
-  box-shadow: 0 6px 18px rgba(15, 35, 56, 0.055);
+  background:
+    linear-gradient(135deg, rgba(34, 184, 169, 0.12), rgba(255, 255, 255, 0.9) 52%),
+    #fff;
+  border: 1px solid #d7eee9;
+  border-radius: 14px;
+  box-shadow: 0 10px 24px rgba(15, 35, 56, 0.08);
 }
 
 .asset-card {
-  min-height: 102px;
-  padding: 12px 12px 10px;
+  min-height: 88px;
+  padding: 10px;
 }
 
 #marketSelector {
@@ -1089,17 +1127,17 @@ button {
 .asset-head {
   display: flex;
   align-items: center;
-  gap: 10px;
+  gap: 9px;
 }
 
 .asset-icon {
-  width: 26px;
-  height: 26px;
+  width: 34px;
+  height: 34px;
   display: grid;
   place-items: center;
   flex: 0 0 auto;
-  border-radius: 10px;
-  background: #22b8a9;
+  border-radius: 11px;
+  background: linear-gradient(135deg, #18a99d, #0d756f);
   color: #fff;
   font-weight: 900;
 }
@@ -1113,9 +1151,9 @@ p {
 h1 {
   width: fit-content;
   color: #222831;
-  font-size: clamp(18px, 5.2vw, 24px);
+  font-size: clamp(20px, 5.7vw, 28px);
   line-height: 1.04;
-  font-weight: 900;
+  font-weight: 950;
 }
 
 #marketName {
@@ -1124,11 +1162,11 @@ h1 {
   flex-wrap: wrap;
   gap: 8px;
   max-width: 100%;
-  min-height: 40px;
-  padding: 8px 12px;
-  border: 1px solid #dbe5ef;
-  background: #f6f9fd;
-  box-shadow: 0 4px 10px rgba(15, 35, 56, 0.08);
+  min-height: 46px;
+  padding: 8px 10px;
+  border: 1px solid #cbe9e4;
+  background: rgba(255, 255, 255, 0.88);
+  box-shadow: 0 4px 10px rgba(15, 35, 56, 0.07);
   border-radius: 12px;
   transition: border-color 160ms ease, background 160ms ease, transform 160ms ease;
 }
@@ -1174,10 +1212,10 @@ h1 {
 }
 
 .asset-head p {
-  margin-top: 5px;
-  color: #8a94a3;
+  margin-top: 6px;
+  color: #5c6b78;
   font-size: clamp(11px, 3.2vw, 13px);
-  font-weight: 600;
+  font-weight: 800;
 }
 
 .change-market {
@@ -1248,14 +1286,14 @@ h1 {
 }
 
 .digit-chart-card {
-  margin-top: 8px;
-  padding: 11px 8px 28px;
-  border-radius: 13px;
+  margin-top: 10px;
+  padding: 10px 8px 20px;
+  border-radius: 14px;
   background: #fff;
   color: #111827;
   overflow: hidden;
-  border: 1px solid #e7ebf0;
-  box-shadow: 0 8px 22px rgba(15, 35, 56, 0.07);
+  border: 1px solid #edf2f7;
+  box-shadow: 0 8px 18px rgba(15, 35, 56, 0.05);
 }
 
 .arrangement-head {
@@ -1263,7 +1301,7 @@ h1 {
   align-items: center;
   justify-content: space-between;
   gap: 8px;
-  padding: 0 0 18px;
+  padding: 0 2px 12px;
 }
 
 .arrangement-head span {
@@ -1398,7 +1436,7 @@ h1 {
 }
 
 .trade-types {
-  padding: clamp(14px, 2.4vw, 22px) clamp(10px, 2.8vw, 26px) 24px;
+  padding: clamp(10px, 2.4vw, 18px) clamp(10px, 2.8vw, 24px) 20px;
   background: #fff;
   color: #111;
   border-top: 1px solid #e8edf3;
@@ -1407,8 +1445,8 @@ h1 {
 }
 
 .trade-types h2 {
-  margin-bottom: 12px;
-  font-size: clamp(23px, 6vw, 28px);
+  margin-bottom: 10px;
+  font-size: clamp(21px, 5.5vw, 27px);
   line-height: 1;
   font-weight: 950;
 }
@@ -1416,18 +1454,18 @@ h1 {
 .trade-type-grid {
   display: grid;
   grid-template-columns: repeat(3, 1fr);
-  gap: 6px;
+  gap: 7px;
 }
 
 .trade-type {
   width: 100%;
-  min-height: 44px;
+  min-height: 46px;
   display: grid;
   place-items: center;
   margin-top: 0;
   padding: 0 8px;
   border: 1px solid #e0e2e8;
-  border-radius: 9px;
+  border-radius: 10px;
   background: var(--soft);
   color: #080b10;
   text-align: center;
@@ -1437,17 +1475,19 @@ h1 {
 }
 
 .trade-type.selected {
-  background: var(--teal);
-  border-color: var(--teal);
+  background: linear-gradient(135deg, #22b8a9, #12877f);
+  border-color: #22b8a9;
   color: #fff;
+  box-shadow: 0 8px 18px rgba(34, 184, 169, 0.22);
 }
 
 .contract-panel {
-  margin-top: 12px;
-  padding: 12px;
-  border: 1px solid #e2e8f0;
-  border-radius: 12px;
-  background: #f8fafc;
+  margin-top: 10px;
+  padding: 10px;
+  border: 1px solid #edf2f7;
+  border-radius: 14px;
+  background: linear-gradient(180deg, #f9fbfc 0%, #ffffff 100%);
+  box-shadow: 0 10px 22px rgba(15, 35, 56, 0.06);
 }
 
 .contract-head {
@@ -1455,7 +1495,7 @@ h1 {
   align-items: center;
   justify-content: space-between;
   gap: 8px;
-  margin-bottom: 10px;
+  margin-bottom: 8px;
 }
 
 .contract-head span {
@@ -1472,7 +1512,7 @@ h1 {
 .choice-row {
   display: grid;
   grid-template-columns: 1fr;
-  gap: 10px;
+  gap: 9px;
 }
 
 .choice {
@@ -1495,14 +1535,14 @@ h1 {
 }
 
 .choice-payout {
-  min-height: 30px;
+  min-height: 28px;
   display: flex;
   align-items: center;
   justify-content: space-between;
   gap: 8px;
   padding: 0 0 6px;
   color: #8a94a3;
-  font-size: 13px;
+  font-size: 12px;
   font-weight: 750;
 }
 
@@ -1526,7 +1566,7 @@ h1 {
 
 .choice-bar {
   position: relative;
-  min-height: 66px;
+  min-height: 60px;
   display: flex;
   align-items: center;
   justify-content: space-between;
@@ -1650,8 +1690,8 @@ h1 {
 .input-grid {
   display: grid;
   grid-template-columns: 1fr 1fr;
-  gap: 6px;
-  margin-top: 10px;
+  gap: 8px;
+  margin-top: 9px;
 }
 
 .input-grid label {
@@ -1664,10 +1704,10 @@ h1 {
 
 .input-grid input {
   width: 100%;
-  min-height: 43px;
+  min-height: 46px;
   padding: 0 12px;
   border: 1px solid #d8dce4;
-  border-radius: 9px;
+  border-radius: 10px;
   background: #fff;
   color: #111;
   font-size: 18px;
@@ -1701,16 +1741,16 @@ h1 {
 
 .action-row {
   display: grid;
-  grid-template-columns: 1fr 1fr;
-  gap: 6px;
-  margin-top: 10px;
+  grid-template-columns: 1fr;
+  gap: 7px;
+  margin-top: 9px;
 }
 
 .buy-button,
 .sell-button {
-  min-height: 48px;
+  min-height: 46px;
   border: 0;
-  border-radius: 9px;
+  border-radius: 10px;
   color: #fff;
   font-weight: 950;
   font-size: 17px;
@@ -1730,8 +1770,8 @@ h1 {
 }
 
 .trade-status {
-  min-height: 34px;
-  margin-top: 11px;
+  min-height: 30px;
+  margin-top: 9px;
   color: #4b5563;
   font-size: 13px;
   font-weight: 800;
@@ -2748,7 +2788,7 @@ body.dark-theme .history-panel {
 
   .top-strip {
     position: relative;
-    padding-bottom: 30px;
+    padding-bottom: 28px;
   }
 
   .tabs {
@@ -2764,7 +2804,7 @@ body.dark-theme .history-panel {
   }
 
   .digit-frequency {
-    gap: 19px 5px;
+    gap: 14px 5px;
     padding-inline: 0;
   }
 
@@ -2788,22 +2828,77 @@ body.dark-theme .history-panel {
 
 @media (max-width: 430px) {
   .top-strip {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
     align-items: stretch;
   }
 
   .auth-actions {
+    grid-column: 1 / -1;
     width: 100%;
     display: grid;
     grid-template-columns: 1fr 1fr;
   }
 
+  .account-state {
+    justify-content: flex-start;
+  }
+
   .account-switch {
-    min-width: 108px;
+    width: 100%;
+    min-width: 0;
   }
 
   .balance-card {
-    min-width: 110px;
+    width: 100%;
+    min-width: 0;
     padding-inline: 10px;
+  }
+
+  .tabs {
+    top: calc(102px + env(safe-area-inset-top));
+    grid-template-columns: repeat(5, minmax(86px, 1fr));
+  }
+
+  .tabs button {
+    min-width: 86px;
+    padding-inline: 8px;
+  }
+
+  h1 {
+    font-size: clamp(19px, 6.1vw, 25px);
+  }
+
+  #marketName {
+    width: 100%;
+  }
+
+  #marketName::after {
+    order: 3;
+  }
+
+  .asset-head {
+    align-items: flex-start;
+  }
+
+  .digit-frequency {
+    grid-template-columns: repeat(5, minmax(38px, 1fr));
+    gap: 12px 3px;
+    padding-bottom: 2px;
+  }
+
+  .digit-ring {
+    width: clamp(39px, 12.3vw, 49px);
+    height: clamp(39px, 12.3vw, 49px);
+  }
+
+  .trade-type-grid {
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+  }
+
+  .trade-type {
+    padding-inline: 5px;
+    font-size: 10px;
   }
 
   .deposit-sheet {
