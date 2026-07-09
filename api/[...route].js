@@ -23,6 +23,7 @@ export default async function handler(req, res) {
     if (req.method === "POST" && route === "record-trade") return recordTrade(req, res);
 
     if (req.method === "POST" && route === "partner/apply") return partnerApply(req, res);
+    if (req.method === "POST" && route === "partner/withdraw") return partnerWithdraw(req, res);
     if (req.method === "GET" && route.startsWith("partner/")) return getPartner(req, res, part(route, 1));
 
     if (req.method === "POST" && route === "create-intasend-stk-push") return createStkPush(req, res);
@@ -30,28 +31,40 @@ export default async function handler(req, res) {
     if (req.method === "POST" && route === "claim-deposit") return claimDeposit(req, res);
     if (req.method === "POST" && route === "intasend-webhook") return intasendWebhook(req, res);
 
-    return res.status(404).json({ error: "Route not found." });
+    return res.status(404).json({ error: "API route not found." });
   } catch (error) {
-    return res.status(500).json({ error: error.message || "Server error." });
+    return res.status(500).json({
+      error: error.message || "Server error.",
+    });
   }
 }
 
 function getRoute(req) {
   const host = req.headers.host || "localhost";
-  const url = new URL(req.url, `https://${host}`);
-  return decodeURIComponent(url.pathname.replace(/^\/api\/?/, "").replace(/\/$/, ""));
+  const url = new URL(req.url || "/", `https://${host}`);
+
+  return decodeURIComponent(
+    url.pathname
+      .replace(/^\/api\/?/, "")
+      .replace(/\/$/, "")
+  );
 }
 
-function part(route, i) {
-  return decodeURIComponent(route.split("/")[i] || "");
+function part(route, index) {
+  return decodeURIComponent(route.split("/")[index] || "");
 }
 
 async function getDb() {
   if (!process.env.MONGODB_URI) {
     throw new Error("MongoDB is not configured yet.");
   }
-  if (!clientPromise) clientPromise = new MongoClient(process.env.MONGODB_URI).connect();
+
+  if (!clientPromise) {
+    clientPromise = new MongoClient(process.env.MONGODB_URI).connect();
+  }
+
   const client = await clientPromise;
+
   return client.db(process.env.MONGODB_DB || "metabinary");
 }
 
@@ -60,28 +73,47 @@ function normalizeEmail(email) {
 }
 
 function normalizePhone(phone) {
-  return String(phone || "").replace(/[^\d+]/g, "").replace(/^\+/, "");
+  return String(phone || "")
+    .replace(/[^\d+]/g, "")
+    .replace(/^\+/, "");
 }
 
 function normalizeKenyanPhone(phone) {
-  const digits = String(phone || "").replace(/[^\d+]/g, "").replace(/^\+/, "");
+  const digits = String(phone || "")
+    .replace(/[^\d+]/g, "")
+    .replace(/^\+/, "");
+
   if (/^0[17]\d{8}$/.test(digits)) return `254${digits.slice(1)}`;
   if (/^[17]\d{8}$/.test(digits)) return `254${digits}`;
+
   return digits;
 }
 
 function hashPassword(password) {
   const salt = crypto.randomBytes(16).toString("hex");
-  const hash = crypto.pbkdf2Sync(String(password), salt, iterations, keyLength, digest).toString("hex");
+
+  const hash = crypto
+    .pbkdf2Sync(String(password), salt, iterations, keyLength, digest)
+    .toString("hex");
+
   return `${iterations}:${salt}:${hash}`;
 }
 
 function verifyPassword(password, stored) {
   const [savedIterations, salt, savedHash] = String(stored || "").split(":");
+
   if (!savedIterations || !salt || !savedHash) return false;
-  const hash = crypto.pbkdf2Sync(String(password), salt, Number(savedIterations), keyLength, digest).toString("hex");
+
+  const hash = crypto
+    .pbkdf2Sync(String(password), salt, Number(savedIterations), keyLength, digest)
+    .toString("hex");
+
   if (hash.length !== savedHash.length) return false;
-  return crypto.timingSafeEqual(Buffer.from(hash, "hex"), Buffer.from(savedHash, "hex"));
+
+  return crypto.timingSafeEqual(
+    Buffer.from(hash, "hex"),
+    Buffer.from(savedHash, "hex")
+  );
 }
 
 function makeAccountId() {
@@ -132,42 +164,63 @@ async function register(req, res) {
   const body = req.body || {};
   const db = await getDb();
 
-  const user = {
-    accountId: makeAccountId(),
-    fullName: String(body.fullName || "").trim(),
-    email: normalizeEmail(body.email),
-    phone: normalizePhone(body.phone),
-    idNumber: String(body.idNumber || "").trim(),
-    country: String(body.country || "").trim(),
-    documentType: String(body.documentType || "").trim(),
-    passwordHash: hashPassword(String(body.password || "")),
-    referredBy: String(body.ref || "").trim(),
-    demoBalance: 10000,
-    realBalance: 0,
-    partnerBalance: 0,
-    createdAt: new Date().toISOString(),
-    updatedAt: new Date().toISOString(),
-  };
+  const fullName = String(body.fullName || "").trim();
+  const email = normalizeEmail(body.email);
+  const phone = normalizePhone(body.phone);
+  const idNumber = String(body.idNumber || "").trim();
+  const country = String(body.country || "").trim();
+  const documentType = String(body.documentType || "").trim();
+  const password = String(body.password || "");
+  const referredBy = String(body.ref || body.referredBy || "").trim();
 
-  if (!user.fullName || !user.email || !user.phone || !user.idNumber || !user.country || !user.documentType || !body.password) {
-    return res.status(400).json({ error: "Fill in all registration fields." });
+  if (!fullName || !email || !phone || !idNumber || !country || !documentType || !password) {
+    return res.status(400).json({
+      error: "Fill in all registration fields.",
+    });
   }
 
-  if (String(body.password).length < 6) {
-    return res.status(400).json({ error: "Password must be at least 6 characters." });
+  if (password.length < 6) {
+    return res.status(400).json({
+      error: "Password must be at least 6 characters.",
+    });
   }
 
   if (!body.agreed) {
-    return res.status(400).json({ error: "You must accept the agreement." });
+    return res.status(400).json({
+      error: "You must accept the agreement.",
+    });
   }
 
   await db.collection("users").createIndex({ accountId: 1 }, { unique: true });
   await db.collection("users").createIndex({ idNumber: 1 }, { unique: true });
+  await db.collection("users").createIndex({ email: 1 });
 
-  const existingId = await db.collection("users").findOne({ idNumber: user.idNumber });
+  const existingId = await db.collection("users").findOne({ idNumber });
+
   if (existingId) {
-    return res.status(409).json({ error: "This ID number already has an account." });
+    return res.status(409).json({
+      error: "This ID number already has an account.",
+    });
   }
+
+  const now = new Date().toISOString();
+
+  const user = {
+    accountId: makeAccountId(),
+    fullName,
+    email,
+    phone,
+    idNumber,
+    country,
+    documentType,
+    passwordHash: hashPassword(password),
+    referredBy,
+    demoBalance: 10000,
+    realBalance: 0,
+    partnerBalance: 0,
+    createdAt: now,
+    updatedAt: now,
+  };
 
   user.settings = defaultSettings(user);
 
@@ -181,30 +234,46 @@ async function register(req, res) {
 
 async function login(req, res) {
   const db = await getDb();
-  const identifier = String(req.body?.identifier || "").trim().toLowerCase();
+
+  const identifier = String(req.body?.identifier || req.body?.email || "")
+    .trim()
+    .toLowerCase();
+
   const password = String(req.body?.password || "");
 
   if (!identifier || !password) {
-    return res.status(400).json({ error: "Enter Email/Account ID and password." });
+    return res.status(400).json({
+      error: "Enter Email/Account ID and password.",
+    });
   }
 
-  const users = await db.collection("users").find({
-    $or: [
-      { email: normalizeEmail(identifier) },
-      { accountId: identifier.toUpperCase() },
-      { accountId: identifier },
-    ],
-  }).sort({ createdAt: -1 }).toArray();
+  const users = await db
+    .collection("users")
+    .find({
+      $or: [
+        { email: normalizeEmail(identifier) },
+        { accountId: identifier.toUpperCase() },
+        { accountId: identifier },
+      ],
+    })
+    .sort({ createdAt: -1 })
+    .toArray();
 
-  const user = users.find((u) => verifyPassword(password, u.passwordHash));
+  const user = users.find((item) => verifyPassword(password, item.passwordHash));
 
   if (!user) {
-    return res.status(401).json({ error: "Email/Account ID or password is incorrect." });
+    return res.status(401).json({
+      error: "Email/Account ID or password is incorrect.",
+    });
   }
 
   await db.collection("users").updateOne(
     { _id: user._id },
-    { $set: { lastLoginAt: new Date().toISOString() } }
+    {
+      $set: {
+        lastLoginAt: new Date().toISOString(),
+      },
+    }
   );
 
   return res.status(200).json({
@@ -221,18 +290,35 @@ async function resetPassword(req, res) {
 
 async function getUser(req, res, emailParam) {
   const db = await getDb();
-  const user = await db.collection("users").findOne({ email: normalizeEmail(emailParam) });
-  if (!user) return res.status(404).json({ error: "Account not found." });
-  return res.status(200).json({ user: publicUser(user) });
+  const email = normalizeEmail(emailParam);
+
+  const user = await db.collection("users").findOne({ email });
+
+  if (!user) {
+    return res.status(404).json({
+      error: "Account not found.",
+    });
+  }
+
+  return res.status(200).json({
+    user: publicUser(user),
+  });
 }
 
 async function saveSettings(req, res, emailParam) {
   const db = await getDb();
   const email = normalizeEmail(emailParam);
+
   const current = await db.collection("users").findOne({ email });
-  if (!current) return res.status(404).json({ error: "Account not found." });
+
+  if (!current) {
+    return res.status(404).json({
+      error: "Account not found.",
+    });
+  }
 
   const incoming = req.body?.settings || {};
+
   const settings = {
     ...defaultSettings(current),
     profileName: String(incoming.profileName || current.fullName || "").trim(),
@@ -240,7 +326,9 @@ async function saveSettings(req, res, emailParam) {
     depositPhone: String(incoming.depositPhone || "").trim(),
     withdrawalPhone: String(incoming.withdrawalPhone || "").trim(),
     theme: incoming.theme === "light" ? "light" : "dark",
-    chartSpeed: ["slow", "normal", "fast"].includes(incoming.chartSpeed) ? incoming.chartSpeed : "normal",
+    chartSpeed: ["slow", "normal", "fast"].includes(incoming.chartSpeed)
+      ? incoming.chartSpeed
+      : "normal",
     realTradingEnabled: Boolean(incoming.realTradingEnabled),
     maximumStakeLimit: Math.max(0.3, Number(incoming.maximumStakeLimit) || 100),
     dailyTradeLimit: Math.max(1, Number(incoming.dailyTradeLimit) || 25),
@@ -259,7 +347,13 @@ async function saveSettings(req, res, emailParam) {
     update.passwordHash = hashPassword(String(req.body.newPassword));
   }
 
-  await db.collection("users").updateOne({ email }, { $set: update });
+  await db.collection("users").updateOne(
+    { email },
+    {
+      $set: update,
+    }
+  );
+
   const updated = await db.collection("users").findOne({ email });
 
   return res.status(200).json({
@@ -270,13 +364,18 @@ async function saveSettings(req, res, emailParam) {
 
 async function getTransactions(req, res, emailParam) {
   const db = await getDb();
-  const transactions = await db.collection("transactions")
-    .find({ email: normalizeEmail(emailParam) })
+  const email = normalizeEmail(emailParam);
+
+  const transactions = await db
+    .collection("transactions")
+    .find({ email })
     .sort({ createdAt: -1 })
     .limit(100)
     .toArray();
 
-  return res.status(200).json({ transactions });
+  return res.status(200).json({
+    transactions,
+  });
 }
 
 async function withdraw(req, res) {
@@ -287,22 +386,50 @@ async function withdraw(req, res) {
   const phone = normalizePhone(req.body?.phone);
 
   if (!email || !phone || !Number.isFinite(amount)) {
-    return res.status(400).json({ error: "Withdrawal email, phone, and amount are required." });
+    return res.status(400).json({
+      error: "Withdrawal email, phone, and amount are required.",
+    });
   }
-  if (amount < 5) return res.status(400).json({ error: "Minimum withdrawal is 5 USD." });
-  if (amount > 150000) return res.status(400).json({ error: "Maximum withdrawal is 150000 USD." });
+
+  if (amount < 5) {
+    return res.status(400).json({
+      error: "Minimum withdrawal is 5 USD.",
+    });
+  }
+
+  if (amount > 150000) {
+    return res.status(400).json({
+      error: "Maximum withdrawal is 150000 USD.",
+    });
+  }
 
   const user = await db.collection("users").findOne({ email });
-  if (!user) return res.status(404).json({ error: "Account not found." });
-  if (Number(user.realBalance || 0) < amount) {
-    return res.status(400).json({ error: "Real balance is not enough." });
+
+  if (!user) {
+    return res.status(404).json({
+      error: "Account not found.",
+    });
   }
 
-  const balanceAfter = Number((Number(user.realBalance) - amount).toFixed(2));
+  if (Number(user.realBalance || 0) < amount) {
+    return res.status(400).json({
+      error: "Real balance is not enough.",
+    });
+  }
+
+  const balanceAfter = Number((Number(user.realBalance || 0) - amount).toFixed(2));
+  const createdAt = new Date().toISOString();
 
   await db.collection("users").updateOne(
     { email },
-    { $inc: { realBalance: -amount }, $set: { updatedAt: new Date().toISOString() } }
+    {
+      $inc: {
+        realBalance: -amount,
+      },
+      $set: {
+        updatedAt: createdAt,
+      },
+    }
   );
 
   const transaction = {
@@ -314,10 +441,12 @@ async function withdraw(req, res) {
     accountType: "Real",
     balanceAfter,
     reference: makeRef("wd"),
-    createdAt: new Date().toISOString(),
+    createdAt,
   };
 
   await db.collection("transactions").insertOne(transaction);
+  await db.collection("withdrawals").insertOne(transaction);
+
   const updated = await db.collection("users").findOne({ email });
 
   return res.status(200).json({
@@ -337,7 +466,12 @@ async function recordTrade(req, res) {
   const accountType = req.body?.accountType === "Real" ? "Real" : "Demo";
 
   const user = await db.collection("users").findOne({ email });
-  if (!user) return res.status(404).json({ error: "Account not found." });
+
+  if (!user) {
+    return res.status(404).json({
+      error: "Account not found.",
+    });
+  }
 
   const txn = {
     email,
@@ -366,6 +500,7 @@ async function recordTrade(req, res) {
 
   if (accountType === "Real" && user.referredBy && profit < 0) {
     const commission = Number((Math.abs(profit) * 0.05).toFixed(2));
+
     await db.collection("commissions").insertOne({
       partnerId: user.referredBy,
       referralEmail: email,
@@ -374,35 +509,64 @@ async function recordTrade(req, res) {
       source: "real-trade",
       createdAt: new Date().toISOString(),
     });
+
+    await db.collection("users").updateOne(
+      { partnerId: user.referredBy },
+      {
+        $inc: {
+          partnerBalance: commission,
+        },
+      }
+    );
   }
 
-  return res.status(200).json({ transaction: txn });
+  return res.status(200).json({
+    transaction: txn,
+  });
 }
 
 async function partnerApply(req, res) {
   const db = await getDb();
   const email = normalizeEmail(req.body?.email);
+
   const user = await db.collection("users").findOne({ email });
-  if (!user) return res.status(404).json({ error: "Account not found." });
+
+  if (!user) {
+    return res.status(404).json({
+      error: "Account not found.",
+    });
+  }
 
   const partnerId = user.partnerId || makeRef("partner").replace(/-/g, "").toUpperCase();
   const origin = req.headers.origin || `https://${req.headers.host || "metabinary-cewf.vercel.app"}`;
+
   const partner = {
     partnerId,
     email,
     referralLink: `${origin}/register?ref=${partnerId}`,
     createdAt: user.partnerCreatedAt || new Date().toISOString(),
+    status: "active",
   };
 
   await db.collection("users").updateOne(
     { email },
-    { $set: { partnerId, partnerCreatedAt: partner.createdAt, updatedAt: new Date().toISOString() } }
+    {
+      $set: {
+        partnerId,
+        partnerCreatedAt: partner.createdAt,
+        updatedAt: new Date().toISOString(),
+      },
+    }
   );
 
   await db.collection("partners").updateOne(
     { partnerId },
-    { $set: partner },
-    { upsert: true }
+    {
+      $set: partner,
+    },
+    {
+      upsert: true,
+    }
   );
 
   return res.status(200).json({
@@ -414,52 +578,175 @@ async function partnerApply(req, res) {
 async function getPartner(req, res, emailParam) {
   const db = await getDb();
   const email = normalizeEmail(emailParam);
+
   const user = await db.collection("users").findOne({ email });
-  if (!user?.partnerId) return res.status(404).json({ error: "Partner account not found." });
 
-  const partner = await db.collection("partners").findOne({ partnerId: user.partnerId });
-  const referrals = await db.collection("users").find({ referredBy: user.partnerId }).toArray();
-  const referralEmails = referrals.map((u) => u.email);
+  if (!user?.partnerId) {
+    return res.status(404).json({
+      error: "Partner account not found.",
+    });
+  }
 
-  const transactions = await db.collection("transactions")
-    .find({ email: { $in: referralEmails } })
+  const partner = await db.collection("partners").findOne({
+    partnerId: user.partnerId,
+  });
+
+  const referrals = await db
+    .collection("users")
+    .find({
+      referredBy: user.partnerId,
+    })
     .toArray();
 
-  const commissions = await db.collection("commissions")
-    .find({ partnerId: user.partnerId })
+  const referralEmails = referrals.map((item) => item.email);
+
+  const transactions = await db
+    .collection("transactions")
+    .find({
+      email: {
+        $in: referralEmails,
+      },
+    })
+    .toArray();
+
+  const commissions = await db
+    .collection("commissions")
+    .find({
+      partnerId: user.partnerId,
+    })
     .toArray();
 
   return res.status(200).json({
     partner,
     stats: {
       totalReferredUsers: referrals.length,
-      activeRealTraders: new Set(transactions.filter((t) => t.accountType === "Real").map((t) => t.email)).size,
-      totalRealDeposits: sum(transactions.filter((t) => t.type === "deposit").map((t) => t.amount)),
-      totalRealTradeVolume: sum(transactions.filter((t) => t.type === "trade").map((t) => t.amount)),
-      totalCommissionEarned: sum(commissions.map((c) => c.amount)),
-      pendingCommission: sum(commissions.filter((c) => c.status === "pending").map((c) => c.amount)),
-      paidCommission: sum(commissions.filter((c) => c.status === "paid").map((c) => c.amount)),
+      activeRealTraders: new Set(
+        transactions
+          .filter((item) => item.accountType === "Real")
+          .map((item) => item.email)
+      ).size,
+      totalRealDeposits: sum(
+        transactions
+          .filter((item) => item.type === "deposit")
+          .map((item) => item.amount)
+      ),
+      totalRealTradeVolume: sum(
+        transactions
+          .filter((item) => item.type === "trade")
+          .map((item) => item.amount)
+      ),
+      totalCommissionEarned: sum(commissions.map((item) => item.amount)),
+      pendingCommission: sum(
+        commissions
+          .filter((item) => item.status === "pending")
+          .map((item) => item.amount)
+      ),
+      paidCommission: sum(
+        commissions
+          .filter((item) => item.status === "paid")
+          .map((item) => item.amount)
+      ),
     },
   });
 }
 
+async function partnerWithdraw(req, res) {
+  const db = await getDb();
+
+  const email = normalizeEmail(req.body?.email);
+  const amount = Number(req.body?.amount || 0);
+  const phone = normalizePhone(req.body?.phone);
+
+  const user = await db.collection("users").findOne({ email });
+
+  if (!user?.partnerId) {
+    return res.status(404).json({
+      error: "Partner account not found.",
+    });
+  }
+
+  if (amount < 5) {
+    return res.status(400).json({
+      error: "Minimum partner withdrawal is 5 USD.",
+    });
+  }
+
+  if (Number(user.partnerBalance || 0) < amount) {
+    return res.status(400).json({
+      error: "Partner balance is not enough.",
+    });
+  }
+
+  const balanceAfter = Number((Number(user.partnerBalance || 0) - amount).toFixed(2));
+  const createdAt = new Date().toISOString();
+
+  await db.collection("users").updateOne(
+    { email },
+    {
+      $inc: {
+        partnerBalance: -amount,
+      },
+      $set: {
+        updatedAt: createdAt,
+      },
+    }
+  );
+
+  const transaction = {
+    email,
+    partnerId: user.partnerId,
+    type: "partner-withdrawal",
+    amount,
+    phone,
+    status: "pending",
+    accountType: "Partner",
+    balanceAfter,
+    reference: makeRef("pwd"),
+    createdAt,
+  };
+
+  await db.collection("transactions").insertOne(transaction);
+
+  return res.status(200).json({
+    transaction,
+    message: "Partner withdrawal request created.",
+  });
+}
+
 async function createStkPush(req, res) {
-  const secretKey = process.env.INTASEND_SECRET_KEY || process.env.INTASEND_PRIVATE_KEY || process.env.INTASEND_TOKEN;
-  const publicKey = process.env.INTASEND_PUBLISHABLE_KEY || process.env.INTASEND_PUBLIC_KEY;
+  const secretKey =
+    process.env.INTASEND_SECRET_KEY ||
+    process.env.INTASEND_PRIVATE_KEY ||
+    process.env.INTASEND_TOKEN;
+
+  const publicKey =
+    process.env.INTASEND_PUBLISHABLE_KEY ||
+    process.env.INTASEND_PUBLIC_KEY;
 
   if (!secretKey || !publicKey) {
-    return res.status(500).json({ error: "IntaSend keys are missing." });
+    return res.status(500).json({
+      error: "IntaSend keys are missing.",
+    });
   }
 
   const body = req.body || {};
+
   const amount = Number(body.amount || 0);
   const usdAmount = Number(body.usd_amount || 0);
   const accountId = String(body.account_id || "").trim();
   const email = normalizeEmail(body.email);
-  const phone_number = normalizeKenyanPhone(body.phone_number);
+  const phoneNumber = normalizeKenyanPhone(body.phone_number);
 
   if (amount < 10 || usdAmount <= 0) {
-    return res.status(400).json({ error: "Invalid deposit amount." });
+    return res.status(400).json({
+      error: "Invalid deposit amount.",
+    });
+  }
+
+  if (!/^254[17]\d{8}$/.test(phoneNumber)) {
+    return res.status(400).json({
+      error: "Use phone format 0712345678 or 254712345678.",
+    });
   }
 
   const apiRef = `stk-${Date.now()}`;
@@ -470,7 +757,7 @@ async function createStkPush(req, res) {
     public_key: publicKey,
     amount,
     currency: "KES",
-    phone_number,
+    phone_number: phoneNumber,
     email,
     api_ref: apiRef,
     comment: "MetaBinary deposit",
@@ -481,7 +768,7 @@ async function createStkPush(req, res) {
     host: req.headers.host,
   };
 
-  const response = await fetch("https://payment.intasend.com/api/v1/payment/mpesa-stk-push/", {
+  const intasendResponse = await fetch("https://payment.intasend.com/api/v1/payment/mpesa-stk-push/", {
     method: "POST",
     headers: {
       Authorization: `Bearer ${secretKey}`,
@@ -490,24 +777,27 @@ async function createStkPush(req, res) {
     body: JSON.stringify(payload),
   });
 
-  const data = await response.json().catch(() => ({}));
+  const data = await intasendResponse.json().catch(() => ({}));
 
-  if (!response.ok) {
-    return res.status(response.status).json({
+  if (!intasendResponse.ok) {
+    return res.status(intasendResponse.status).json({
       error: data.detail || data.error || data.message || "Failed to start STK push.",
+      details: data,
     });
   }
 
   const db = await getDb();
+
   await db.collection("deposits").insertOne({
     apiRef,
     accountId,
     email,
-    phone_number,
+    phoneNumber,
     kesAmount: amount,
     usdAmount,
     status: "pending",
     credited: false,
+    intasend: data,
     createdAt: new Date(),
     updatedAt: new Date(),
   });
@@ -522,9 +812,24 @@ async function createStkPush(req, res) {
 
 async function depositStatus(req, res) {
   const apiRef = String(req.query?.api_ref || "").trim();
+
+  if (!apiRef) {
+    return res.status(400).json({
+      error: "Missing deposit reference.",
+    });
+  }
+
   const db = await getDb();
-  const deposit = await db.collection("deposits").findOne({ apiRef });
-  if (!deposit) return res.status(404).json({ error: "Deposit not found." });
+
+  const deposit = await db.collection("deposits").findOne({
+    apiRef,
+  });
+
+  if (!deposit) {
+    return res.status(404).json({
+      error: "Deposit not found.",
+    });
+  }
 
   return res.status(200).json({
     api_ref: deposit.apiRef,
@@ -538,8 +843,15 @@ async function depositStatus(req, res) {
 
 async function claimDeposit(req, res) {
   const db = await getDb();
+
   const apiRef = String(req.body?.api_ref || "").trim();
   const accountId = String(req.body?.account_id || "").trim();
+
+  if (!apiRef || !accountId) {
+    return res.status(400).json({
+      error: "Missing deposit reference or account.",
+    });
+  }
 
   const deposit = await db.collection("deposits").findOne({
     apiRef,
@@ -548,11 +860,22 @@ async function claimDeposit(req, res) {
   });
 
   if (!deposit) {
-    return res.status(409).json({ error: "Deposit is not confirmed yet." });
+    return res.status(409).json({
+      error: "Deposit is not confirmed yet.",
+    });
+  }
+
+  const user = await db.collection("users").findOne({
+    accountId,
+  });
+
+  if (!user) {
+    return res.status(404).json({
+      error: "Account not found.",
+    });
   }
 
   if (deposit.credited) {
-    const user = await db.collection("users").findOne({ accountId });
     return res.status(200).json({
       api_ref: apiRef,
       credited: true,
@@ -562,25 +885,34 @@ async function claimDeposit(req, res) {
     });
   }
 
-  const user = await db.collection("users").findOne({ accountId });
-  if (!user) return res.status(404).json({ error: "Account not found." });
-
   const newBalance = Number((Number(user.realBalance || 0) + Number(deposit.usdAmount || 0)).toFixed(2));
 
   await db.collection("users").updateOne(
     { accountId },
-    { $set: { realBalance: newBalance, updatedAt: new Date().toISOString() } }
+    {
+      $set: {
+        realBalance: newBalance,
+        updatedAt: new Date().toISOString(),
+      },
+    }
   );
 
   await db.collection("deposits").updateOne(
     { apiRef },
-    { $set: { credited: true, creditedAt: new Date(), updatedAt: new Date() } }
+    {
+      $set: {
+        credited: true,
+        creditedAt: new Date(),
+        updatedAt: new Date(),
+      },
+    }
   );
 
   await db.collection("transactions").insertOne({
     email: user.email,
     type: "deposit",
     amount: Number(deposit.usdAmount || 0),
+    kesAmount: Number(deposit.kesAmount || 0),
     status: "completed",
     accountType: "Real",
     balanceAfter: newBalance,
@@ -588,7 +920,9 @@ async function claimDeposit(req, res) {
     createdAt: new Date().toISOString(),
   });
 
-  const updated = await db.collection("users").findOne({ accountId });
+  const updated = await db.collection("users").findOne({
+    accountId,
+  });
 
   return res.status(200).json({
     api_ref: apiRef,
@@ -602,11 +936,13 @@ async function claimDeposit(req, res) {
 async function intasendWebhook(req, res) {
   const db = await getDb();
   const payload = req.body || {};
+
   const apiRef =
     payload?.api_ref ||
     payload?.apiRef ||
     payload?.invoice?.api_ref ||
     payload?.data?.api_ref ||
+    payload?.payment?.api_ref ||
     "";
 
   const status =
@@ -615,29 +951,45 @@ async function intasendWebhook(req, res) {
     payload?.invoice?.state ||
     payload?.invoice?.status ||
     payload?.data?.status ||
+    payload?.payment?.status ||
     "";
 
-  if (!apiRef) return res.status(400).json({ error: "Missing api_ref." });
+  if (!apiRef) {
+    return res.status(400).json({
+      error: "Missing api_ref.",
+    });
+  }
+
+  const completed = isPaid(status);
 
   await db.collection("deposits").updateOne(
     { apiRef },
     {
       $set: {
-        status: isPaid(status) ? "completed" : String(status || "pending"),
+        status: completed ? "completed" : String(status || "pending"),
         webhookPayload: payload,
         updatedAt: new Date(),
       },
     }
   );
 
-  return res.status(200).json({ received: true, api_ref: apiRef, status });
+  return res.status(200).json({
+    received: true,
+    api_ref: apiRef,
+    status: completed ? "completed" : status,
+  });
 }
 
 function isPaid(status) {
-  const s = String(status || "").toLowerCase();
-  return ["completed", "complete", "success", "successful", "confirmed", "paid"].some((x) => s.includes(x));
+  const text = String(status || "").toLowerCase();
+
+  return ["completed", "complete", "success", "successful", "confirmed", "paid"].some((word) =>
+    text.includes(word)
+  );
 }
 
-function sum(arr) {
-  return Number(arr.reduce((a, b) => a + Number(b || 0), 0).toFixed(2));
+function sum(values) {
+  return Number(
+    values.reduce((total, value) => total + Number(value || 0), 0).toFixed(2)
+  );
 }
