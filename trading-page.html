@@ -3,8 +3,8 @@
   <head>
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1" />
-    <title>Volatility Trade</title>
-    <link rel="stylesheet" href="./trading-page.css" />
+    <title>MetaBinary Trading Platform</title>
+    <link rel="stylesheet" href="./trading-page.css?v=7" />
   </head>
   <body>
     <main class="phone-page">
@@ -84,7 +84,6 @@
               <p id="marketDescription">884.50 - 0.12 (0.01%)</p>
             </div>
           </div>
-
         </div>
 
         <div class="digit-chart-card">
@@ -102,6 +101,8 @@
           <button class="trade-type selected" type="button" data-trade-type="Even/Odd">Even/Odd</button>
           <button class="trade-type" type="button" data-trade-type="Matches/Differs">Matches/Differs</button>
           <button class="trade-type" type="button" data-trade-type="Over/Under">Over/Under</button>
+          <button class="trade-type" type="button" data-trade-type="Rise/Fall">Rise/Fall</button>
+          <button class="trade-type" type="button" data-trade-type="Touch/No Touch">Touch/No Touch</button>
         </div>
 
         <div class="contract-panel">
@@ -118,7 +119,7 @@
           <div class="input-grid">
             <label>
               <span>Stake</span>
-              <input id="stakeInput" type="number" min="1" step="1" value="5" />
+              <input id="stakeInput" type="number" min="0.3" step="0.1" value="0.3" />
             </label>
             <label>
               <span>Ticks</span>
@@ -126,7 +127,8 @@
             </label>
           </div>
           <div class="action-row">
-            <button class="sell-button" id="sellButton" type="button">Reset</button>
+            <button class="buy-button" id="buyButton" type="button">Place Trade</button>
+            <button class="sell-button" id="sellButton" type="button">Clear Trades / Reset</button>
           </div>
           <p class="trade-status" id="tradeStatus">Ready to trade on Volatility 100 (1s) Index.</p>
         </div>
@@ -288,6 +290,7 @@
                         <option>Even/Odd</option>
                         <option>Over/Under</option>
                         <option>Matches/Differs</option>
+                        <option>Touch/No Touch</option>
                       </select>
                     </label>
                     <label>
@@ -681,6 +684,6 @@
       </div>
     </main>
 
-    <script type="module" src="./trading-page.js"></script>
+    <script type="module" src="./trading-page.js?v=7"></script>
   </body>
 </html>
