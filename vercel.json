@@ -8,10 +8,6 @@
       "destination": "/index.html"
     },
     {
-      "source": "/login",
-      "destination": "/index.html"
-    },
-    {
       "source": "/trading-page",
       "destination": "/trading-page.html"
     },
