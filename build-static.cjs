@@ -2,14 +2,20 @@ const fs = require("fs");
 const path = require("path");
 
 const root = __dirname;
-const target = path.join(root, "dist");
-const files = ["index.html", "trading-page.html", "trading-page.css", "trading-page.js"];
+const dist = path.join(root, "dist");
 
-fs.rmSync(target, { recursive: true, force: true });
-fs.mkdirSync(target, { recursive: true });
-
-for (const file of files) {
-  fs.copyFileSync(path.join(root, file), path.join(target, file));
+function copyFile(name) {
+  const from = path.join(root, name);
+  const to = path.join(dist, name);
+  if (fs.existsSync(from)) fs.copyFileSync(from, to);
 }
 
-console.log("Static trading page copied to dist.");
+fs.rmSync(dist, { recursive: true, force: true });
+fs.mkdirSync(dist, { recursive: true });
+
+copyFile("index.html");
+copyFile("trading-page.html");
+copyFile("trading-page.css");
+copyFile("trading-page.js");
+
+console.log("MetaBinary static files built into dist/");
