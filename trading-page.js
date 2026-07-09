@@ -46,6 +46,7 @@ const tradeChoices = {
   "Even/Odd": ["Even", "Odd"],
   "Matches/Differs": ["Matches", "Differs"],
   "Over/Under": ["Over", "Under"],
+  "Touch/No Touch": ["Touch", "No Touch"],
 };
 
 const hints = {
@@ -53,6 +54,7 @@ const hints = {
   "Even/Odd": "Choose Even or Odd",
   "Matches/Differs": "Choose Matches or Differs",
   "Over/Under": "Choose Over or Under",
+  "Touch/No Touch": "Choose Touch or No Touch",
 };
 
 const marketDescriptions = {
@@ -517,7 +519,7 @@ function renderDigitFrequency() {
       const flashClass = resultFlash?.digit === digit ? (resultFlash.won ? " win-flash" : " loss-flash") : "";
       const isSelected =
         (activeTrade === "Over/Under" && digit === activeBarrier) ||
-        (activeTrade === "Matches/Differs" && digit === activeTargetDigit);
+        ((activeTrade === "Matches/Differs" || activeTrade === "Touch/No Touch") && digit === activeTargetDigit);
       const className = `digit-ring${digit === lastDigit ? " current" : ""}${waiting ? " waiting" : ""}${
         isSelected ? " selected-digit" : ""
       }${flashClass}`;
@@ -571,6 +573,7 @@ function makePercentagesDistinct(values) {
 }
 
 function renderChoices() {
+  if (!tradeChoices[activeTrade]) activeTrade = "Even/Odd";
   const choices = tradeChoices[activeTrade];
   if (!choices.includes(activeChoice)) activeChoice = choices[0];
   choiceRow.innerHTML = tradeChoices[activeTrade]
@@ -583,7 +586,7 @@ function renderChoices() {
       const detail =
         activeTrade === "Over/Under"
           ? `${choice} ${activeBarrier}`
-          : activeTrade === "Matches/Differs"
+          : activeTrade === "Matches/Differs" || activeTrade === "Touch/No Touch"
             ? `${choice} ${activeTargetDigit}`
             : choice;
       const toneClass = choiceIndex === 0 ? " positive-choice" : " negative-choice";
@@ -606,14 +609,14 @@ function renderChoices() {
     })
     .join("");
   selectedTrade.textContent = activeTrade;
-  tradeHint.textContent = tradeHints[activeTrade];
+  tradeHint.textContent = hints[activeTrade] || "Choose a contract";
   renderDigitFrequency();
 }
 function getPayoutRate(trade = activeTrade, choice = activeChoice, barrier = activeBarrier, targetDigit = activeTargetDigit) {
   const winningCount = getWinningDigitCount(trade, choice, barrier, targetDigit);
   if (winningCount <= 0) return null;
   const probability = winningCount / 10;
-  const houseFactor = trade === "Matches/Differs" && choice === "Matches" ? 0.9 : 0.94;
+  const houseFactor = (trade === "Matches/Differs" && choice === "Matches") || (trade === "Touch/No Touch" && choice === "Touch") ? 0.9 : 0.94;
   return Math.max(1.03, Math.min(9.2, houseFactor / probability));
 }
 
@@ -621,6 +624,7 @@ function getWinningDigitCount(trade = activeTrade, choice = activeChoice, barrie
   if (trade === "Rise/Fall") return 5;
   if (trade === "Even/Odd") return 5;
   if (trade === "Matches/Differs") return choice === "Matches" ? 1 : 9;
+  if (trade === "Touch/No Touch") return choice === "Touch" ? 1 : 9;
   if (trade === "Over/Under") return choice === "Over" ? Math.max(0, 9 - barrier) : Math.max(0, barrier);
   return 0;
 }
@@ -644,7 +648,7 @@ function setTradeType(button) {
   activeChoice = tradeChoices[activeTrade][0];
   choiceTouched = false;
   if (activeTrade === "Over/Under") activeBarrier = activeChoice === "Over" ? 1 : 9;
-  if (activeTrade === "Matches/Differs") activeTargetDigit = lastDigit;
+  if (activeTrade === "Matches/Differs" || activeTrade === "Touch/No Touch") activeTargetDigit = lastDigit;
   renderChoices();
   tradeStatus.textContent = `${activeTrade} selected on ${marketLabels[activeMarket]}.`;
   saveState();
@@ -659,6 +663,11 @@ function getWinningDigits() {
   }
   if (activeTrade === "Matches/Differs") {
     return activeChoice === "Matches"
+      ? [activeTargetDigit]
+      : [0, 1, 2, 3, 4, 5, 6, 7, 8, 9].filter((digit) => digit !== activeTargetDigit);
+  }
+  if (activeTrade === "Touch/No Touch") {
+    return activeChoice === "Touch"
       ? [activeTargetDigit]
       : [0, 1, 2, 3, 4, 5, 6, 7, 8, 9].filter((digit) => digit !== activeTargetDigit);
   }
@@ -727,6 +736,9 @@ function tradeWins(tick, previous) {
   if (activeTrade === "Matches/Differs") {
     return activeChoice === "Matches" ? tick.digit === activeTargetDigit : tick.digit !== activeTargetDigit;
   }
+  if (activeTrade === "Touch/No Touch") {
+    return activeChoice === "Touch" ? tick.digit === activeTargetDigit : tick.digit !== activeTargetDigit;
+  }
   if (activeTrade === "Over/Under") {
     return activeChoice === "Over" ? tick.digit > activeBarrier : tick.digit < activeBarrier;
   }
@@ -760,8 +772,8 @@ function buyContract() {
     tradeStatus.textContent = `Stake is above your maximum limit of ${formatMoney(Number(userSettings.maximumStakeLimit || 100))}.`;
     return;
   }
-  if (!Number.isFinite(stake) || stake <= 0 || stake > currentWallet()) {
-    tradeStatus.textContent = "Enter a stake that is available in your balance.";
+  if (!Number.isFinite(stake) || stake < 0.3 || stake > currentWallet()) {
+    tradeStatus.textContent = "Enter a stake from 0.30 USD that is available in your balance.";
     return;
   }
 
@@ -1408,16 +1420,15 @@ choiceRow.addEventListener("click", (event) => {
   renderDigitFrequency();
   updatePayoutPreview();
   saveState();
-  buyContract();
 });
 
 digitFrequency.addEventListener("click", (event) => {
   const button = event.target.closest(".digit-ring");
   if (!button) return;
   const value = Number(button.dataset.digit);
-  if (activeTrade !== "Over/Under" && activeTrade !== "Matches/Differs") return;
+  if (activeTrade !== "Over/Under" && activeTrade !== "Matches/Differs" && activeTrade !== "Touch/No Touch") return;
   if (activeTrade === "Over/Under") activeBarrier = value;
-  if (activeTrade === "Matches/Differs") activeTargetDigit = value;
+  if (activeTrade === "Matches/Differs" || activeTrade === "Touch/No Touch") activeTargetDigit = value;
   renderDigitFrequency();
   updatePayoutPreview();
   tradeStatus.textContent =
@@ -1443,7 +1454,7 @@ marketSheet.addEventListener("click", (event) => {
   if (option) setMarket(option);
 });
 
-sellButton.addEventListener("click", resetWallet);
+sellButton.addEventListener("click", buyContract);
 
 tabButtons.forEach((button) => {
   button.addEventListener("click", () => {
@@ -2200,23 +2211,12 @@ withdrawForm.addEventListener("submit", async (event) => {
     renderTransactions();
     withdrawStatus.textContent = data.message || "Withdrawal pending. Estimated processing time: 1–3 business days.";
   } catch (error) {
-    realWallet = Number((realWallet - amount).toFixed(2));
-    const transaction = {
-      type: "withdrawal",
-      amount,
-      phone,
-      status: "pending",
-      accountType: "Real",
-      balanceAfter: realWallet,
-      reference: `local-wd-${Date.now()}`,
-      message: "Withdrawal pending. Estimated processing time: 1–3 business days.",
-    };
-    addLocalTransaction(transaction);
+    withdrawStatus.textContent = error.message || "Withdrawal request failed. Balance was not changed.";
+    try {
+      await refreshCurrentUser();
+    } catch {}
     renderAccount();
     renderTransactions();
-    withdrawStatus.textContent = isAccountServiceError(error.message)
-      ? transaction.message
-      : error.message;
   }
 });
 getStartedButton.addEventListener("click", () => openAuth("register"));
@@ -2469,11 +2469,11 @@ function startDepositAutoCheck() {
     if (!pendingDeposit?.apiRef || checkDeposit.disabled) return;
     depositCheckAttempts += 1;
     checkPendingDeposit({ silent: true });
-    if (depositCheckAttempts >= 15) {
+    if (depositCheckAttempts >= 80) {
       clearInterval(depositCheckTimer);
       depositCheckTimer = null;
     }
-  }, 8000);
+  }, 3000);
 }
 
 function stopDepositAutoCheck() {
@@ -2573,11 +2573,16 @@ async function checkPendingDeposit(options = {}) {
       pendingDeposit = null;
       stopDepositAutoCheck();
       checkDeposit.hidden = true;
-      try {
-        await refreshCurrentUser();
-      } catch {}
+      if (data.user) applyServerUser(data.user);
+      else {
+        try {
+          await refreshCurrentUser();
+        } catch {}
+      }
+      accountMode = "real";
+      renderAccount();
       saveState();
-      depositStatus.textContent = "This deposit was already credited. Balance refreshed.";
+      depositStatus.textContent = "Payment confirmed. Real balance refreshed.";
     } else {
       if (!options.silent) depositStatus.textContent = data.message || "Still waiting for M-Pesa confirmation.";
     }
