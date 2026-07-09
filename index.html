@@ -2,51 +2,637 @@
 <html lang="en">
 <head>
   <meta charset="utf-8" />
-  <meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover" />
+  <meta
+    name="viewport"
+    content="width=device-width,initial-scale=1,viewport-fit=cover"
+  />
   <title>MetaBinary Trading Platform</title>
-  <link rel="stylesheet" href="/trading-page.css?v=10" />
+  <link rel="stylesheet" href="/trading-page.css?v=11" />
 </head>
 <body>
-  <main class="app">
-    <header class="topbar">
-      <div class="brand"><span class="logo">M</span><div><strong>MetaBinary</strong><small>Digital options broker</small></div></div>
-      <div id="guestActions" class="guest-actions"><button id="getStartedButton" class="btn secondary" type="button">Get Started</button><button id="loginButton" class="btn primary" type="button">Login</button></div>
-      <div id="accountToolbar" class="account-toolbar" hidden><div class="switch"><button class="account-mode active" data-account-mode="demo" type="button">Demo</button><button class="account-mode" data-account-mode="real" type="button">Real</button></div><div class="wallet"><span id="accountLabel">Demo USD</span><b id="balance">$10000.00</b></div></div>
+  <div class="app-shell">
+    <!-- TOP HEADER -->
+    <header class="top-header">
+      <div class="top-header-inner">
+        <div class="left-head">
+          <button class="icon-btn mobile-only" id="menuButton" type="button">☰</button>
+          <button class="icon-btn mobile-only" id="refreshButton" type="button">↻</button>
+
+          <div class="brand-wrap">
+            <div class="brand-logo">M</div>
+            <div class="brand-text">
+              <h1>MetaBinary</h1>
+              <p>Digital options broker</p>
+            </div>
+          </div>
+        </div>
+
+        <div class="center-head">
+          <div class="guest-actions" id="guestActions">
+            <button class="ghost-btn" id="getStartedButton" type="button">Get Started</button>
+            <button class="primary-btn" id="loginButton" type="button">Login</button>
+          </div>
+
+          <div class="user-toolbar" id="accountToolbar" hidden>
+            <div class="currency-box">
+              <span>USD</span>
+            </div>
+
+            <div class="mode-switch">
+              <button class="mode-btn active" data-account-mode="demo" type="button">Demo</button>
+              <button class="mode-btn" data-account-mode="real" type="button">Real</button>
+            </div>
+
+            <div class="balance-box">
+              <small id="accountLabel">Demo USD</small>
+              <strong id="balance">$10000.00</strong>
+            </div>
+          </div>
+        </div>
+
+        <div class="right-head">
+          <button class="icon-btn" id="openMenuPanelButton" type="button">⌄</button>
+        </div>
+      </div>
     </header>
 
-    <nav class="tabs"><button class="active" data-tab="trade" type="button">Trade</button><button data-tab="charts" type="button">Charts</button><button data-tab="bot" type="button">Bot</button><button data-tab="copy" type="button">Copy</button><button data-tab="menu" type="button">Menu</button></nav>
+    <!-- TABS -->
+    <section class="top-tabs">
+      <button class="main-tab active" data-tab="bot" type="button">Bot Builder</button>
+      <button class="main-tab" data-tab="trade" type="button">Manual Trader</button>
+      <button class="main-tab" data-tab="bulk" type="button">Bulk Trader</button>
+      <button class="main-tab desktop-only" data-tab="menu" type="button">Menu</button>
+    </section>
 
-    <section id="tradePanel" class="panel active-panel">
-      <div class="trade-layout">
-        <div class="left-col">
-          <section class="card market-card"><div class="market-head"><div class="market-title"><span class="market-icon">M</span><div><h1 id="marketName">Volatility 100 (1s) Index</h1><p id="marketDescription">Live synthetic movement</p></div></div><button id="marketSelector" class="btn secondary" type="button">Change Market</button></div></section>
-          <section class="card chart-card"><div class="section-head"><div><h2>Market Chart</h2><p id="quoteText">396.12</p></div><div class="chart-controls"><button id="lineModeButton" class="active" type="button">Line</button><button id="candleModeButton" type="button">Candles</button></div></div><div class="speed-controls"><button class="active" data-speed="normal" type="button">Normal</button><button data-speed="fast" type="button">Fast</button><button data-speed="slow" type="button">Slow</button></div><div class="canvas-wrap"><canvas id="chartCanvas"></canvas></div><div class="ohlc"><span>Open <b id="chartOpenValue">0.00</b></span><span>High <b id="chartHighValue">0.00</b></span><span>Low <b id="chartLowValue">0.00</b></span><span>Close <b id="chartCloseValue">0.00</b></span></div></section>
-          <section class="card digit-card"><div class="section-head"><div><h2>Digit Arrangement</h2><p>Tap a number to select target/barrier. Red triangle shows the latest digit.</p></div><div class="quote-mini"><b id="digitQuote">396.12</b><small id="digitMove">+0.00</small></div></div><div class="digit-stage"><div id="digitCursor" class="digit-cursor"></div><div id="digitFrequency" class="digit-grid"></div></div><div class="legend"><span><i class="hi"></i>Highest</span><span><i class="lo"></i>Lowest</span><span><i class="tar"></i>Selected</span><span><i class="win"></i>Win</span><span><i class="loss"></i>Loss</span></div></section>
+    <!-- BOT PANEL -->
+    <section class="tab-panel active-panel" id="botPanel">
+      <div class="simple-card">
+        <div class="section-title-row">
+          <div>
+            <h2>Bot Builder</h2>
+            <p>Configure recovery, stop loss, take profit, and auto trading.</p>
+          </div>
         </div>
-        <div class="right-col">
-          <section class="card trade-card"><div class="section-head"><div><h2>Trade Type</h2><p>Tap a contract option to place the trade directly.</p></div><span class="live-dot"></span></div><div class="trade-type-grid"><button class="trade-type selected" data-trade-type="Even/Odd" type="button">Even/Odd</button><button class="trade-type" data-trade-type="Matches/Differs" type="button">Matches/Differs</button><button class="trade-type" data-trade-type="Over/Under" type="button">Over/Under</button><button class="trade-type" data-trade-type="Rise/Fall" type="button">Rise/Fall</button><button class="trade-type" data-trade-type="Touch/No Touch" type="button">Touch/No Touch</button></div><div class="contract-box"><div><strong id="selectedTrade">Even/Odd</strong><p id="tradeHint">Tap Even or Odd below to place a trade.</p></div><div class="payout"><span>Payout</span><b id="payoutQuote">$0.56 payout · $0.26 profit</b></div></div><div id="choiceRow" class="choice-row"></div><div class="input-card"><label>Stake <input id="stakeInput" type="number" min="0.3" max="5000" step="0.1" value="0.3" /></label><div class="quick"><button data-stake="0.3" type="button">$0.3</button><button data-stake="1" type="button">$1</button><button data-stake="5" type="button">$5</button><button data-stake="10" type="button">$10</button><button data-stake="25" type="button">$25</button></div><p>Min $0.30 · Max <b id="maxStakeLabel">$100.00</b></p></div><div class="input-card"><label>Ticks <input id="ticksInput" type="number" min="1" max="10" step="1" value="3" /></label><div class="quick"><button data-ticks="1" type="button">1</button><button data-ticks="2" type="button">2</button><button data-ticks="3" type="button">3</button><button data-ticks="5" type="button">5</button><button data-ticks="10" type="button">10</button></div><p id="targetText">Target digit: <b>2</b></p></div><p id="tradeStatus" class="status-text">Create an account and login to unlock Demo and Real trading.</p></section>
-          <section class="card"><div class="section-head"><div><h2>Open Trades</h2><p>Live trades waiting for result.</p></div><b id="openTradeCount" class="badge">0</b></div><div id="openTradesList" class="list"><p class="empty">No open trades.</p></div></section>
-          <section class="card"><div class="section-head"><div><h2>Recent Trades</h2><p>Win/loss settlement history.</p></div><b id="historyCount" class="badge">0</b></div><div id="historyList" class="list"><p class="empty">No trades yet.</p></div></section>
+
+        <div class="bot-grid">
+          <label>
+            Trade Type
+            <select id="botTradeType">
+              <option>Rise/Fall</option>
+              <option>Even/Odd</option>
+              <option>Over/Under</option>
+              <option>Matches/Differs</option>
+              <option>Touch/No Touch</option>
+            </select>
+          </label>
+
+          <label>
+            Base Stake
+            <input id="botStake" type="number" min="0.3" step="0.1" value="0.3" />
+          </label>
+
+          <label>
+            Ticks
+            <input id="botDuration" type="number" min="1" max="10" value="5" />
+          </label>
+
+          <label>
+            Direction
+            <select id="botDirection">
+              <option>Auto</option>
+              <option>Rise</option>
+              <option>Fall</option>
+              <option>Even</option>
+              <option>Odd</option>
+              <option>Over</option>
+              <option>Under</option>
+              <option>Matches</option>
+              <option>Differs</option>
+              <option>Touch</option>
+              <option>No Touch</option>
+            </select>
+          </label>
+
+          <label>
+            Barrier / Digit
+            <input id="botBarrier" type="number" min="0" max="9" value="5" />
+          </label>
+
+          <label>
+            Recovery
+            <select id="botRecovery">
+              <option>None</option>
+              <option>Martingale</option>
+            </select>
+          </label>
+
+          <label>
+            Multiplier
+            <input id="botMultiplier" type="number" min="1" step="0.1" value="2" />
+          </label>
+
+          <label>
+            Max Steps
+            <input id="botMaxSteps" type="number" min="1" max="12" value="6" />
+          </label>
+
+          <label>
+            Stop Loss
+            <input id="botStopLoss" type="number" min="0" step="0.1" value="5" />
+          </label>
+
+          <label>
+            Take Profit
+            <input id="botTakeProfit" type="number" min="0" step="0.1" value="5" />
+          </label>
+        </div>
+
+        <div class="bot-actions">
+          <button id="botRunButton" class="primary-btn" type="button">Run Bot</button>
+          <button id="botStopButton" class="danger-btn" type="button">Stop Bot</button>
+          <button id="botResetButton" class="ghost-btn" type="button">Reset Bot</button>
+        </div>
+
+        <div class="bot-stats">
+          <div><span>Net P/L</span><strong id="botNetProfit">$0.00</strong></div>
+          <div><span>Level</span><strong id="botLevel">0</strong></div>
+          <div><span>Next stake</span><strong id="botNextStake">$0.30</strong></div>
+          <div><span>Status</span><strong id="botBottomStatus">Bot is not running</strong></div>
+        </div>
+
+        <div id="botHistoryList" class="card-list">
+          <p class="empty-note">No bot trades yet.</p>
         </div>
       </div>
     </section>
 
-    <section id="chartsPanel" class="panel"><section class="card"><div class="section-head"><div><h2>Advanced Chart</h2><p>Line and candlestick movement view.</p></div></div><div class="canvas-wrap big"><canvas id="chartCanvasLarge"></canvas></div></section></section>
-    <section id="botPanel" class="panel"><section class="card"><div class="section-head"><div><h2>Bot Builder</h2><p>Martingale recovery, stop loss, take profit, and auto entries.</p></div></div><div class="form-grid"><label>Trade type <select id="botTradeType"><option>Rise/Fall</option><option>Even/Odd</option><option>Over/Under</option><option>Matches/Differs</option><option>Touch/No Touch</option></select></label><label>Base stake <input id="botStake" type="number" min="0.3" step="0.1" value="0.3" /></label><label>Ticks <input id="botDuration" type="number" min="1" max="10" value="3" /></label><label>Direction <select id="botDirection"><option>Auto</option><option>Rise</option><option>Fall</option><option>Even</option><option>Odd</option><option>Over</option><option>Under</option><option>Matches</option><option>Differs</option><option>Touch</option><option>No Touch</option></select></label><label>Barrier / Digit <input id="botBarrier" type="number" min="0" max="9" value="5" /></label><label>Recovery <select id="botRecovery"><option>None</option><option>Martingale</option></select></label><label>Multiplier <input id="botMultiplier" type="number" min="1" step="0.1" value="2" /></label><label>Max steps <input id="botMaxSteps" type="number" min="1" max="12" value="6" /></label><label>Stop loss <input id="botStopLoss" type="number" min="0" step="0.1" value="5" /></label><label>Take profit <input id="botTakeProfit" type="number" min="0" step="0.1" value="5" /></label></div><div class="actions"><button id="botRunButton" class="btn primary" type="button">Run Bot</button><button id="botStopButton" class="btn danger" type="button">Stop Bot</button><button id="botResetButton" class="btn secondary" type="button">Reset Bot</button></div><div class="stats"><div><span>Net P/L</span><b id="botNetProfit">$0.00</b></div><div><span>Level</span><b id="botLevel">0</b></div><div><span>Next stake</span><b id="botNextStake">$0.30</b></div><div><span>Status</span><b id="botBottomStatus">Bot is not running</b></div></div><div id="botHistoryList" class="list"><p class="empty">No bot trades yet.</p></div></section></section>
-    <section id="copyPanel" class="panel"><section class="card"><div class="section-head"><div><h2>Copy Trading</h2><p>Professional sample strategy cards.</p></div></div><div class="copy-grid"><article><h3>Momentum Scalper</h3><p>Fast short-duration synthetic setups.</p><button class="btn primary">Follow</button></article><article><h3>Volatility Sniper</h3><p>Looks for strong volatility bursts.</p><button class="btn primary">Follow</button></article><article><h3>Digit Flow Pro</h3><p>Digit frequency based strategy.</p><button class="btn primary">Follow</button></article></div></section></section>
-    <section id="menuPanel" class="panel"><section class="card"><div class="section-head"><div><h2>Account Menu</h2><p>Deposit, withdraw, settings, partner, and history.</p></div></div><div class="menu-grid"><button id="depositButton" class="menu-btn">Deposit</button><button id="withdrawButton" class="menu-btn">Withdraw</button><button id="transactionsMenuButton" class="menu-btn">Transactions</button><button id="settingsMenuButton" class="menu-btn">Settings</button><button id="partnerMenuButton" class="menu-btn">Partner / Referral</button><button id="logoutButton" class="menu-btn">Logout</button></div><div class="summary"><div><span>Name</span><b id="summaryName">Guest</b></div><div><span>Email</span><b id="summaryEmail">-</b></div><div><span>Phone</span><b id="summaryPhone">-</b></div><div><span>Real account ID</span><b id="summaryAccountId">-</b></div><div><span>Status</span><b id="summaryStatus">Guest</b></div></div></section></section>
+    <!-- TRADE PANEL -->
+    <section class="tab-panel" id="tradePanel">
+      <div class="trade-layout">
+        <!-- LEFT / CENTER AREA -->
+        <div class="trade-left">
+          <div class="market-card">
+            <div class="market-card-left">
+              <div class="market-icon-box">100</div>
+              <div class="market-text">
+                <h2 id="marketName">Volatility 100 (1s) Index</h2>
+                <p><span id="quoteText">396.12</span> <span id="marketMoveText">+0.00 (0.00%)</span></p>
+              </div>
+            </div>
+            <button id="marketSelector" class="market-drop-btn" type="button">⌄</button>
+          </div>
 
-    <div id="toastStack" class="toast-stack"></div><button id="aiFloatButton" class="ai-float" type="button" hidden>AI</button>
+          <div class="chart-digits-wrap">
+            <!-- LEFT TOOLBAR LIKE SCREENSHOT -->
+            <div class="chart-tools desktop-only">
+              <button type="button">📈</button>
+              <button type="button">🕯</button>
+              <button type="button">✏</button>
+              <button type="button">⬇</button>
+            </div>
 
-    <div id="marketSheet" class="sheet"><div class="dialog"><div class="dialog-head"><h2>Select Market</h2><button id="closeMarket" class="btn secondary">Close</button></div><div class="market-list"><button class="market-option active" data-market="Meta Volatility 100">Volatility 100 (1s) Index</button><button class="market-option" data-market="Meta Volatility 75">Volatility 75 (1s) Index</button><button class="market-option" data-market="Meta Volatility 50">Volatility 50 (1s) Index</button><button class="market-option" data-market="Meta Volatility 25">Volatility 25 (1s) Index</button><button class="market-option" data-market="Meta Volatility 10">Volatility 10 (1s) Index</button></div></div></div>
-    <div id="authSheet" class="sheet"><div class="dialog"><div class="dialog-head"><h2 id="authTitle">Create Account</h2><button id="closeAuth" class="btn secondary">Close</button></div><div class="auth-tabs"><button id="registerTab" class="active">Register</button><button id="loginTab">Login</button></div><form id="registerForm" class="auth-form active-auth-form"><label>Full name <input id="registerName" required /></label><label>Email <input id="registerEmail" type="email" required /></label><label>Phone number <input id="registerPhone" required /></label><label>ID number <input id="registerIdNumber" required /></label><label>Country <select id="registerCountry" required><option value="">Select country</option><option>Kenya</option><option>Uganda</option><option>Tanzania</option><option>Rwanda</option><option>South Africa</option><option>Other</option></select></label><label>ID document <select id="registerDocument" required><option value="">Select document</option><option>National ID</option><option>Passport</option><option>Driving Licence</option></select></label><label>Password <input id="registerPassword" type="password" minlength="6" required /></label><label>Confirm password <input id="registerPasswordConfirm" type="password" minlength="6" required /></label><label class="check"><input id="registerAgreement" type="checkbox" required /> <span>I confirm I am 18+ and agree with the terms, responsible trading, and risk disclosure.</span></label><button class="btn primary full" type="submit">Create Account</button></form><form id="loginForm" class="auth-form"><label>Email or Account ID <input id="loginIdentifier" required /></label><label>Password <input id="loginPassword" type="password" required /></label><button class="btn primary full" type="submit">Login</button><button id="forgotPasswordButton" class="btn secondary full" type="button">Reset Password</button></form><p id="authStatus" class="modal-status">Create an account to unlock Demo and Real trading.</p></div></div>
-    <div id="depositSheet" class="sheet"><form id="depositForm" class="dialog"><div class="dialog-head"><h2>Deposit</h2><button id="closeDeposit" class="btn secondary" type="button">Close</button></div><label>Amount USD <input id="depositAmount" type="number" min="1" step="1" value="1" required /></label><div class="info"><span>M-Pesa amount</span><b id="mpesaAmount">KSh 130</b></div><label>M-Pesa phone <input id="depositPhone" required /></label><label>Email <input id="depositEmail" type="email" /></label><button id="depositSubmit" class="btn primary full" type="submit">Send STK Push</button><button id="checkDeposit" class="btn secondary full" type="button" hidden>Check payment status</button><p id="depositStatus" class="modal-status">Enter deposit details.</p></form></div>
-    <div id="withdrawSheet" class="sheet"><form id="withdrawForm" class="dialog"><div class="dialog-head"><h2>Withdraw</h2><button id="closeWithdraw" class="btn secondary" type="button">Close</button></div><label>Amount USD <input id="withdrawAmount" type="number" min="5" max="150000" value="5" required /></label><label>M-Pesa phone <input id="withdrawPhone" required /></label><button class="btn primary full" type="submit">Request Withdrawal</button><p id="withdrawStatus" class="modal-status">Withdrawals use real balance only.</p></form></div>
-    <div id="transactionsSheet" class="sheet"><div class="dialog wide"><div class="dialog-head"><h2>Transactions</h2><button id="closeTransactions" class="btn secondary">Close</button></div><div id="transactionList" class="list"><p class="empty">No transactions yet.</p></div></div></div>
-    <div id="settingsSheet" class="sheet"><form id="settingsForm" class="dialog wide"><div class="dialog-head"><h2>Settings</h2><button id="closeSettings" class="btn secondary" type="button">Close</button></div><div class="form-grid"><label>Profile name <input id="settingsName" /></label><label>Email <input id="settingsEmail" disabled /></label><label>Phone <input id="settingsPhone" /></label><label>Default deposit phone <input id="settingsDepositPhone" /></label><label>Default withdrawal phone <input id="settingsWithdrawalPhone" /></label><label>Theme <select id="settingsTheme"><option value="dark">Dark</option><option value="light">Light</option></select></label><label>Chart speed <select id="settingsChartSpeed"><option value="slow">Slow</option><option value="normal">Normal</option><option value="fast">Fast</option></select></label><label>Real trading <select id="settingsRealTrading"><option value="false">Disabled</option><option value="true">Enabled</option></select></label><label>Maximum stake <input id="settingsMaxStake" type="number" min="0.3" step="0.1" /></label><label>Daily trade limit <input id="settingsDailyLimit" type="number" min="1" /></label><label>Notifications <select id="settingsNotifications"><option value="true">On</option><option value="false">Off</option></select></label><label>Sound <select id="settingsSound"><option value="true">On</option><option value="false">Off</option></select></label><label>Change password <input id="settingsPassword" type="password" placeholder="Leave blank to keep current" /></label></div><button class="btn primary full" type="submit">Save Settings</button><p id="settingsStatus" class="modal-status">Settings will be saved to your account.</p></form></div>
-    <div id="partnerSheet" class="sheet"><div class="dialog wide"><div class="dialog-head"><h2>Partner / Referral</h2><button id="closePartner" class="btn secondary">Close</button></div><button id="applyPartnerButton" class="btn primary full">Open Partner Account</button><div id="partnerDashboard" hidden><label>Referral Link <input id="partnerReferralLink" readonly /></label><button id="copyReferralButton" class="btn secondary full">Copy Referral Link</button><div id="partnerStats" class="partner-stats"></div><button id="partnerWithdrawButton" class="btn primary full">Withdraw Commission</button></div><p id="partnerStatus" class="modal-status">Open a partner account to get referral link and commission dashboard.</p></div></div>
-    <div id="aiSheet" class="sheet"><div class="dialog"><div class="dialog-head"><h2>AI Scanner</h2><button id="closeAiPanel" class="btn secondary">Close</button></div><div class="ai-box"><p>Market: <b id="aiMarket">Volatility 100 (1s) Index</b></p><p>Contract: <b id="aiTrade">Even/Odd</b></p><p>Digit / Barrier: <b id="aiBarrier">5</b></p><p>Confidence: <b id="aiConfidence">63%</b></p><p id="aiReason">AI scanner is ready.</p></div><button id="aiApplyButton" class="btn secondary full">Apply to Trade Panel</button><button id="aiStartButton" class="btn primary full">Apply and Start Bot</button></div></div>
-  </main>
-  <script type="module" src="/trading-page.js?v=10"></script>
+            <!-- MAIN CHART AREA -->
+            <div class="chart-zone">
+              <div class="chart-top-controls">
+                <div class="chart-type-group">
+                  <button id="lineModeButton" class="chart-mini-btn active" type="button">Line</button>
+                  <button id="candleModeButton" class="chart-mini-btn" type="button">Candles</button>
+                </div>
+
+                <div class="chart-speed-group">
+                  <button data-speed="slow" class="chart-mini-btn" type="button">Slow</button>
+                  <button data-speed="normal" class="chart-mini-btn active" type="button">Normal</button>
+                  <button data-speed="fast" class="chart-mini-btn" type="button">Fast</button>
+                </div>
+              </div>
+
+              <div class="main-chart-card">
+                <canvas id="chartCanvas"></canvas>
+              </div>
+
+              <div class="ohlc-row">
+                <span>Open <b id="chartOpenValue">0.00</b></span>
+                <span>High <b id="chartHighValue">0.00</b></span>
+                <span>Low <b id="chartLowValue">0.00</b></span>
+                <span>Close <b id="chartCloseValue">0.00</b></span>
+              </div>
+
+              <!-- DIGITS -->
+              <div class="digits-card">
+                <div class="digits-card-head">
+                  <div>
+                    <h3>Digit Arrangement</h3>
+                    <p>Select the digit for Over/Under, Matches/Differs, and Touch/No Touch.</p>
+                  </div>
+                  <div class="digit-quote-box">
+                    <strong id="digitQuote">396.12</strong>
+                    <small id="digitMove">+0.00</small>
+                  </div>
+                </div>
+
+                <div class="digits-stage">
+                  <div id="digitCursor" class="digit-cursor"></div>
+                  <div id="digitFrequency" class="digits-grid"></div>
+                </div>
+              </div>
+            </div>
+
+            <!-- RIGHT TRADE SIDEBAR DESKTOP -->
+            <aside class="trade-sidebar desktop-trade-card">
+              <div class="learn-link">Learn about this trade type</div>
+
+              <div class="contract-title-card">
+                <button class="back-contract-btn" type="button">‹</button>
+                <div class="contract-title-main">
+                  <div class="contract-icon">✣</div>
+                  <strong id="selectedTrade">Matches/Differs</strong>
+                </div>
+              </div>
+
+              <div class="control-block">
+                <div class="control-label">Ticks</div>
+                <div class="slider-display">
+                  <span></span><span></span><span></span><span></span><span class="active"></span>
+                  <span></span><span></span><span></span><span></span><span></span>
+                </div>
+                <div class="ticks-text"><strong id="ticksDisplayText">5 Ticks</strong></div>
+              </div>
+
+              <div class="control-block">
+                <div class="control-label">Last Digit Prediction</div>
+                <div class="prediction-grid" id="predictionGridDesktop">
+                  <button type="button" data-digit="0">0</button>
+                  <button type="button" data-digit="1">1</button>
+                  <button type="button" data-digit="2">2</button>
+                  <button type="button" data-digit="3">3</button>
+                  <button type="button" data-digit="4">4</button>
+                  <button type="button" data-digit="5">5</button>
+                  <button type="button" data-digit="6">6</button>
+                  <button type="button" data-digit="7">7</button>
+                  <button type="button" data-digit="8">8</button>
+                  <button type="button" data-digit="9">9</button>
+                </div>
+              </div>
+
+              <div class="control-block">
+                <div class="stake-payout-switch">
+                  <button class="active" type="button">Stake</button>
+                  <button type="button">Payout</button>
+                </div>
+
+                <div class="stake-stepper">
+                  <button id="minusStakeButton" type="button">−</button>
+                  <input id="stakeInput" type="number" min="0.3" max="5000" step="0.1" value="10" />
+                  <button id="plusStakeButton" type="button">＋</button>
+                </div>
+              </div>
+
+              <div class="desktop-payouts">
+                <div class="desktop-payout-line">Payout <b id="payoutQuote">66.67 USD</b></div>
+              </div>
+
+              <div class="desktop-contract-buttons" id="choiceRow"></div>
+
+              <div class="helper-row">
+                <small id="targetText">Target digit: <b>7</b></small>
+                <small id="tradeStatus">Login or create an account before trading.</small>
+              </div>
+            </aside>
+          </div>
+
+          <!-- OPEN + HISTORY -->
+          <div class="bottom-grid">
+            <div class="info-card">
+              <div class="card-head-line">
+                <h3>Open Trades</h3>
+                <span id="openTradeCount">0</span>
+              </div>
+              <div id="openTradesList" class="card-list">
+                <p class="empty-note">No open trades.</p>
+              </div>
+            </div>
+
+            <div class="info-card">
+              <div class="card-head-line">
+                <h3>Recent Trades</h3>
+                <span id="historyCount">0</span>
+              </div>
+              <div id="historyList" class="card-list">
+                <p class="empty-note">No trades yet.</p>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- MOBILE BOTTOM TRADER -->
+        <div class="mobile-bottom-trader mobile-only">
+          <div class="sheet-handle"></div>
+          <div class="learn-link">Learn about this trade type</div>
+
+          <div class="mobile-contract-top">
+            <div class="mobile-contract-type">
+              <div class="mobile-contract-icon">✣</div>
+              <strong id="mobileSelectedTrade">Matches/Differs</strong>
+            </div>
+            <div class="mobile-digit-box" id="mobileDigitBox">Digit: 7</div>
+          </div>
+
+          <div class="mobile-inline-row">
+            <div class="mobile-inline-item">
+              <span id="mobileTicksText">5 ticks</span>
+            </div>
+            <div class="mobile-inline-item">
+              <strong id="mobileStakeText">10.00 USD</strong>
+              <span>Stake</span>
+            </div>
+          </div>
+
+          <div class="mobile-contract-buttons" id="mobileChoiceRow"></div>
+        </div>
+      </div>
+    </section>
+
+    <!-- BULK PANEL -->
+    <section class="tab-panel" id="bulkPanel">
+      <div class="simple-card">
+        <div class="section-title-row">
+          <div>
+            <h2>Bulk Trader</h2>
+            <p>Run multiple contracts together.</p>
+          </div>
+        </div>
+        <p class="empty-note">Bulk trader layout is ready. You can extend more strategy logic here.</p>
+      </div>
+    </section>
+
+    <!-- MENU PANEL -->
+    <section class="tab-panel" id="menuPanel">
+      <div class="simple-card">
+        <div class="section-title-row">
+          <div>
+            <h2>Account Menu</h2>
+            <p>Deposit, withdraw, settings, transactions, and partner account.</p>
+          </div>
+        </div>
+
+        <div class="menu-grid">
+          <button id="depositButton" type="button">Deposit</button>
+          <button id="withdrawButton" type="button">Withdraw</button>
+          <button id="transactionsMenuButton" type="button">Transactions</button>
+          <button id="settingsMenuButton" type="button">Settings</button>
+          <button id="partnerMenuButton" type="button">Partner / Referral</button>
+          <button id="logoutButton" type="button">Logout</button>
+        </div>
+
+        <div class="summary-grid">
+          <div><span>Name</span><strong id="summaryName">Guest</strong></div>
+          <div><span>Email</span><strong id="summaryEmail">-</strong></div>
+          <div><span>Phone</span><strong id="summaryPhone">-</strong></div>
+          <div><span>Real account ID</span><strong id="summaryAccountId">-</strong></div>
+          <div><span>Status</span><strong id="summaryStatus">Guest</strong></div>
+        </div>
+      </div>
+    </section>
+
+    <!-- ADVANCED CHART / HIDDEN LARGE -->
+    <canvas id="chartCanvasLarge" hidden></canvas>
+
+    <!-- AI FLOAT -->
+    <button id="aiFloatButton" class="ai-float" type="button" hidden>AI</button>
+
+    <!-- TOAST -->
+    <div id="toastStack" class="toast-stack"></div>
+
+    <!-- MARKET SHEET -->
+    <div id="marketSheet" class="modal-sheet">
+      <div class="sheet-card">
+        <div class="sheet-head">
+          <h2>Select Market</h2>
+          <button id="closeMarket" type="button">Close</button>
+        </div>
+
+        <div class="market-list">
+          <button class="market-option active" data-market="Meta Volatility 100" type="button">Volatility 100 (1s) Index</button>
+          <button class="market-option" data-market="Meta Volatility 75" type="button">Volatility 75 (1s) Index</button>
+          <button class="market-option" data-market="Meta Volatility 50" type="button">Volatility 50 (1s) Index</button>
+          <button class="market-option" data-market="Meta Volatility 25" type="button">Volatility 25 (1s) Index</button>
+          <button class="market-option" data-market="Meta Volatility 10" type="button">Volatility 10 (1s) Index</button>
+        </div>
+      </div>
+    </div>
+
+    <!-- AUTH SHEET -->
+    <div id="authSheet" class="modal-sheet">
+      <div class="sheet-card wide-sheet">
+        <div class="sheet-head">
+          <h2 id="authTitle">Create Account</h2>
+          <button id="closeAuth" type="button">Close</button>
+        </div>
+
+        <div class="auth-switch">
+          <button id="registerTab" class="active" type="button">Register</button>
+          <button id="loginTab" type="button">Login</button>
+        </div>
+
+        <form id="registerForm" class="auth-form active-auth-form">
+          <label>Full name <input id="registerName" required /></label>
+          <label>Email <input id="registerEmail" type="email" required /></label>
+          <label>Phone number <input id="registerPhone" required /></label>
+          <label>ID number <input id="registerIdNumber" required /></label>
+          <label>
+            Country
+            <select id="registerCountry" required>
+              <option value="">Select country</option>
+              <option>Kenya</option>
+              <option>Uganda</option>
+              <option>Tanzania</option>
+              <option>Rwanda</option>
+              <option>South Africa</option>
+              <option>Other</option>
+            </select>
+          </label>
+          <label>
+            ID document
+            <select id="registerDocument" required>
+              <option value="">Select document</option>
+              <option>National ID</option>
+              <option>Passport</option>
+              <option>Driving Licence</option>
+            </select>
+          </label>
+          <label>Password <input id="registerPassword" type="password" minlength="6" required /></label>
+          <label>Confirm password <input id="registerPasswordConfirm" type="password" minlength="6" required /></label>
+          <label class="check-row">
+            <input id="registerAgreement" type="checkbox" required />
+            <span>I confirm I am 18+ and accept the terms and risk disclosure.</span>
+          </label>
+          <button class="primary-btn full-btn" type="submit">Create Account</button>
+        </form>
+
+        <form id="loginForm" class="auth-form">
+          <label>Email or Account ID <input id="loginIdentifier" required /></label>
+          <label>Password <input id="loginPassword" type="password" required /></label>
+          <button class="primary-btn full-btn" type="submit">Login</button>
+          <button class="ghost-btn full-btn" id="forgotPasswordButton" type="button">Reset Password</button>
+        </form>
+
+        <p id="authStatus" class="sheet-status">Create an account to unlock Demo and Real trading.</p>
+      </div>
+    </div>
+
+    <!-- DEPOSIT SHEET -->
+    <div id="depositSheet" class="modal-sheet">
+      <form id="depositForm" class="sheet-card">
+        <div class="sheet-head">
+          <h2>Deposit</h2>
+          <button id="closeDeposit" type="button">Close</button>
+        </div>
+
+        <label>Amount USD <input id="depositAmount" type="number" min="1" step="1" value="1" required /></label>
+        <div class="mpesa-box">
+          <span>M-Pesa amount</span>
+          <strong id="mpesaAmount">KSh 130</strong>
+        </div>
+        <label>M-Pesa phone <input id="depositPhone" required /></label>
+        <label>Email <input id="depositEmail" type="email" /></label>
+
+        <button id="depositSubmit" class="primary-btn full-btn" type="submit">Send STK Push</button>
+        <button id="checkDeposit" class="ghost-btn full-btn" type="button" hidden>Check payment status</button>
+        <p id="depositStatus" class="sheet-status">Enter deposit details.</p>
+      </form>
+    </div>
+
+    <!-- WITHDRAW SHEET -->
+    <div id="withdrawSheet" class="modal-sheet">
+      <form id="withdrawForm" class="sheet-card">
+        <div class="sheet-head">
+          <h2>Withdraw</h2>
+          <button id="closeWithdraw" type="button">Close</button>
+        </div>
+
+        <label>Amount USD <input id="withdrawAmount" type="number" min="5" max="150000" value="5" required /></label>
+        <label>M-Pesa phone <input id="withdrawPhone" required /></label>
+        <button class="primary-btn full-btn" type="submit">Request Withdrawal</button>
+        <p id="withdrawStatus" class="sheet-status">Withdrawals use real balance only.</p>
+      </form>
+    </div>
+
+    <!-- TRANSACTIONS -->
+    <div id="transactionsSheet" class="modal-sheet">
+      <div class="sheet-card wide-sheet">
+        <div class="sheet-head">
+          <h2>Transactions</h2>
+          <button id="closeTransactions" type="button">Close</button>
+        </div>
+        <div id="transactionList" class="card-list">
+          <p class="empty-note">No transactions yet.</p>
+        </div>
+      </div>
+    </div>
+
+    <!-- SETTINGS -->
+    <div id="settingsSheet" class="modal-sheet">
+      <form id="settingsForm" class="sheet-card wide-sheet">
+        <div class="sheet-head">
+          <h2>Settings</h2>
+          <button id="closeSettings" type="button">Close</button>
+        </div>
+
+        <div class="settings-grid">
+          <label>Profile name <input id="settingsName" /></label>
+          <label>Email <input id="settingsEmail" disabled /></label>
+          <label>Phone <input id="settingsPhone" /></label>
+          <label>Default deposit phone <input id="settingsDepositPhone" /></label>
+          <label>Default withdrawal phone <input id="settingsWithdrawalPhone" /></label>
+          <label>
+            Theme
+            <select id="settingsTheme">
+              <option value="dark">Dark</option>
+              <option value="light">Light</option>
+            </select>
+          </label>
+          <label>
+            Chart speed
+            <select id="settingsChartSpeed">
+              <option value="slow">Slow</option>
+              <option value="normal">Normal</option>
+              <option value="fast">Fast</option>
+            </select>
+          </label>
+          <label>
+            Real trading
+            <select id="settingsRealTrading">
+              <option value="false">Disabled</option>
+              <option value="true">Enabled</option>
+            </select>
+          </label>
+          <label>Maximum stake <input id="settingsMaxStake" type="number" min="0.3" step="0.1" /></label>
+          <label>Daily trade limit <input id="settingsDailyLimit" type="number" min="1" /></label>
+          <label>
+            Notifications
+            <select id="settingsNotifications">
+              <option value="true">On</option>
+              <option value="false">Off</option>
+            </select>
+          </label>
+          <label>
+            Sound
+            <select id="settingsSound">
+              <option value="true">On</option>
+              <option value="false">Off</option>
+            </select>
+          </label>
+          <label>Change password <input id="settingsPassword" type="password" placeholder="Leave blank to keep current" /></label>
+        </div>
+
+        <button class="primary-btn full-btn" type="submit">Save Settings</button>
+        <p id="settingsStatus" class="sheet-status">Settings will be saved to your account.</p>
+      </form>
+    </div>
+
+    <!-- PARTNER -->
+    <div id="partnerSheet" class="modal-sheet">
+      <div class="sheet-card wide-sheet">
+        <div class="sheet-head">
+          <h2>Partner / Referral</h2>
+          <button id="closePartner" type="button">Close</button>
+        </div>
+
+        <button id="applyPartnerButton" class="primary-btn full-btn" type="button">Open Partner Account</button>
+
+        <div id="partnerDashboard" hidden>
+          <label>Referral Link <input id="partnerReferralLink" readonly /></label>
+          <button id="copyReferralButton" class="ghost-btn full-btn" type="button">Copy Referral Link</button>
+          <div id="partnerStats" class="partner-grid"></div>
+          <button id="partnerWithdrawButton" class="primary-btn full-btn" type="button">Withdraw Commission</button>
+        </div>
+
+        <p id="partnerStatus" class="sheet-status">Open a partner account to get referral link and commission dashboard.</p>
+      </div>
+    </div>
+
+    <!-- AI -->
+    <div id="aiSheet" class="modal-sheet">
+      <div class="sheet-card">
+        <div class="sheet-head">
+          <h2>AI Scanner</h2>
+          <button id="closeAiPanel" type="button">Close</button>
+        </div>
+
+        <div class="ai-info-box">
+          <p>Market: <b id="aiMarket">Volatility 100 (1s) Index</b></p>
+          <p>Contract: <b id="aiTrade">Even/Odd</b></p>
+          <p>Digit / Barrier: <b id="aiBarrier">5</b></p>
+          <p>Confidence: <b id="aiConfidence">63%</b></p>
+          <p id="aiReason">AI scanner is ready.</p>
+        </div>
+
+        <button id="aiApplyButton" class="ghost-btn full-btn" type="button">Apply to Trade Panel</button>
+        <button id="aiStartButton" class="primary-btn full-btn" type="button">Apply and Start Bot</button>
+      </div>
+    </div>
+  </div>
+
+  <script type="module" src="/trading-page.js?v=11"></script>
 </body>
 </html>
