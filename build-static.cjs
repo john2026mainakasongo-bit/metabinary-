@@ -15,7 +15,6 @@ function cleanDist() {
   if (fs.existsSync(dist)) {
     fs.rmSync(dist, { recursive: true, force: true });
   }
-
   fs.mkdirSync(dist, { recursive: true });
 }
 
@@ -24,7 +23,7 @@ function copyFile(fileName) {
   const target = path.join(dist, fileName);
 
   if (!fs.existsSync(source)) {
-    throw new Error(`${fileName} was not found in the project root.`);
+    throw new Error(`${fileName} not found in root.`);
   }
 
   fs.copyFileSync(source, target);
@@ -33,11 +32,7 @@ function copyFile(fileName) {
 
 function build() {
   cleanDist();
-
-  for (const fileName of filesToCopy) {
-    copyFile(fileName);
-  }
-
+  filesToCopy.forEach(copyFile);
   console.log("MetaBinary static build completed.");
 }
 
