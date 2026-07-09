@@ -1,9 +1,9 @@
 const marketConfigs = {
-  "Meta Volatility 100": { label: "Volatility 100 (1s) Index", base: 396.12, volatility: 0.24 },
-  "Meta Volatility 75": { label: "Volatility 75 (1s) Index", base: 248.41, volatility: 0.18 },
-  "Meta Volatility 50": { label: "Volatility 50 (1s) Index", base: 612.08, volatility: 0.14 },
-  "Meta Volatility 25": { label: "Volatility 25 (1s) Index", base: 184.23, volatility: 0.09 },
-  "Meta Volatility 10": { label: "Volatility 10 (1s) Index", base: 98.14, volatility: 0.05 },
+  "Meta Volatility 100": { label: "Volatility 100 (1s) Index", base: 889.72, volatility: 0.34 },
+  "Meta Volatility 75": { label: "Volatility 75 (1s) Index", base: 624.41, volatility: 0.28 },
+  "Meta Volatility 50": { label: "Volatility 50 (1s) Index", base: 412.08, volatility: 0.18 },
+  "Meta Volatility 25": { label: "Volatility 25 (1s) Index", base: 184.23, volatility: 0.10 },
+  "Meta Volatility 10": { label: "Volatility 10 (1s) Index", base: 98.14, volatility: 0.06 }
 };
 
 const tradeChoices = {
@@ -11,31 +11,30 @@ const tradeChoices = {
   "Matches/Differs": ["Matches", "Differs"],
   "Over/Under": ["Over", "Under"],
   "Rise/Fall": ["Rise", "Fall"],
-  "Touch/No Touch": ["Touch", "No Touch"],
+  "Touch/No Touch": ["Touch", "No Touch"]
 };
 
-const tradeHints = {
-  "Even/Odd": "Tap Even or Odd below to place a trade.",
-  "Matches/Differs": "Tap a digit first, then choose Matches or Differs.",
-  "Over/Under": "Tap a digit first, then choose Over or Under.",
-  "Rise/Fall": "Choose Rise or Fall. Settlement uses the next market movement.",
-  "Touch/No Touch": "Tap a target digit first, then choose Touch or No Touch.",
-};
-
-const STORAGE_KEY = "metabinary-v10-state";
-const LOCAL_USERS_KEY = "metabinary-v10-users";
+const STORAGE_KEY = "metabinary-v11-state";
+const LOCAL_USERS_KEY = "metabinary-v11-users";
 const KES_RATE = 130;
 
 const $ = (selector) => document.querySelector(selector);
 const $$ = (selector) => Array.from(document.querySelectorAll(selector));
 
+let tickTimer = null;
+let depositTimer = null;
+let tickData = [];
+let candleData = [];
+let digitStats = Array.from({ length: 10 }, () => 10);
+let aiSuggestion = null;
+
 let state = {
   market: "Meta Volatility 100",
   accountMode: "demo",
-  activeTradeType: "Even/Odd",
-  activeChoice: "Even",
-  selectedDigit: 2,
-  barrierDigit: 4,
+  activeTradeType: "Matches/Differs",
+  activeChoice: "Matches",
+  selectedDigit: 7,
+  barrierDigit: 5,
   demoBalance: 10000,
   realBalance: 0,
   currentUser: null,
@@ -55,7 +54,7 @@ let state = {
     phone: "",
     depositPhone: "",
     withdrawalPhone: "",
-    profileName: "",
+    profileName: ""
   },
   bot: {
     running: false,
@@ -63,26 +62,19 @@ let state = {
     currentStake: 0.3,
     netProfit: 0,
     level: 0,
-    history: [],
-  },
+    history: []
+  }
 };
-
-let tickData = [];
-let candleData = [];
-let digitStats = Array.from({ length: 10 }, () => 10);
-let tickTimer = null;
-let depositTimer = null;
-let aiSuggestion = null;
 
 const elements = {
   guestActions: $("#guestActions"),
   accountToolbar: $("#accountToolbar"),
-  balance: $("#balance"),
   accountLabel: $("#accountLabel"),
+  balance: $("#balance"),
 
   marketName: $("#marketName"),
-  marketDescription: $("#marketDescription"),
   quoteText: $("#quoteText"),
+  marketMoveText: $("#marketMoveText"),
 
   digitQuote: $("#digitQuote"),
   digitMove: $("#digitMove"),
@@ -90,29 +82,29 @@ const elements = {
   digitCursor: $("#digitCursor"),
 
   selectedTrade: $("#selectedTrade"),
-  tradeHint: $("#tradeHint"),
-  payoutQuote: $("#payoutQuote"),
+  mobileSelectedTrade: $("#mobileSelectedTrade"),
   choiceRow: $("#choiceRow"),
+  mobileChoiceRow: $("#mobileChoiceRow"),
+
   stakeInput: $("#stakeInput"),
-  ticksInput: $("#ticksInput"),
-  maxStakeLabel: $("#maxStakeLabel"),
+  ticksInput: null,
+  payoutQuote: $("#payoutQuote"),
   targetText: $("#targetText"),
   tradeStatus: $("#tradeStatus"),
 
   openTradesList: $("#openTradesList"),
-  openTradeCount: $("#openTradeCount"),
   historyList: $("#historyList"),
+  openTradeCount: $("#openTradeCount"),
   historyCount: $("#historyCount"),
-
-  toastStack: $("#toastStack"),
 
   chartCanvas: $("#chartCanvas"),
   chartCanvasLarge: $("#chartCanvasLarge"),
-
   chartOpenValue: $("#chartOpenValue"),
   chartHighValue: $("#chartHighValue"),
   chartLowValue: $("#chartLowValue"),
   chartCloseValue: $("#chartCloseValue"),
+
+  toastStack: $("#toastStack")
 };
 
 function formatMoney(value) {
@@ -142,17 +134,8 @@ function currentBalance() {
 function setCurrentBalance(value) {
   const clean = Number(Math.max(0, value).toFixed(2));
 
-  if (state.accountMode === "real") {
-    state.realBalance = clean;
-  } else {
-    state.demoBalance = clean;
-  }
-}
-
-function getSpeedMs() {
-  if (state.settings.chartSpeed === "fast") return 900;
-  if (state.settings.chartSpeed === "slow") return 2500;
-  return 1500;
+  if (state.accountMode === "real") state.realBalance = clean;
+  else state.demoBalance = clean;
 }
 
 function saveState() {
@@ -163,18 +146,11 @@ function saveState() {
 function loadState() {
   try {
     const stored = JSON.parse(localStorage.getItem(STORAGE_KEY) || "{}");
-
     state = {
       ...state,
       ...stored,
-      settings: {
-        ...state.settings,
-        ...(stored.settings || {}),
-      },
-      bot: {
-        ...state.bot,
-        ...(stored.bot || {}),
-      },
+      settings: { ...state.settings, ...(stored.settings || {}) },
+      bot: { ...state.bot, ...(stored.bot || {}) }
     };
   } catch {
     localStorage.removeItem(STORAGE_KEY);
@@ -214,13 +190,12 @@ function createLocalUser(data) {
       profileName: data.fullName,
       phone: data.phone.trim(),
       depositPhone: data.phone.trim(),
-      withdrawalPhone: data.phone.trim(),
-    },
+      withdrawalPhone: data.phone.trim()
+    }
   };
 
   users.push(user);
   saveLocalUsers(users);
-
   return user;
 }
 
@@ -246,9 +221,8 @@ function syncLocalUserFromState() {
       phone: state.currentUser.phone,
       demoBalance: state.demoBalance,
       realBalance: state.realBalance,
-      settings: state.settings,
+      settings: state.settings
     };
-
     saveLocalUsers(users);
   }
 }
@@ -256,108 +230,449 @@ function syncLocalUserFromState() {
 async function postJson(url, body) {
   const response = await fetch(url, {
     method: "POST",
-    headers: {
-      "Content-Type": "application/json",
-    },
-    body: JSON.stringify(body || {}),
+    headers: { "Content-Type": "application/json" },
+    body: JSON.stringify(body || {})
   });
 
   const data = await response.json().catch(() => ({}));
 
-  if (!response.ok) {
-    throw new Error(data.error || data.message || "Request failed.");
-  }
-
+  if (!response.ok) throw new Error(data.error || data.message || "Request failed.");
   return data;
 }
 
 async function getJson(url) {
   const response = await fetch(url);
   const data = await response.json().catch(() => ({}));
-
-  if (!response.ok) {
-    throw new Error(data.error || data.message || "Request failed.");
-  }
-
+  if (!response.ok) throw new Error(data.error || data.message || "Request failed.");
   return data;
 }
 
 async function putJson(url, body) {
   const response = await fetch(url, {
     method: "PUT",
-    headers: {
-      "Content-Type": "application/json",
-    },
-    body: JSON.stringify(body || {}),
+    headers: { "Content-Type": "application/json" },
+    body: JSON.stringify(body || {})
   });
 
   const data = await response.json().catch(() => ({}));
-
-  if (!response.ok) {
-    throw new Error(data.error || data.message || "Request failed.");
-  }
-
+  if (!response.ok) throw new Error(data.error || data.message || "Request failed.");
   return data;
 }
 
-function showToast(title, text, type = "info", timeout = 1600) {
+function openSheet(sheet) {
+  if (sheet) sheet.classList.add("open");
+}
+
+function closeSheet(sheet) {
+  if (sheet) sheet.classList.remove("open");
+}
+
+function showToast(title, text, type = "info", timeout = 1500) {
   if (!state.settings.notifications) return;
 
   const toast = document.createElement("div");
   toast.className = `toast ${type}`;
-  toast.innerHTML = `
-    <strong>${title}</strong>
-    <span>${text}</span>
-  `;
-
+  toast.innerHTML = `<strong>${title}</strong><span>${text}</span>`;
   elements.toastStack.appendChild(toast);
 
-  setTimeout(() => {
-    toast.remove();
-  }, timeout);
+  setTimeout(() => toast.remove(), timeout);
 }
 
-function openSheet(sheet) {
-  if (!sheet) return;
-  sheet.classList.add("open");
+function getSpeedMs() {
+  if (state.settings.chartSpeed === "fast") return 650;
+  if (state.settings.chartSpeed === "slow") return 1700;
+  return 1000;
 }
 
-function closeSheet(sheet) {
-  if (!sheet) return;
-  sheet.classList.remove("open");
+function generateInitialData() {
+  const base = marketConfigs[state.market].base;
+  const vol = marketConfigs[state.market].volatility;
+
+  tickData = [];
+  candleData = [];
+
+  let price = base;
+  let open = base;
+
+  for (let i = 0; i < 90; i++) {
+    const drift = (Math.random() - 0.5) * vol;
+    price = Number((price + drift).toFixed(2));
+
+    tickData.push({
+      quote: price,
+      digit: Math.abs(Math.floor(price * 100)) % 10,
+      move: drift
+    });
+
+    if (i % 4 === 0) open = price;
+
+    if (i % 4 === 3) {
+      const slice = tickData.slice(i - 3, i + 1).map((x) => x.quote);
+      candleData.push({
+        open,
+        high: Math.max(...slice),
+        low: Math.min(...slice),
+        close: price
+      });
+    }
+  }
 }
 
-function requireLogin() {
-  if (!state.currentUser) {
-    openAuth("register");
-    $("#authStatus").textContent = "Create an account and login first.";
-    return false;
+function drawChart(canvas, mode = state.chartMode) {
+  if (!canvas) return;
+
+  const ctx = canvas.getContext("2d");
+  const rect = canvas.getBoundingClientRect();
+
+  canvas.width = Math.floor(rect.width * devicePixelRatio);
+  canvas.height = Math.floor(rect.height * devicePixelRatio);
+  ctx.setTransform(devicePixelRatio, 0, 0, devicePixelRatio, 0, 0);
+
+  const width = rect.width;
+  const height = rect.height;
+  ctx.clearRect(0, 0, width, height);
+
+  const pad = { left: 18, right: 18, top: 12, bottom: 22 };
+  const chartW = width - pad.left - pad.right;
+  const chartH = height - pad.top - pad.bottom;
+
+  const source = mode === "candles" ? candleData : tickData;
+  if (!source.length) return;
+
+  const values = mode === "candles"
+    ? source.flatMap((item) => [item.high, item.low])
+    : source.map((item) => item.quote);
+
+  const min = Math.min(...values);
+  const max = Math.max(...values);
+  const range = Math.max(.01, max - min);
+
+  for (let i = 0; i <= 4; i++) {
+    const y = pad.top + (chartH / 4) * i;
+    ctx.beginPath();
+    ctx.moveTo(pad.left, y);
+    ctx.lineTo(width - pad.right, y);
+    ctx.strokeStyle = "rgba(0,0,0,.07)";
+    ctx.lineWidth = 1;
+    ctx.stroke();
   }
 
-  return true;
+  if (mode === "line") {
+    ctx.beginPath();
+
+    source.forEach((point, index) => {
+      const x = pad.left + (index / Math.max(1, source.length - 1)) * chartW;
+      const y = pad.top + ((max - point.quote) / range) * chartH;
+
+      if (index === 0) ctx.moveTo(x, y);
+      else ctx.lineTo(x, y);
+    });
+
+    ctx.lineWidth = 2;
+    ctx.strokeStyle = "#333";
+    ctx.stroke();
+
+    const last = source[source.length - 1];
+    const x = pad.left + chartW;
+    const y = pad.top + ((max - last.quote) / range) * chartH;
+
+    ctx.beginPath();
+    ctx.arc(x, y, 4, 0, Math.PI * 2);
+    ctx.fillStyle = "#111";
+    ctx.fill();
+
+    ctx.setLineDash([4, 4]);
+    ctx.beginPath();
+    ctx.moveTo(x, y);
+    ctx.lineTo(width - 6, y);
+    ctx.strokeStyle = "#666";
+    ctx.stroke();
+    ctx.setLineDash([]);
+
+    const label = formatQuote(last.quote);
+    const labelWidth = Math.max(54, ctx.measureText(label).width + 18);
+
+    ctx.fillStyle = "#111";
+    ctx.beginPath();
+    const boxX = width - labelWidth - 4;
+    const boxY = y - 14;
+    ctx.roundRect(boxX, boxY, labelWidth, 28, 8);
+    ctx.fill();
+
+    ctx.fillStyle = "#fff";
+    ctx.font = "bold 14px Arial";
+    ctx.fillText(label, boxX + 10, boxY + 19);
+  } else {
+    const candleWidth = Math.max(4, (chartW / Math.max(20, source.length)) * .55);
+
+    source.forEach((candle, index) => {
+      const x = pad.left + (index / Math.max(1, source.length - 1)) * chartW;
+      const openY = pad.top + ((max - candle.open) / range) * chartH;
+      const closeY = pad.top + ((max - candle.close) / range) * chartH;
+      const highY = pad.top + ((max - candle.high) / range) * chartH;
+      const lowY = pad.top + ((max - candle.low) / range) * chartH;
+      const green = candle.close >= candle.open;
+
+      ctx.strokeStyle = green ? "#26c37f" : "#ef3e42";
+      ctx.fillStyle = green ? "#26c37f" : "#ef3e42";
+
+      ctx.beginPath();
+      ctx.moveTo(x, highY);
+      ctx.lineTo(x, lowY);
+      ctx.stroke();
+
+      const top = Math.min(openY, closeY);
+      const bodyH = Math.max(3, Math.abs(closeY - openY));
+      ctx.fillRect(x - candleWidth / 2, top, candleWidth, bodyH);
+    });
+  }
+}
+
+function drawCharts() {
+  drawChart(elements.chartCanvas, state.chartMode);
+  drawChart(elements.chartCanvasLarge, state.chartMode);
+}
+
+function updateQuoteUI(tick, prev) {
+  if (!tick) return;
+
+  const move = prev ? Number((tick.quote - prev.quote).toFixed(2)) : 0;
+  const movePct = prev ? Number(((move / prev.quote) * 100).toFixed(2)) : 0;
+
+  elements.quoteText.textContent = formatQuote(tick.quote);
+  $("#marketMoveText").textContent = `${move >= 0 ? "+" : ""}${move.toFixed(2)} (${movePct >= 0 ? "+" : ""}${movePct.toFixed(2)}%)`;
+  elements.digitQuote.textContent = formatQuote(tick.quote);
+  elements.digitMove.textContent = `${move >= 0 ? "+" : ""}${move.toFixed(2)}`;
+
+  const recent = tickData.slice(-25).map((x) => x.quote);
+  if (recent.length) {
+    elements.chartOpenValue.textContent = formatQuote(recent[0]);
+    elements.chartHighValue.textContent = formatQuote(Math.max(...recent));
+    elements.chartLowValue.textContent = formatQuote(Math.min(...recent));
+    elements.chartCloseValue.textContent = formatQuote(recent[recent.length - 1]);
+  }
+}
+
+function nextTick() {
+  const prev = tickData[tickData.length - 1] || { quote: marketConfigs[state.market].base };
+  const vol = marketConfigs[state.market].volatility;
+
+  const drift = (Math.random() - 0.5) * vol;
+  const noise = (Math.random() - 0.5) * vol * 0.25;
+  const quote = Number((prev.quote + drift + noise).toFixed(2));
+  const digit = Math.abs(Math.floor(quote * 100)) % 10;
+
+  const tick = {
+    quote,
+    digit,
+    move: Number((quote - prev.quote).toFixed(2))
+  };
+
+  tickData.push(tick);
+  if (tickData.length > 140) tickData.shift();
+
+  const lastCandle = candleData[candleData.length - 1];
+  const candleIndex = tickData.length % 4;
+
+  if (!lastCandle || candleIndex === 1) {
+    candleData.push({ open: quote, high: quote, low: quote, close: quote });
+  } else {
+    lastCandle.high = Math.max(lastCandle.high, quote);
+    lastCandle.low = Math.min(lastCandle.low, quote);
+    lastCandle.close = quote;
+  }
+
+  if (candleData.length > 70) candleData.shift();
+
+  const recentDigits = tickData.slice(-60).map((x) => x.digit);
+  digitStats = Array.from({ length: 10 }, (_, d) => {
+    const count = recentDigits.filter((x) => x === d).length;
+    return Number(((count / recentDigits.length) * 100 || 0).toFixed(1));
+  });
+
+  updateQuoteUI(tick, prev);
+  settleOpenTrades(tick, prev);
+  renderDigits(tick.digit);
+  drawCharts();
+
+  if (state.bot.running && !state.openTrades.length) runBotTrade();
+}
+
+function getHighLowDigits() {
+  return {
+    highest: digitStats.indexOf(Math.max(...digitStats)),
+    lowest: digitStats.indexOf(Math.min(...digitStats))
+  };
+}
+
+function renderDigits(cursorDigit = 0) {
+  const { highest, lowest } = getHighLowDigits();
+
+  elements.digitFrequency.innerHTML = Array.from({ length: 10 }, (_, digit) => {
+    const percent = digitStats[digit] || 0;
+    const isHighest = digit === highest;
+    const isLowest = digit === lowest;
+    const isTarget =
+      (state.activeTradeType === "Matches/Differs" || state.activeTradeType === "Touch/No Touch") &&
+      state.selectedDigit === digit;
+    const isBarrier =
+      state.activeTradeType === "Over/Under" && state.barrierDigit === digit;
+
+    const stroke = isHighest ? "#4db8b7" : isLowest ? "#ef3e42" : "#d8dadd";
+    const strokeWidth = isHighest ? 8 : isLowest ? 7 : 7;
+    const circumference = 2 * Math.PI * 27;
+    const dash = (clamp(percent, 0, 100) / 100) * circumference;
+
+    return `
+      <div class="digit-tile ${isTarget ? "selected-target" : ""} ${isBarrier ? "selected-barrier" : ""}" data-digit-wrapper="${digit}">
+        <button type="button" data-digit="${digit}">
+          <svg class="digit-svg" viewBox="0 0 74 74" aria-hidden="true">
+            <circle cx="37" cy="37" r="27" fill="none" stroke="#ebedf0" stroke-width="7"></circle>
+            <circle
+              cx="37" cy="37" r="27"
+              fill="none"
+              stroke="${stroke}"
+              stroke-width="${strokeWidth}"
+              stroke-linecap="round"
+              transform="rotate(-90 37 37)"
+              stroke-dasharray="${dash} ${circumference}">
+            </circle>
+          </svg>
+          <span class="digit-number-label">${digit}</span>
+          <span class="digit-percent-label">${percent.toFixed(1)}%</span>
+        </button>
+      </div>
+    `;
+  }).join("");
+
+  const desktopPred = $("#predictionGridDesktop");
+  if (desktopPred) {
+    desktopPred.querySelectorAll("button").forEach((btn) => {
+      const d = Number(btn.dataset.digit);
+      const activeDigit = state.activeTradeType === "Over/Under" ? state.barrierDigit : state.selectedDigit;
+      btn.classList.toggle("active", d === activeDigit);
+    });
+  }
+
+  $("#mobileDigitBox").textContent =
+    state.activeTradeType === "Over/Under"
+      ? `Barrier: ${state.barrierDigit}`
+      : `Digit: ${state.selectedDigit}`;
+
+  positionCursor(cursorDigit);
+}
+
+function positionCursor(digit) {
+  const wrapper = elements.digitFrequency.querySelector(`[data-digit-wrapper="${digit}"]`);
+  if (!wrapper) return;
+
+  const gridBox = elements.digitFrequency.getBoundingClientRect();
+  const box = wrapper.getBoundingClientRect();
+
+  const x = box.left - gridBox.left + box.width / 2 - 9;
+  elements.digitCursor.style.transform = `translateX(${x}px)`;
+}
+
+function getPayoutRate(type = state.activeTradeType, choice = state.activeChoice) {
+  if (type === "Matches/Differs") return choice === "Matches" ? 6.667 : 1.053;
+  if (type === "Touch/No Touch") return choice === "Touch" ? 5.2 : 1.16;
+  if (type === "Rise/Fall") return 1.92;
+  if (type === "Even/Odd") return 1.88;
+
+  if (type === "Over/Under") {
+    const wins = choice === "Over" ? Math.max(0, 9 - state.barrierDigit) : Math.max(0, state.barrierDigit);
+    if (!wins) return 0;
+    return clamp((10 / wins) * 0.88, 1.05, 8.8);
+  }
+
+  return 1.88;
+}
+
+function renderChoices() {
+  const choices = tradeChoices[state.activeTradeType];
+  const stake = Number(elements.stakeInput.value || 10);
+
+  const desktopHtml = choices.map((choice, index) => {
+    const rate = getPayoutRate(state.activeTradeType, choice);
+    const profitPercent = Math.max(0, (rate - 1) * 100);
+    const payout = stake * rate;
+
+    return `
+      <button class="trade-choice-btn ${index === 0 ? "teal" : "red"}" type="button" data-choice="${choice}">
+        <div class="label-wrap">
+          <span>${choice}</span>
+          <small>Payout ${formatMoney(payout)}</small>
+        </div>
+        <div class="percent">${profitPercent.toFixed(2)}%</div>
+      </button>
+    `;
+  }).join("");
+
+  const mobileHtml = choices.map((choice, index) => {
+    const rate = getPayoutRate(state.activeTradeType, choice);
+    const payout = stake * rate;
+
+    return `
+      <button class="trade-choice-btn ${index === 0 ? "teal" : "red"}" type="button" data-choice="${choice}">
+        <div class="label-wrap">
+          <span>${choice}</span>
+          <small>Payout ${formatMoney(payout)}</small>
+        </div>
+      </button>
+    `;
+  }).join("");
+
+  elements.choiceRow.innerHTML = desktopHtml;
+  elements.mobileChoiceRow.innerHTML = mobileHtml;
+}
+
+function updatePayoutPreview() {
+  const stake = Number(elements.stakeInput.value || 10);
+  const rate = getPayoutRate();
+  const payout = stake * rate;
+
+  elements.payoutQuote.textContent = `${formatMoney(payout)}`;
+  $("#mobileStakeText").textContent = `${stake.toFixed(2)} USD`;
+
+  const activeDigit = state.activeTradeType === "Over/Under" ? state.barrierDigit : state.selectedDigit;
+  elements.targetText.innerHTML =
+    state.activeTradeType === "Over/Under"
+      ? `Barrier digit: <b>${activeDigit}</b>`
+      : `Target digit: <b>${activeDigit}</b>`;
+
+  renderChoices();
+}
+
+function renderTradePanel() {
+  elements.selectedTrade.textContent = state.activeTradeType;
+  elements.mobileSelectedTrade.textContent = state.activeTradeType;
+
+  $("#ticksDisplayText").textContent = `${clamp($("#botDuration")?.value || 5, 1, 10)} Ticks`;
+  $("#mobileTicksText").textContent = `${clamp($("#botDuration")?.value || 5, 1, 10)} ticks`;
+
+  renderChoices();
+  updatePayoutPreview();
 }
 
 function renderAccountUI() {
-  const loggedIn = Boolean(state.currentUser);
+  const logged = Boolean(state.currentUser);
 
-  elements.guestActions.hidden = loggedIn;
-  elements.accountToolbar.hidden = !loggedIn;
-  $("#aiFloatButton").hidden = !loggedIn;
+  elements.guestActions.hidden = logged;
+  elements.accountToolbar.hidden = !logged;
+  $("#aiFloatButton").hidden = !logged;
 
-  if (!loggedIn) {
-    elements.tradeStatus.textContent = "Create an account and login to unlock Demo and Real trading.";
-
+  if (!logged) {
     $("#summaryName").textContent = "Guest";
     $("#summaryEmail").textContent = "-";
     $("#summaryPhone").textContent = "-";
     $("#summaryAccountId").textContent = "-";
     $("#summaryStatus").textContent = "Guest";
-
+    elements.tradeStatus.textContent = "Login or create an account before trading.";
     return;
   }
 
-  $$(".account-mode").forEach((button) => {
-    button.classList.toggle("active", button.dataset.accountMode === state.accountMode);
+  $$(".mode-btn").forEach((btn) => {
+    btn.classList.toggle("active", btn.dataset.accountMode === state.accountMode);
   });
 
   elements.accountLabel.textContent = state.accountMode === "real" ? "Real USD" : "Demo USD";
@@ -370,453 +685,32 @@ function renderAccountUI() {
   $("#summaryStatus").textContent = state.accountMode === "real" ? "Real Account" : "Demo Account";
 
   fillSettingsForm();
-
-  elements.maxStakeLabel.textContent = formatMoney(state.settings.maximumStakeLimit || 100);
-}
-
-function fillSettingsForm() {
-  if (!state.currentUser) return;
-
-  $("#settingsName").value = state.settings.profileName || state.currentUser.fullName || "";
-  $("#settingsEmail").value = state.currentUser.email || "";
-  $("#settingsPhone").value = state.settings.phone || state.currentUser.phone || "";
-  $("#settingsDepositPhone").value = state.settings.depositPhone || state.currentUser.phone || "";
-  $("#settingsWithdrawalPhone").value = state.settings.withdrawalPhone || state.currentUser.phone || "";
-  $("#settingsTheme").value = state.settings.theme || "dark";
-  $("#settingsChartSpeed").value = state.settings.chartSpeed || "normal";
-  $("#settingsRealTrading").value = String(Boolean(state.settings.realTradingEnabled));
-  $("#settingsMaxStake").value = state.settings.maximumStakeLimit || 100;
-  $("#settingsDailyLimit").value = state.settings.dailyTradeLimit || 25;
-  $("#settingsNotifications").value = String(Boolean(state.settings.notifications));
-  $("#settingsSound").value = String(Boolean(state.settings.sound));
 }
 
 function renderMarket() {
   const market = marketConfigs[state.market];
-
   elements.marketName.textContent = market.label;
-  elements.marketDescription.textContent = `${state.market.replace("Meta ", "")} synthetic market`;
 
-  $$(".market-option").forEach((button) => {
-    button.classList.toggle("active", button.dataset.market === state.market);
+  $$(".market-option").forEach((btn) => {
+    btn.classList.toggle("active", btn.dataset.market === state.market);
   });
-}
-
-function getTargetMeta() {
-  if (state.activeTradeType === "Over/Under") {
-    return `Barrier ${state.barrierDigit}`;
-  }
-
-  if (state.activeTradeType === "Matches/Differs" || state.activeTradeType === "Touch/No Touch") {
-    return `Target digit ${state.selectedDigit}`;
-  }
-
-  return "Auto settlement";
-}
-
-function getPayoutRate(tradeType = state.activeTradeType, choice = state.activeChoice) {
-  if (tradeType === "Matches/Differs") {
-    return choice === "Matches" ? 8.333 : 1.087;
-  }
-
-  if (tradeType === "Touch/No Touch") {
-    return choice === "Touch" ? 5.2 : 1.16;
-  }
-
-  if (tradeType === "Rise/Fall") {
-    return 1.92;
-  }
-
-  if (tradeType === "Even/Odd") {
-    return 1.88;
-  }
-
-  if (tradeType === "Over/Under") {
-    const wins = choice === "Over"
-      ? Math.max(0, 9 - state.barrierDigit)
-      : Math.max(0, state.barrierDigit);
-
-    if (!wins) return 0;
-
-    return clamp((10 / wins) * 0.88, 1.05, 8.8);
-  }
-
-  return 1.88;
-}
-
-function renderTradePanel() {
-  elements.selectedTrade.textContent = state.activeTradeType;
-  elements.tradeHint.textContent = `${tradeHints[state.activeTradeType]} ${getTargetMeta()}`;
-
-  elements.targetText.innerHTML = state.activeTradeType === "Over/Under"
-    ? `Barrier digit: <b>${state.barrierDigit}</b>`
-    : `Target digit: <b>${state.selectedDigit}</b>`;
-
-  const buttons = tradeChoices[state.activeTradeType].map((choice, index) => {
-    const rate = getPayoutRate(state.activeTradeType, choice);
-    const stake = Number(elements.stakeInput.value || 0);
-    const profit = Math.max(0, stake * rate - stake);
-
-    return `
-      <button class="choice-button ${index === 0 ? "buyish" : "sellish"}" type="button" data-choice="${choice}">
-        <span>${choice}</span>
-        <div>
-          <strong>${Math.max(0, (rate - 1) * 100).toFixed(2)}%</strong>
-          <small>${formatMoney(profit)} profit</small>
-        </div>
-      </button>
-    `;
-  });
-
-  elements.choiceRow.innerHTML = buttons.join("");
-
-  $$(".trade-type").forEach((button) => {
-    button.classList.toggle("selected", button.dataset.tradeType === state.activeTradeType);
-  });
-
-  updatePayoutPreview();
-}
-
-function updatePayoutPreview() {
-  const stake = Number(elements.stakeInput.value || 0);
-  const rate = getPayoutRate();
-  const payout = stake * rate;
-  const profit = Math.max(0, payout - stake);
-
-  elements.payoutQuote.textContent = `${formatMoney(payout)} payout · ${formatMoney(profit)} profit`;
-  elements.maxStakeLabel.textContent = formatMoney(state.settings.maximumStakeLimit || 100);
-
-  if (stake < 0.3) {
-    elements.tradeStatus.textContent = "Minimum stake is 0.30 USD.";
-  } else if (stake > Number(state.settings.maximumStakeLimit || 100)) {
-    elements.tradeStatus.textContent = `Maximum stake is ${formatMoney(state.settings.maximumStakeLimit || 100)}.`;
-  }
-}
-
-function generateInitialData() {
-  const base = marketConfigs[state.market].base;
-
-  tickData = [];
-  candleData = [];
-
-  let price = base;
-  let open = base;
-
-  for (let index = 0; index < 80; index += 1) {
-    const move = (Math.random() - 0.5) * marketConfigs[state.market].volatility;
-
-    price = Number((price + move).toFixed(2));
-
-    tickData.push({
-      quote: price,
-      digit: Math.abs(Math.floor(price * 100)) % 10,
-      move,
-    });
-
-    if (index % 4 === 0) {
-      open = price;
-    }
-
-    if (index % 4 === 3) {
-      const slice = tickData.slice(index - 3, index + 1).map((item) => item.quote);
-
-      candleData.push({
-        open,
-        high: Math.max(...slice),
-        low: Math.min(...slice),
-        close: price,
-      });
-    }
-  }
-}
-
-function updateQuoteUI(tick, previousTick) {
-  if (!tick) return;
-
-  const move = previousTick ? Number((tick.quote - previousTick.quote).toFixed(2)) : tick.move || 0;
-
-  elements.quoteText.textContent = formatQuote(tick.quote);
-  elements.digitQuote.textContent = formatQuote(tick.quote);
-  elements.digitMove.textContent = `${move >= 0 ? "+" : ""}${move.toFixed(2)}`;
-  elements.digitMove.classList.toggle("down", move < 0);
-
-  const recent = tickData.slice(-25).map((item) => item.quote);
-
-  if (recent.length) {
-    elements.chartOpenValue.textContent = formatQuote(recent[0]);
-    elements.chartHighValue.textContent = formatQuote(Math.max(...recent));
-    elements.chartLowValue.textContent = formatQuote(Math.min(...recent));
-    elements.chartCloseValue.textContent = formatQuote(recent[recent.length - 1]);
-  }
-}
-
-function nextTick() {
-  const previous = tickData[tickData.length - 1] || { quote: marketConfigs[state.market].base };
-  const volatility = marketConfigs[state.market].volatility;
-
-  const drift = (Math.random() - 0.5) * volatility;
-  const noise = (Math.random() - 0.5) * volatility * 0.35;
-
-  const quote = Number((previous.quote + drift + noise).toFixed(2));
-  const move = Number((quote - previous.quote).toFixed(2));
-  const digit = Math.abs(Math.floor(quote * 100)) % 10;
-
-  const tick = {
-    quote,
-    move,
-    digit,
-  };
-
-  tickData.push(tick);
-
-  if (tickData.length > 120) {
-    tickData.shift();
-  }
-
-  const candleIndex = tickData.length % 4;
-  const lastCandle = candleData[candleData.length - 1];
-
-  if (!lastCandle || candleIndex === 1) {
-    candleData.push({
-      open: quote,
-      high: quote,
-      low: quote,
-      close: quote,
-    });
-  } else {
-    lastCandle.high = Math.max(lastCandle.high, quote);
-    lastCandle.low = Math.min(lastCandle.low, quote);
-    lastCandle.close = quote;
-  }
-
-  if (candleData.length > 60) {
-    candleData.shift();
-  }
-
-  const recentDigits = tickData.slice(-40).map((item) => item.digit);
-
-  digitStats = Array.from({ length: 10 }, (_, digit) => {
-    const count = recentDigits.filter((item) => item === digit).length;
-    return Number(((count / recentDigits.length) * 100 || 0).toFixed(1));
-  });
-
-  updateQuoteUI(tick, previous);
-  settleOpenTrades(tick, previous);
-  renderDigits(tick.digit);
-  drawCharts();
-
-  if (state.bot.running && !state.openTrades.length) {
-    runBotTrade();
-  }
-}
-
-function drawChart(canvas, mode = state.chartMode) {
-  if (!canvas) return;
-
-  const context = canvas.getContext("2d");
-  const rect = canvas.getBoundingClientRect();
-
-  canvas.width = Math.max(320, Math.floor(rect.width * devicePixelRatio));
-  canvas.height = Math.max(220, Math.floor(rect.height * devicePixelRatio));
-
-  context.setTransform(devicePixelRatio, 0, 0, devicePixelRatio, 0, 0);
-
-  const width = rect.width;
-  const height = rect.height;
-
-  context.clearRect(0, 0, width, height);
-
-  const padding = {
-    left: 22,
-    right: 22,
-    top: 18,
-    bottom: 26,
-  };
-
-  const chartWidth = width - padding.left - padding.right;
-  const chartHeight = height - padding.top - padding.bottom;
-
-  context.strokeStyle = "rgba(255,255,255,0.08)";
-  context.lineWidth = 1;
-
-  for (let index = 0; index <= 5; index += 1) {
-    const y = padding.top + (chartHeight / 5) * index;
-
-    context.beginPath();
-    context.moveTo(padding.left, y);
-    context.lineTo(width - padding.right, y);
-    context.stroke();
-  }
-
-  const source = mode === "candles" ? candleData : tickData;
-
-  if (!source.length) return;
-
-  const values = mode === "candles"
-    ? source.flatMap((item) => [item.high, item.low])
-    : source.map((item) => item.quote);
-
-  const min = Math.min(...values);
-  const max = Math.max(...values);
-  const range = Math.max(0.01, max - min);
-
-  if (mode === "line") {
-    context.beginPath();
-
-    source.forEach((point, index) => {
-      const x = padding.left + (index / Math.max(1, source.length - 1)) * chartWidth;
-      const y = padding.top + ((max - point.quote) / range) * chartHeight;
-
-      if (index === 0) {
-        context.moveTo(x, y);
-      } else {
-        context.lineTo(x, y);
-      }
-    });
-
-    context.lineWidth = 3;
-    context.strokeStyle = "#28d8ca";
-    context.stroke();
-
-    const last = source[source.length - 1];
-    const x = padding.left + chartWidth;
-    const y = padding.top + ((max - last.quote) / range) * chartHeight;
-
-    context.beginPath();
-    context.arc(x, y, 5, 0, Math.PI * 2);
-    context.fillStyle = "#71ffd4";
-    context.fill();
-  } else {
-    const candleWidth = Math.max(4, (chartWidth / Math.max(25, source.length)) * 0.55);
-
-    source.forEach((candle, index) => {
-      const x = padding.left + (index / Math.max(1, source.length - 1)) * chartWidth;
-      const openY = padding.top + ((max - candle.open) / range) * chartHeight;
-      const closeY = padding.top + ((max - candle.close) / range) * chartHeight;
-      const highY = padding.top + ((max - candle.high) / range) * chartHeight;
-      const lowY = padding.top + ((max - candle.low) / range) * chartHeight;
-
-      const green = candle.close >= candle.open;
-
-      context.strokeStyle = green ? "#2ee66b" : "#ff4258";
-      context.fillStyle = green ? "#2ee66b" : "#ff4258";
-      context.lineWidth = 1.4;
-
-      context.beginPath();
-      context.moveTo(x, highY);
-      context.lineTo(x, lowY);
-      context.stroke();
-
-      const top = Math.min(openY, closeY);
-      const bodyHeight = Math.max(3, Math.abs(closeY - openY));
-
-      context.fillRect(x - candleWidth / 2, top, candleWidth, bodyHeight);
-    });
-  }
-
-  context.fillStyle = "rgba(255,255,255,0.75)";
-  context.font = "12px Arial";
-  context.fillText(formatQuote(max), 4, 14);
-  context.fillText(formatQuote(min), 4, height - 8);
-}
-
-function drawCharts() {
-  drawChart(elements.chartCanvas, state.chartMode);
-  drawChart(elements.chartCanvasLarge, state.chartMode);
-}
-
-function getHighLowDigits() {
-  const highest = digitStats.indexOf(Math.max(...digitStats));
-  const lowest = digitStats.indexOf(Math.min(...digitStats));
-
-  return {
-    highest,
-    lowest,
-  };
-}
-
-function renderDigits(cursorDigit = 0) {
-  const { highest, lowest } = getHighLowDigits();
-
-  elements.digitFrequency.innerHTML = Array.from({ length: 10 }, (_, digit) => {
-    const percent = digitStats[digit] || 0;
-
-    const isHighest = digit === highest;
-    const isLowest = digit === lowest;
-
-    const isTarget =
-      (state.activeTradeType === "Matches/Differs" || state.activeTradeType === "Touch/No Touch") &&
-      state.selectedDigit === digit;
-
-    const isBarrier = state.activeTradeType === "Over/Under" && state.barrierDigit === digit;
-
-    const stroke = isHighest ? "#2ee66b" : isLowest ? "#ff4258" : "#d2d9e2";
-    const strokeWidth = isHighest ? 8 : isLowest ? 5 : 6;
-
-    const circumference = 2 * Math.PI * 28;
-    const dash = (clamp(percent, 0, 100) / 100) * circumference;
-
-    const classes = [
-      "digit-tile",
-      isTarget ? "selected-target" : "",
-      isBarrier ? "selected-barrier" : "",
-    ].filter(Boolean).join(" ");
-
-    return `
-      <div class="${classes}" data-digit-wrapper="${digit}">
-        <button type="button" data-digit="${digit}">
-          <svg class="digit-svg" viewBox="0 0 84 84" aria-hidden="true">
-            <circle cx="42" cy="42" r="28" fill="none" stroke="rgba(255,255,255,0.12)" stroke-width="6"></circle>
-            <circle
-              cx="42"
-              cy="42"
-              r="28"
-              fill="none"
-              stroke="${stroke}"
-              stroke-width="${strokeWidth}"
-              stroke-linecap="round"
-              transform="rotate(-90 42 42)"
-              stroke-dasharray="${dash} ${circumference}">
-            </circle>
-          </svg>
-          <span class="digit-number-label">${digit}</span>
-          <span class="digit-percent-label">${percent.toFixed(1)}%</span>
-        </button>
-      </div>
-    `;
-  }).join("");
-
-  positionCursor(cursorDigit);
-}
-
-function positionCursor(digit) {
-  const wrapper = elements.digitFrequency.querySelector(`[data-digit-wrapper="${digit}"]`);
-
-  if (!wrapper) return;
-
-  const gridBox = elements.digitFrequency.getBoundingClientRect();
-  const wrapperBox = wrapper.getBoundingClientRect();
-
-  const x = wrapperBox.left - gridBox.left + wrapperBox.width / 2 - 9;
-
-  elements.digitCursor.style.transform = `translateX(${x}px)`;
 }
 
 function renderOpenTrades() {
   elements.openTradeCount.textContent = String(state.openTrades.length);
 
   if (!state.openTrades.length) {
-    elements.openTradesList.innerHTML = `<p class="empty">No open trades.</p>`;
+    elements.openTradesList.innerHTML = `<p class="empty-note">No open trades.</p>`;
     return;
   }
 
   elements.openTradesList.innerHTML = state.openTrades.map((trade) => `
-    <div class="item">
-      <div class="item-top">
-        <strong>${trade.choice} · ${trade.tradeType}</strong>
-        <span class="amount">${formatMoney(trade.stake)}</span>
+    <div class="simple-card" style="padding:12px;">
+      <div class="card-head-line" style="margin-bottom:6px;">
+        <h3 style="font-size:15px;margin:0;">${trade.choice} · ${trade.tradeType}</h3>
+        <span>${formatMoney(trade.stake)}</span>
       </div>
-      <div class="meta">${trade.market} · ${trade.meta} · ${trade.remaining} ticks left</div>
+      <p class="empty-note">${trade.market} · ${trade.remaining} ticks left</p>
     </div>
   `).join("");
 }
@@ -825,17 +719,19 @@ function renderHistory() {
   elements.historyCount.textContent = String(state.tradeHistory.length);
 
   if (!state.tradeHistory.length) {
-    elements.historyList.innerHTML = `<p class="empty">No trades yet.</p>`;
+    elements.historyList.innerHTML = `<p class="empty-note">No trades yet.</p>`;
     return;
   }
 
   elements.historyList.innerHTML = state.tradeHistory.slice(0, 12).map((trade) => `
-    <div class="item">
-      <div class="item-top">
-        <strong>${trade.choice} · ${trade.tradeType}</strong>
-        <span class="amount ${trade.won ? "" : "loss"}">${trade.won ? "+" : "-"}${formatMoney(Math.abs(trade.profit))}</span>
+    <div class="simple-card" style="padding:12px;">
+      <div class="card-head-line" style="margin-bottom:6px;">
+        <h3 style="font-size:15px;margin:0;">${trade.choice} · ${trade.tradeType}</h3>
+        <span style="background:${trade.won ? "#dff5e9" : "#fce3e3"}; color:${trade.won ? "#17965f" : "#cc3030"};">
+          ${trade.won ? "+" : "-"}${formatMoney(Math.abs(trade.profit))}
+        </span>
       </div>
-      <div class="meta">${trade.market} · Stake ${formatMoney(trade.stake)} · Digit ${trade.digit} · ${new Date(trade.createdAt).toLocaleTimeString()}</div>
+      <p class="empty-note">${trade.market} · Digit ${trade.digit} · ${new Date(trade.createdAt).toLocaleTimeString()}</p>
     </div>
   `).join("");
 }
@@ -844,17 +740,17 @@ function renderTransactions() {
   const list = $("#transactionList");
 
   if (!state.transactionHistory.length) {
-    list.innerHTML = `<p class="empty">No transactions yet.</p>`;
+    list.innerHTML = `<p class="empty-note">No transactions yet.</p>`;
     return;
   }
 
   list.innerHTML = state.transactionHistory.slice(0, 100).map((item) => `
-    <div class="item">
-      <div class="item-top">
-        <strong>${item.type} · ${item.status}</strong>
-        <span class="amount ${item.status === "loss" ? "loss" : ""}">${item.type === "trade" ? formatMoney(item.profit || 0) : formatMoney(item.amount || 0)}</span>
+    <div class="simple-card" style="padding:12px;">
+      <div class="card-head-line" style="margin-bottom:6px;">
+        <h3 style="font-size:15px;margin:0;">${item.type} · ${item.status}</h3>
+        <span>${formatMoney(item.type === "trade" ? item.profit || 0 : item.amount || 0)}</span>
       </div>
-      <div class="meta">${item.accountType || "Account"} · Bal ${formatMoney(item.balanceAfter || 0)} · ${new Date(item.createdAt).toLocaleString()} · ${item.reference || ""}</div>
+      <p class="empty-note">${item.accountType || "Account"} · Bal ${formatMoney(item.balanceAfter || 0)} · ${new Date(item.createdAt).toLocaleString()}</p>
     </div>
   `).join("");
 }
@@ -868,17 +764,19 @@ function renderBot() {
   const list = $("#botHistoryList");
 
   if (!state.bot.history.length) {
-    list.innerHTML = `<p class="empty">No bot trades yet.</p>`;
+    list.innerHTML = `<p class="empty-note">No bot trades yet.</p>`;
     return;
   }
 
   list.innerHTML = state.bot.history.slice(0, 20).map((item) => `
-    <div class="item">
-      <div class="item-top">
-        <strong>${item.tradeType}</strong>
-        <span class="amount ${item.won ? "" : "loss"}">${item.won ? "WIN" : "LOSS"}</span>
+    <div class="simple-card" style="padding:12px;">
+      <div class="card-head-line" style="margin-bottom:6px;">
+        <h3 style="font-size:15px;margin:0;">${item.tradeType}</h3>
+        <span style="background:${item.won ? "#dff5e9" : "#fce3e3"}; color:${item.won ? "#17965f" : "#cc3030"};">
+          ${item.won ? "WIN" : "LOSS"}
+        </span>
       </div>
-      <div class="meta">${item.market} · Stake ${formatMoney(item.stake)}</div>
+      <p class="empty-note">${item.market} · Stake ${formatMoney(item.stake)}</p>
     </div>
   `).join("");
 }
@@ -891,7 +789,6 @@ function renderAll() {
   renderHistory();
   renderTransactions();
   renderBot();
-  updatePayoutPreview();
   drawCharts();
 }
 
@@ -899,22 +796,33 @@ function addTransaction(record) {
   state.transactionHistory.unshift({
     reference: createId("txn"),
     createdAt: new Date().toISOString(),
-    ...record,
+    ...record
   });
 
   state.transactionHistory = state.transactionHistory.slice(0, 100);
+}
 
-  renderTransactions();
+function requireLogin() {
+  if (!state.currentUser) {
+    openAuth("register");
+    $("#authStatus").textContent = "Create an account and login first.";
+    return false;
+  }
+  return true;
+}
+
+function getTicksValue() {
+  return clamp($("#botDuration")?.value || 5, 1, 10);
 }
 
 function placeTrade(choice) {
   if (!requireLogin()) return;
 
   const stake = Number(elements.stakeInput.value || 0);
-  const ticks = Math.floor(Number(elements.ticksInput.value || 0));
+  const ticks = getTicksValue();
 
   if (state.accountMode === "real" && !state.settings.realTradingEnabled) {
-    elements.tradeStatus.textContent = "Real trading is disabled in Settings. Enable it first.";
+    elements.tradeStatus.textContent = "Enable Real trading first in Settings.";
     return;
   }
 
@@ -928,11 +836,6 @@ function placeTrade(choice) {
     return;
   }
 
-  if (ticks < 1 || ticks > 10) {
-    elements.tradeStatus.textContent = "Ticks should be between 1 and 10.";
-    return;
-  }
-
   if (stake > currentBalance()) {
     elements.tradeStatus.textContent = "Balance is not enough for this trade.";
     return;
@@ -940,13 +843,7 @@ function placeTrade(choice) {
 
   const rate = getPayoutRate(state.activeTradeType, choice);
 
-  if (!rate) {
-    elements.tradeStatus.textContent = "This contract has no winning range. Select another target digit or barrier.";
-    return;
-  }
-
   setCurrentBalance(currentBalance() - stake);
-
   state.activeChoice = choice;
 
   const trade = {
@@ -963,35 +860,33 @@ function placeTrade(choice) {
     market: marketConfigs[state.market].label,
     entryQuote: tickData[tickData.length - 1]?.quote || marketConfigs[state.market].base,
     touched: false,
-    createdAt: new Date().toISOString(),
-    meta: getTargetMeta(),
+    createdAt: new Date().toISOString()
   };
 
   state.openTrades.unshift(trade);
-
-  elements.tradeStatus.textContent = `${choice} trade opened for ${formatMoney(stake)} on ${state.activeTradeType}.`;
 
   addTransaction({
     type: "trade-open",
     amount: stake,
     status: "open",
     accountType: state.accountMode === "real" ? "Real" : "Demo",
-    balanceAfter: currentBalance(),
+    balanceAfter: currentBalance()
   });
 
-  showToast("Trade opened", `${choice} · ${state.activeTradeType} · Stake ${formatMoney(stake)}`, "info", 1200);
+  elements.tradeStatus.textContent = `${choice} trade opened.`;
+  showToast("Trade opened", `${choice} · ${state.activeTradeType} · ${formatMoney(stake)}`, "info", 1200);
 
   renderAll();
   saveState();
 }
 
-function tradeWins(trade, tick, previousTick) {
+function tradeWins(trade, tick, prev) {
   if (trade.tradeType === "Even/Odd") {
     return trade.choice === "Even" ? tick.digit % 2 === 0 : tick.digit % 2 === 1;
   }
 
   if (trade.tradeType === "Rise/Fall") {
-    const oldQuote = previousTick?.quote ?? trade.entryQuote;
+    const oldQuote = prev?.quote ?? trade.entryQuote;
     return trade.choice === "Rise" ? tick.quote >= oldQuote : tick.quote < oldQuote;
   }
 
@@ -1012,40 +907,27 @@ function tradeWins(trade, tick, previousTick) {
 
 function flashDigit(digit, won) {
   const tile = elements.digitFrequency.querySelector(`[data-digit-wrapper="${digit}"]`);
-
   if (!tile) return;
 
   tile.classList.add(won ? "result-win" : "result-loss");
-
-  setTimeout(() => {
-    tile.classList.remove("result-win", "result-loss");
-  }, 1000);
+  setTimeout(() => tile.classList.remove("result-win", "result-loss"), 1000);
 }
 
-function settleOpenTrades(tick, previousTick) {
+function settleOpenTrades(tick, prev) {
   if (!state.openTrades.length) return;
 
   const settled = [];
 
   state.openTrades.forEach((trade) => {
-    if (tick.digit === trade.targetDigit) {
-      trade.touched = true;
-    }
-
+    if (tick.digit === trade.targetDigit) trade.touched = true;
     trade.remaining -= 1;
-
-    if (trade.remaining <= 0) {
-      settled.push(trade);
-    }
+    if (trade.remaining <= 0) settled.push(trade);
   });
 
   settled.forEach((trade) => {
-    const won = tradeWins(trade, tick, previousTick);
+    const won = tradeWins(trade, tick, prev);
 
-    if (won) {
-      setCurrentBalance(currentBalance() + trade.payout);
-    }
-
+    if (won) setCurrentBalance(currentBalance() + trade.payout);
     const profit = won ? trade.profit : -trade.stake;
 
     const record = {
@@ -1058,7 +940,7 @@ function settleOpenTrades(tick, previousTick) {
       market: trade.market,
       digit: tick.digit,
       createdAt: new Date().toISOString(),
-      won,
+      won
     };
 
     state.tradeHistory.unshift(record);
@@ -1072,11 +954,10 @@ function settleOpenTrades(tick, previousTick) {
       status: won ? "win" : "loss",
       accountType: state.accountMode === "real" ? "Real" : "Demo",
       balanceAfter: currentBalance(),
-      reference: trade.id,
+      reference: trade.id
     });
 
     flashDigit(tick.digit, won);
-
     elements.tradeStatus.textContent = won
       ? `${trade.choice} won. Profit ${formatMoney(trade.profit)}.`
       : `${trade.choice} lost. Loss ${formatMoney(trade.stake)}.`;
@@ -1088,9 +969,7 @@ function settleOpenTrades(tick, previousTick) {
       1200
     );
 
-    if (state.bot.running) {
-      applyBotResult(won, trade, profit);
-    }
+    if (state.bot.running) applyBotResult(won, trade, profit);
   });
 
   renderAll();
@@ -1104,7 +983,6 @@ function openAuth(mode = "register") {
 
 function setAuthMode(mode) {
   const register = mode === "register";
-
   $("#registerTab").classList.toggle("active", register);
   $("#loginTab").classList.toggle("active", !register);
   $("#registerForm").classList.toggle("active-auth-form", register);
@@ -1124,7 +1002,7 @@ async function handleRegister(event) {
     documentType: $("#registerDocument").value,
     password: $("#registerPassword").value,
     passwordConfirm: $("#registerPasswordConfirm").value,
-    agreed: $("#registerAgreement").checked,
+    agreed: $("#registerAgreement").checked
   };
 
   if (payload.password !== payload.passwordConfirm) {
@@ -1139,33 +1017,23 @@ async function handleRegister(event) {
 
   try {
     const data = await postJson("/api/register", payload);
-
     state.currentUser = data.user;
     state.demoBalance = Number(data.user.demoBalance || 10000);
     state.realBalance = Number(data.user.realBalance || 0);
-    state.settings = {
-      ...state.settings,
-      ...(data.user.settings || {}),
-    };
+    state.settings = { ...state.settings, ...(data.user.settings || {}) };
   } catch {
     const user = createLocalUser(payload);
-
     state.currentUser = user;
     state.demoBalance = Number(user.demoBalance || 10000);
     state.realBalance = Number(user.realBalance || 0);
-    state.settings = {
-      ...state.settings,
-      ...(user.settings || {}),
-    };
+    state.settings = { ...state.settings, ...(user.settings || {}) };
   }
 
   state.accountMode = "demo";
-
   closeSheet($("#authSheet"));
   renderAll();
   saveState();
-
-  showToast("Account created", "Demo and Real accounts are now available.", "info", 1800);
+  showToast("Account created", "Demo and Real trading unlocked.", "info", 1600);
 }
 
 async function handleLogin(event) {
@@ -1175,18 +1043,11 @@ async function handleLogin(event) {
   const password = $("#loginPassword").value;
 
   try {
-    const data = await postJson("/api/login", {
-      identifier,
-      password,
-    });
-
+    const data = await postJson("/api/login", { identifier, password });
     state.currentUser = data.user;
     state.demoBalance = Number(data.user.demoBalance || 10000);
     state.realBalance = Number(data.user.realBalance || 0);
-    state.settings = {
-      ...state.settings,
-      ...(data.user.settings || {}),
-    };
+    state.settings = { ...state.settings, ...(data.user.settings || {}) };
   } catch {
     const user = findLocalUser(identifier, password);
 
@@ -1198,19 +1059,14 @@ async function handleLogin(event) {
     state.currentUser = user;
     state.demoBalance = Number(user.demoBalance || 10000);
     state.realBalance = Number(user.realBalance || 0);
-    state.settings = {
-      ...state.settings,
-      ...(user.settings || {}),
-    };
+    state.settings = { ...state.settings, ...(user.settings || {}) };
   }
 
   state.accountMode = "demo";
-
   closeSheet($("#authSheet"));
   renderAll();
   saveState();
-
-  showToast("Logged in", "Demo and Real accounts are now available.", "info", 1600);
+  showToast("Logged in", "Welcome back.", "info", 1500);
 }
 
 function logout() {
@@ -1218,18 +1074,14 @@ function logout() {
   state.accountMode = "demo";
   state.openTrades = [];
   state.pendingDeposit = null;
-
   renderAll();
   saveState();
-
-  showToast("Logged out", "You have been logged out.", "info", 1400);
+  showToast("Logged out", "You have been logged out.", "info", 1200);
 }
 
 function setMarket(market) {
   if (!marketConfigs[market]) return;
-
   state.market = market;
-
   generateInitialData();
   renderMarket();
   updateQuoteUI(tickData[tickData.length - 1], tickData[tickData.length - 2]);
@@ -1242,27 +1094,39 @@ function updateMpesaPreview() {
   $("#mpesaAmount").textContent = formatKes(Number($("#depositAmount").value || 0) * KES_RATE);
 }
 
+function fillSettingsForm() {
+  if (!state.currentUser) return;
+
+  $("#settingsName").value = state.settings.profileName || state.currentUser.fullName || "";
+  $("#settingsEmail").value = state.currentUser.email || "";
+  $("#settingsPhone").value = state.settings.phone || state.currentUser.phone || "";
+  $("#settingsDepositPhone").value = state.settings.depositPhone || state.currentUser.phone || "";
+  $("#settingsWithdrawalPhone").value = state.settings.withdrawalPhone || state.currentUser.phone || "";
+  $("#settingsTheme").value = state.settings.theme || "dark";
+  $("#settingsChartSpeed").value = state.settings.chartSpeed || "normal";
+  $("#settingsRealTrading").value = String(Boolean(state.settings.realTradingEnabled));
+  $("#settingsMaxStake").value = state.settings.maximumStakeLimit || 100;
+  $("#settingsDailyLimit").value = state.settings.dailyTradeLimit || 25;
+  $("#settingsNotifications").value = String(Boolean(state.settings.notifications));
+  $("#settingsSound").value = String(Boolean(state.settings.sound));
+}
+
 function openDeposit() {
   if (!requireLogin()) return;
 
   $("#depositPhone").value = state.settings.depositPhone || state.currentUser.phone || "";
   $("#depositEmail").value = state.currentUser.email || "";
-
   updateMpesaPreview();
-
   $("#depositStatus").textContent = "Fill deposit details to receive STK push.";
   $("#checkDeposit").hidden = !state.pendingDeposit;
-
   openSheet($("#depositSheet"));
 }
 
 async function handleDeposit(event) {
   event.preventDefault();
-
   if (!requireLogin()) return;
 
   const usdAmount = Number($("#depositAmount").value || 0);
-
   if (usdAmount < 1) {
     $("#depositStatus").textContent = "Minimum deposit is 1 USD.";
     return;
@@ -1274,18 +1138,17 @@ async function handleDeposit(event) {
       usd_amount: usdAmount,
       account_id: state.currentUser.accountId,
       phone_number: $("#depositPhone").value.trim(),
-      email: $("#depositEmail").value.trim() || state.currentUser.email,
+      email: $("#depositEmail").value.trim() || state.currentUser.email
     });
 
     state.pendingDeposit = {
       apiRef: data.api_ref,
       usdAmount,
-      accountId: state.currentUser.accountId,
+      accountId: state.currentUser.accountId
     };
 
     $("#checkDeposit").hidden = false;
     $("#depositStatus").textContent = data.message || "STK push sent to your phone.";
-
     startDepositPolling();
     saveState();
   } catch (error) {
@@ -1295,15 +1158,11 @@ async function handleDeposit(event) {
 
 function startDepositPolling() {
   stopDepositPolling();
-
   depositTimer = setInterval(checkPendingDeposit, 3500);
 }
 
 function stopDepositPolling() {
-  if (depositTimer) {
-    clearInterval(depositTimer);
-  }
-
+  if (depositTimer) clearInterval(depositTimer);
   depositTimer = null;
 }
 
@@ -1316,7 +1175,7 @@ async function checkPendingDeposit() {
     if (status.confirmed && !status.credited) {
       const claim = await postJson("/api/claim-deposit", {
         api_ref: state.pendingDeposit.apiRef,
-        account_id: state.currentUser.accountId,
+        account_id: state.currentUser.accountId
       });
 
       state.pendingDeposit = null;
@@ -1333,19 +1192,13 @@ async function checkPendingDeposit() {
         amount: Number(claim.usd_amount || 0),
         status: "completed",
         accountType: "Real",
-        balanceAfter: state.realBalance,
+        balanceAfter: state.realBalance
       });
 
       renderAll();
       saveState();
 
-      showToast("Deposit confirmed", `${formatMoney(Number(claim.usd_amount || 0))} added to Real balance.`, "win", 1800);
-    } else if (status.credited) {
-      state.pendingDeposit = null;
-      stopDepositPolling();
-      $("#checkDeposit").hidden = true;
-      $("#depositStatus").textContent = "Payment already credited.";
-      saveState();
+      showToast("Deposit confirmed", `${formatMoney(Number(claim.usd_amount || 0))} added to Real balance.`, "win", 1600);
     }
   } catch (error) {
     $("#depositStatus").textContent = error.message;
@@ -1356,7 +1209,6 @@ function openWithdraw() {
   if (!requireLogin()) return;
 
   $("#withdrawPhone").value = state.settings.withdrawalPhone || state.currentUser.phone || "";
-
   $("#withdrawStatus").textContent = state.accountMode === "real"
     ? "Withdrawals use Real balance only."
     : "Switch to Real account before withdrawing.";
@@ -1366,7 +1218,6 @@ function openWithdraw() {
 
 async function handleWithdraw(event) {
   event.preventDefault();
-
   if (!requireLogin()) return;
 
   if (state.accountMode !== "real") {
@@ -1395,25 +1246,23 @@ async function handleWithdraw(event) {
     const data = await postJson("/api/withdraw", {
       email: state.currentUser.email,
       amount,
-      phone: $("#withdrawPhone").value.trim(),
+      phone: $("#withdrawPhone").value.trim()
     });
 
     state.realBalance = Number(data.user?.realBalance ?? state.realBalance - amount);
-
     addTransaction(data.transaction || {
       type: "withdrawal",
       amount,
       status: "pending",
       accountType: "Real",
-      balanceAfter: state.realBalance,
+      balanceAfter: state.realBalance
     });
 
     $("#withdrawStatus").textContent = data.message || "Withdrawal request received.";
-
     renderAll();
     saveState();
 
-    showToast("Withdrawal requested", `${formatMoney(amount)} requested from Real balance.`, "info", 1800);
+    showToast("Withdrawal requested", `${formatMoney(amount)} requested.`, "info", 1600);
   } catch (error) {
     $("#withdrawStatus").textContent = error.message;
   }
@@ -1434,7 +1283,7 @@ async function saveSettings(event) {
     maximumStakeLimit: Math.max(0.3, Number($("#settingsMaxStake").value || 100)),
     dailyTradeLimit: Math.max(1, Number($("#settingsDailyLimit").value || 25)),
     notifications: $("#settingsNotifications").value === "true",
-    sound: $("#settingsSound").value === "true",
+    sound: $("#settingsSound").value === "true"
   };
 
   restartTickTimer();
@@ -1443,10 +1292,9 @@ async function saveSettings(event) {
     if (state.currentUser?.email) {
       await putJson(`/api/settings/${encodeURIComponent(state.currentUser.email)}`, {
         settings: state.settings,
-        newPassword: $("#settingsPassword").value || undefined,
+        newPassword: $("#settingsPassword").value || undefined
       });
     }
-
     $("#settingsStatus").textContent = "Settings saved.";
   } catch (error) {
     $("#settingsStatus").textContent = `Saved on browser. ${error.message}`;
@@ -1476,7 +1324,6 @@ function renderPartner(data) {
   $("#partnerReferralLink").value = data.partner.referralLink || "";
 
   const stats = data.stats || {};
-
   $("#partnerStats").innerHTML = [
     ["Total referred users", stats.totalReferredUsers || 0],
     ["Active real traders", stats.activeRealTraders || 0],
@@ -1484,11 +1331,11 @@ function renderPartner(data) {
     ["Total real trade volume", formatMoney(stats.totalRealTradeVolume || 0)],
     ["Commission earned", formatMoney(stats.totalCommissionEarned || 0)],
     ["Pending commission", formatMoney(stats.pendingCommission || 0)],
-    ["Paid commission", formatMoney(stats.paidCommission || 0)],
+    ["Paid commission", formatMoney(stats.paidCommission || 0)]
   ].map(([label, value]) => `
     <div>
       <span>${label}</span>
-      <b>${value}</b>
+      <strong>${value}</strong>
     </div>
   `).join("");
 
@@ -1500,14 +1347,10 @@ async function applyPartner() {
 
   try {
     const data = await postJson("/api/partner/apply", {
-      email: state.currentUser.email,
+      email: state.currentUser.email
     });
 
-    renderPartner({
-      partner: data.partner,
-      stats: {},
-    });
-
+    renderPartner({ partner: data.partner, stats: {} });
     $("#partnerStatus").textContent = data.message || "Partner account opened.";
   } catch (error) {
     $("#partnerStatus").textContent = error.message;
@@ -1521,7 +1364,7 @@ function resetBot() {
     currentStake: Number($("#botStake").value || 0.3),
     netProfit: 0,
     level: 0,
-    history: [],
+    history: []
   };
 
   renderBot();
@@ -1537,22 +1380,20 @@ function stopBot(message = "Bot is not running") {
 
 function chooseBotDirection() {
   const direction = $("#botDirection").value;
-  const tradeType = $("#botTradeType").value;
+  const type = $("#botTradeType").value;
 
   if (direction !== "Auto") return direction;
 
-  if (tradeType === "Rise/Fall") return Math.random() > 0.5 ? "Rise" : "Fall";
-  if (tradeType === "Even/Odd") return Math.random() > 0.5 ? "Even" : "Odd";
-  if (tradeType === "Over/Under") return Math.random() > 0.5 ? "Over" : "Under";
-  if (tradeType === "Matches/Differs") return Math.random() > 0.35 ? "Differs" : "Matches";
-  if (tradeType === "Touch/No Touch") return Math.random() > 0.35 ? "No Touch" : "Touch";
-
+  if (type === "Rise/Fall") return Math.random() > .5 ? "Rise" : "Fall";
+  if (type === "Even/Odd") return Math.random() > .5 ? "Even" : "Odd";
+  if (type === "Over/Under") return Math.random() > .5 ? "Over" : "Under";
+  if (type === "Matches/Differs") return Math.random() > .35 ? "Differs" : "Matches";
+  if (type === "Touch/No Touch") return Math.random() > .35 ? "No Touch" : "Touch";
   return "Even";
 }
 
 function runBotTrade() {
   if (!state.bot.running || state.openTrades.length) return;
-
   if (!requireLogin()) {
     stopBot("Login required");
     return;
@@ -1561,9 +1402,7 @@ function runBotTrade() {
   state.activeTradeType = $("#botTradeType").value;
   state.selectedDigit = clamp($("#botBarrier").value, 0, 9);
   state.barrierDigit = state.selectedDigit;
-
   elements.stakeInput.value = String(state.bot.currentStake || Number($("#botStake").value || 0.3));
-  elements.ticksInput.value = String(clamp($("#botDuration").value, 1, 10));
 
   renderTradePanel();
   renderDigits(tickData[tickData.length - 1]?.digit || 0);
@@ -1602,32 +1441,27 @@ function applyBotResult(won, trade, profit) {
     tradeType: `${trade.choice} · ${trade.tradeType}`,
     market: trade.market,
     stake: trade.stake,
-    won,
+    won
   });
 
   const takeProfit = Number($("#botTakeProfit").value || 0);
   const stopLoss = Number($("#botStopLoss").value || 0);
 
-  if (takeProfit > 0 && state.bot.netProfit >= takeProfit) {
-    stopBot("Take profit reached");
-  }
-
-  if (stopLoss > 0 && state.bot.netProfit <= -stopLoss) {
-    stopBot("Stop loss reached");
-  }
+  if (takeProfit > 0 && state.bot.netProfit >= takeProfit) stopBot("Take profit reached");
+  if (stopLoss > 0 && state.bot.netProfit <= -stopLoss) stopBot("Stop loss reached");
 
   renderBot();
 }
 
 function scanAI() {
   const markets = Object.keys(marketConfigs);
-  const tradeTypes = Object.keys(tradeChoices);
+  const types = Object.keys(tradeChoices);
 
   aiSuggestion = {
     market: markets[Math.floor(Math.random() * markets.length)],
-    tradeType: tradeTypes[Math.floor(Math.random() * tradeTypes.length)],
+    tradeType: types[Math.floor(Math.random() * types.length)],
     digit: Math.floor(Math.random() * 10),
-    confidence: Math.floor(60 + Math.random() * 30),
+    confidence: Math.floor(60 + Math.random() * 30)
   };
 
   $("#aiMarket").textContent = marketConfigs[aiSuggestion.market].label;
@@ -1641,46 +1475,48 @@ function applyAI() {
   if (!aiSuggestion) scanAI();
 
   setMarket(aiSuggestion.market);
-
   state.activeTradeType = aiSuggestion.tradeType;
   state.selectedDigit = aiSuggestion.digit;
   state.barrierDigit = aiSuggestion.digit;
 
   renderTradePanel();
   renderDigits(tickData[tickData.length - 1]?.digit || 0);
-
   saveState();
 
   showToast("AI applied", `${aiSuggestion.tradeType} loaded.`, "info", 1400);
 }
 
 function restartTickTimer() {
-  if (tickTimer) {
-    clearInterval(tickTimer);
-  }
-
+  if (tickTimer) clearInterval(tickTimer);
   tickTimer = setInterval(nextTick, getSpeedMs());
 }
 
 function bindEvents() {
-  $$(".tabs button").forEach((button) => {
+  $$(".main-tab").forEach((button) => {
     button.addEventListener("click", () => {
-      $$(".tabs button").forEach((item) => item.classList.toggle("active", item === button));
+      $$(".main-tab").forEach((item) => item.classList.toggle("active", item === button));
+      const tab = button.dataset.tab;
 
-      const panels = {
-        trade: $("#tradePanel"),
-        charts: $("#chartsPanel"),
-        bot: $("#botPanel"),
-        copy: $("#copyPanel"),
-        menu: $("#menuPanel"),
-      };
-
-      Object.entries(panels).forEach(([name, panel]) => {
-        panel.classList.toggle("active-panel", name === button.dataset.tab);
-      });
-
+      $("#botPanel").classList.toggle("active-panel", tab === "bot");
+      $("#tradePanel").classList.toggle("active-panel", tab === "trade");
+      $("#bulkPanel").classList.toggle("active-panel", tab === "bulk");
+      $("#menuPanel").classList.toggle("active-panel", tab === "menu");
       drawCharts();
     });
+  });
+
+  $("#openMenuPanelButton").addEventListener("click", () => {
+    $$(".main-tab").forEach((btn) => btn.classList.toggle("active", btn.dataset.tab === "menu"));
+    $("#botPanel").classList.remove("active-panel");
+    $("#tradePanel").classList.remove("active-panel");
+    $("#bulkPanel").classList.remove("active-panel");
+    $("#menuPanel").classList.add("active-panel");
+  });
+
+  $("#refreshButton")?.addEventListener("click", () => {
+    generateInitialData();
+    drawCharts();
+    renderDigits(tickData[tickData.length - 1]?.digit || 0);
   });
 
   $("#getStartedButton").addEventListener("click", () => openAuth("register"));
@@ -1695,12 +1531,10 @@ function bindEvents() {
     $("#authStatus").textContent = "Password reset will be connected to email next.";
   });
 
-  $$(".account-mode").forEach((button) => {
+  $$(".mode-btn").forEach((button) => {
     button.addEventListener("click", () => {
       if (!requireLogin()) return;
-
       state.accountMode = button.dataset.accountMode;
-
       renderAll();
       saveState();
     });
@@ -1708,96 +1542,18 @@ function bindEvents() {
 
   $("#logoutButton").addEventListener("click", logout);
 
-  $$(".trade-type").forEach((button) => {
-    button.addEventListener("click", () => {
-      state.activeTradeType = button.dataset.tradeType;
-      state.activeChoice = tradeChoices[state.activeTradeType][0];
-
-      renderTradePanel();
-      renderDigits(tickData[tickData.length - 1]?.digit || 0);
-      saveState();
-    });
-  });
-
-  elements.choiceRow.addEventListener("click", (event) => {
-    const button = event.target.closest("[data-choice]");
-
-    if (button) {
-      placeTrade(button.dataset.choice);
-    }
-  });
-
-  elements.digitFrequency.addEventListener("click", (event) => {
-    const button = event.target.closest("[data-digit]");
-
-    if (!button) return;
-
-    const value = Number(button.dataset.digit);
-
-    if (state.activeTradeType === "Over/Under") {
-      state.barrierDigit = value;
-    } else {
-      state.selectedDigit = value;
-    }
-
-    renderTradePanel();
-    renderDigits(tickData[tickData.length - 1]?.digit || 0);
-    saveState();
-  });
-
-  elements.stakeInput.addEventListener("input", updatePayoutPreview);
-
-  elements.ticksInput.addEventListener("input", () => {
-    elements.ticksInput.value = String(clamp(elements.ticksInput.value, 1, 10));
-    updatePayoutPreview();
-  });
-
-  $$(".quick button[data-stake]").forEach((button) => {
-    button.addEventListener("click", () => {
-      elements.stakeInput.value = button.dataset.stake;
-      updatePayoutPreview();
-    });
-  });
-
-  $$(".quick button[data-ticks]").forEach((button) => {
-    button.addEventListener("click", () => {
-      elements.ticksInput.value = button.dataset.ticks;
-      updatePayoutPreview();
-    });
-  });
-
-  $("#marketSelector").addEventListener("click", () => openSheet($("#marketSheet")));
-  $("#closeMarket").addEventListener("click", () => closeSheet($("#marketSheet")));
-
-  $("#marketSheet").addEventListener("click", (event) => {
-    if (event.target.id === "marketSheet") {
-      closeSheet($("#marketSheet"));
-    }
-
-    const button = event.target.closest(".market-option");
-
-    if (button) {
-      setMarket(button.dataset.market);
-      closeSheet($("#marketSheet"));
-    }
-  });
-
   $("#lineModeButton").addEventListener("click", () => {
     state.chartMode = "line";
-
     $("#lineModeButton").classList.add("active");
     $("#candleModeButton").classList.remove("active");
-
     drawCharts();
     saveState();
   });
 
   $("#candleModeButton").addEventListener("click", () => {
     state.chartMode = "candles";
-
     $("#candleModeButton").classList.add("active");
     $("#lineModeButton").classList.remove("active");
-
     drawCharts();
     saveState();
   });
@@ -1805,13 +1561,74 @@ function bindEvents() {
   $$("[data-speed]").forEach((button) => {
     button.addEventListener("click", () => {
       state.settings.chartSpeed = button.dataset.speed;
-
       $$("[data-speed]").forEach((item) => item.classList.toggle("active", item === button));
-
       restartTickTimer();
       saveState();
     });
   });
+
+  $("#marketSelector").addEventListener("click", () => openSheet($("#marketSheet")));
+  $("#closeMarket").addEventListener("click", () => closeSheet($("#marketSheet")));
+
+  $("#marketSheet").addEventListener("click", (event) => {
+    if (event.target.id === "marketSheet") closeSheet($("#marketSheet"));
+
+    const button = event.target.closest(".market-option");
+    if (button) {
+      setMarket(button.dataset.market);
+      closeSheet($("#marketSheet"));
+    }
+  });
+
+  $("#predictionGridDesktop").addEventListener("click", (event) => {
+    const btn = event.target.closest("[data-digit]");
+    if (!btn) return;
+
+    const value = Number(btn.dataset.digit);
+    if (state.activeTradeType === "Over/Under") state.barrierDigit = value;
+    else state.selectedDigit = value;
+
+    renderTradePanel();
+    renderDigits(tickData[tickData.length - 1]?.digit || 0);
+    saveState();
+  });
+
+  elements.digitFrequency.addEventListener("click", (event) => {
+    const button = event.target.closest("[data-digit]");
+    if (!button) return;
+
+    const value = Number(button.dataset.digit);
+    if (state.activeTradeType === "Over/Under") state.barrierDigit = value;
+    else state.selectedDigit = value;
+
+    renderTradePanel();
+    renderDigits(tickData[tickData.length - 1]?.digit || 0);
+    saveState();
+  });
+
+  elements.choiceRow.addEventListener("click", (event) => {
+    const btn = event.target.closest("[data-choice]");
+    if (btn) placeTrade(btn.dataset.choice);
+  });
+
+  elements.mobileChoiceRow.addEventListener("click", (event) => {
+    const btn = event.target.closest("[data-choice]");
+    if (btn) placeTrade(btn.dataset.choice);
+  });
+
+  $("#minusStakeButton").addEventListener("click", () => {
+    const current = Number(elements.stakeInput.value || 10);
+    elements.stakeInput.value = Math.max(0.3, Number((current - 1).toFixed(2)));
+    updatePayoutPreview();
+  });
+
+  $("#plusStakeButton").addEventListener("click", () => {
+    const current = Number(elements.stakeInput.value || 10);
+    elements.stakeInput.value = Number((current + 1).toFixed(2));
+    updatePayoutPreview();
+  });
+
+  elements.stakeInput.addEventListener("input", updatePayoutPreview);
 
   $("#depositButton").addEventListener("click", openDeposit);
   $("#closeDeposit").addEventListener("click", () => closeSheet($("#depositSheet")));
@@ -1825,7 +1642,6 @@ function bindEvents() {
 
   $("#transactionsMenuButton").addEventListener("click", () => {
     if (!requireLogin()) return;
-
     renderTransactions();
     openSheet($("#transactionsSheet"));
   });
@@ -1834,7 +1650,6 @@ function bindEvents() {
 
   $("#settingsMenuButton").addEventListener("click", () => {
     if (!requireLogin()) return;
-
     fillSettingsForm();
     openSheet($("#settingsSheet"));
   });
@@ -1851,8 +1666,7 @@ function bindEvents() {
       await navigator.clipboard.writeText($("#partnerReferralLink").value);
       $("#partnerStatus").textContent = "Referral link copied.";
     } catch {
-      $("#partnerReferralLink").select();
-      $("#partnerStatus").textContent = "Referral link selected. Copy it manually.";
+      $("#partnerStatus").textContent = "Copy manually.";
     }
   });
 
@@ -1878,35 +1692,29 @@ function bindEvents() {
   $("#botRunButton").addEventListener("click", startBot);
   $("#botStopButton").addEventListener("click", () => stopBot("Bot stopped"));
   $("#botResetButton").addEventListener("click", resetBot);
+
+  $("#botTradeType").addEventListener("change", () => {
+    state.activeTradeType = $("#botTradeType").value;
+    renderTradePanel();
+    renderDigits(tickData[tickData.length - 1]?.digit || 0);
+  });
 }
 
 function init() {
   loadState();
 
-  if (!marketConfigs[state.market]) {
-    state.market = "Meta Volatility 100";
-  }
-
-  if (!tradeChoices[state.activeTradeType]) {
-    state.activeTradeType = "Even/Odd";
-  }
-
-  if (!tradeChoices[state.activeTradeType].includes(state.activeChoice)) {
-    state.activeChoice = tradeChoices[state.activeTradeType][0];
-  }
+  if (!marketConfigs[state.market]) state.market = "Meta Volatility 100";
+  if (!tradeChoices[state.activeTradeType]) state.activeTradeType = "Matches/Differs";
 
   generateInitialData();
-  renderMarket();
   renderAll();
   renderDigits(tickData[tickData.length - 1]?.digit || 0);
   updateQuoteUI(tickData[tickData.length - 1], tickData[tickData.length - 2]);
-  drawCharts();
   bindEvents();
+  drawCharts();
   restartTickTimer();
 
-  if (state.pendingDeposit?.apiRef) {
-    startDepositPolling();
-  }
+  if (state.pendingDeposit?.apiRef) startDepositPolling();
 }
 
 init();
